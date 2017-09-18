@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project name="erl.mqtt.server" default="zip" basedir=".">
+
+  <property file="${basedir}/build.properties"/>
+
+  <target name="zip" description="zip project for download zip file">
+    <zip destfile="${basedir}/erl.mqtt.server-vsn-${version}.zip">
+      <fileset dir="${basedir}" casesensitive="yes">
+        <include name="doc/**/*"/>
+        <exclude name="ebin/**/*.beam"/>
+        <include name="include/**/*.hrl"/>
+        <include name="src/**/*.e*"/>
+        <include name="src/**/*.src"/>
+        <include name="priv/*.css"/>
+        <include name="test/**/*.erl"/>
+      	<exclude name="*.zip"/>
+        <include name="rebar.config"/>
+        <include name="README.md"/>
+        <include name=".project"/>
+        <include name=".settings/**/*"/>
+        <include name="build.properties"/>
+      </fileset>
+    </zip> 
+  </target>
+
+</project>

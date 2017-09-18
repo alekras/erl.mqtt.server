@@ -1,0 +1,17 @@
+{application, mqtt_server,
+	[
+    {description, "MQTT server"},
+    {vsn, "1.0.1"},
+    {modules, [
+      mqtt_server
+      ]
+    },
+    {registered, []},
+    {applications, [kernel, stdlib]},
+    {mod, {mqtt_server, [{vsn, "1.0.1"}]}},
+    {env, [
+%			{storage, mysql}
+			{storage, dets}
+    ]}
+	]
+}.

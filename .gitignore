@@ -1,0 +1,11 @@
+/_build/
+/connectpid-db-cli.bin
+/connectpid-db-srv.bin
+/retain-db-srv.bin
+/session-db-cli.bin
+/session-db-srv.bin
+/subscription-db-cli.bin
+/subscription-db-srv.bin
+/users-db-srv.bin
+/rebar.lock
+/logs/
