@@ -7,7 +7,7 @@
       ]
     },
     {registered, []},
-    {applications, [kernel, stdlib]},
+    {applications, [kernel, stdlib, ssl]},
     {mod, {mqtt_server, [{vsn, "1.0.1"}]}},
     {env, [
 %			{storage, mysql}

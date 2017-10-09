@@ -8,18 +8,20 @@
     <zip destfile="${basedir}/erl.mqtt.server-vsn-${version}.zip">
       <fileset dir="${basedir}" casesensitive="yes">
         <include name="doc/**/*"/>
-        <exclude name="ebin/**/*.beam"/>
         <include name="include/**/*.hrl"/>
         <include name="src/**/*.e*"/>
         <include name="src/**/*.src"/>
         <include name="priv/*.css"/>
         <include name="test/**/*.erl"/>
-      	<exclude name="*.zip"/>
-        <include name="rebar.config"/>
+        <include name="tsl/*.*"/>
+        <include name="*.config"/>
         <include name="README.md"/>
         <include name=".project"/>
         <include name=".settings/**/*"/>
         <include name="build.properties"/>
+
+        <exclude name="*.zip"/>
+        <exclude name="_build/**/*.*"/>
       </fileset>
     </zip> 
   </target>

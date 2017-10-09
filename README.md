@@ -1,7 +1,7 @@
 ## MQTT server (mqtt_server) 
-(developing in process)
+(alpha version is ready)
 
-see for documentation: https://mqtt-client.sourceforge.io/
+see for documentation: https://mqtt-server.sourceforge.io/
 
 #version 1.0.1
    initial submit.
