@@ -1,0 +1,91 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>MQTT server for Erlang.</title>
+<link rel="stylesheet" type="text/css" href="stylesheet.css" title="EDoc">
+</head>
+<body bgcolor="white">
+<div class="navbar"><a name="#navbar_top"></a><table width="100%" border="0" cellspacing="0" cellpadding="2" summary="navigation bar"><tr><td><a href="overview-summary.html" target="overviewFrame">Overview</a></td><td><a href="http://www.erlang.org/"><img src="erlang.png" align="right" border="0" alt="erlang logo"></a></td></tr></table></div>
+<h1>MQTT server for Erlang.</h1>
+<p>Copyright © 2017 Alexei Krasnopolski</p>
+<p><b>Version:</b> 1.0.2
+</p>
+<p><b>Introduced in:</b> 2017-01-11</p>
+<p><b>Authors:</b> Alexei Krasnopolski (<a href="mailto:krasnop@bellsouth.net"><tt>krasnop@bellsouth.net</tt></a>) [<em>web site:</em> <tt><a href="http://krasnopolski.org/" target="_top">http://krasnopolski.org/</a></tt>].</p>
+<p><b>References</b><ul><li><a href="https://mosquitto.org/" target="_top"><tt>https://mosquitto.org/</tt></a> - Mosquitto MQTT server.
+</li><li><a href="https://www.rabbitmq.com/" target="_top"><tt>https://www.rabbitmq.com/</tt></a> - RabbitMQ server with MQTT plugin.
+</li><li><a href="https://sourceforge.net/projects/mqtt-client/" target="_top"><tt>https://sourceforge.net/projects/mqtt-client/</tt></a> - Erlang MQTT client.
+</li></ul></p>
+<p><b>See also:</b> <a href="mqtt_server.html">mqtt_server</a>.</p>
+
+<h3>Introduction</h3><p>
+The server implements MQTT messaging protokol version 3.1.1 and allows communicate with MQTT clients to send/receive messages.
+The server is written in Erlang. 
+The server was tested with Erlang MQTT client <a href="https://sourceforge.net/projects/mqtt-client/" target="_top"><tt>https://sourceforge.net/projects/mqtt-client/</tt></a>.</p>
+
+<h3>Architecture</h3>
+MQTT server is an OTP application. Application depends on other Erlang applications: 
+<ol>
+<li>lager for logging services,</li>
+<li>ranch for tcp and tsl connections,</li>
+<li>msql_client for connection to MySQL server,</li>
+<li>mqtt_common that is library keeping code that is common for client and server implementation</li>
+</ol><p>
+Session state data are storing in database (DETS or MySQL in current version)</p>
+
+<h3>Getting started</h3>
+<h4>Installation</h4>
+To start with the server you have to complete two steps below:
+<ol>
+<li>Install Erlang <a href="http://www.erlang.org/download.html" target="_top"><tt>http://www.erlang.org/download.html</tt></a>.</li>
+<li>Install Rebar3 <a href="https://www.rebar3.org/" target="_top"><tt>https://www.rebar3.org/</tt></a>.</li>
+</ol>
+
+<h4>Building</h4>
+<h5>Download or clone from SourceForge GIT repository</h5>
+Download zip file erl.mqtt.server-vsn-1.0.{x}.zip from project files folder <a href="https://sourceforge.net/projects/mqtt-server/files/versions-1.0.x/" target="_top"><tt>https://sourceforge.net/projects/mqtt-server/files/versions-1.0.x/</tt></a>,
+unzip it and rename unziped folder to erl.mqtt.server. This is an Eclipse project folder. You do not need to use Eclipse to build server but 
+if you want you can use convenience of Eclipse and Erlide plugin.
+<p>
+Other way to get the server code is GIT. Type command
+<pre>git clone https://git.code.sf.net/p/mqtt-server/code erl.mqtt.server</pre>
+</p>
+<h5>Compiling</h5>
+After you have got source code of the server then change directory to the erl.mqtt.server:
+<pre>cd erl.mqtt.server</pre>
+Run rebar3 for this project. You have to add path to rebar3 to OS PATH variable or just use the whole path:
+<pre>/opt/local/bin/rebar3 compile</pre><p>
+Rebar will fetch code of all dependencies and compile source files of main project and all dependencies.</p>
+
+<h4>Starting</h4>
+
+To start server run bach script:
+<pre>./start_mqtt_server.sh</pre><p>
+Erlang shell will open and log statements are appering in console.</p>
+
+<h4>Testing</h4>
+
+<p>You can test the server with any MQTT client complained with 3.1.1. I recomend to try Erlang MQTT client <a href="https://sourceforge.net/projects/mqtt-client/" target="_top"><tt>https://sourceforge.net/projects/mqtt-client/</tt></a>.</p>
+
+<h4>Configuration</h4>
+
+<p>To set up ports for TCP and TSL socket connection go to mqtt.config. This is OTP application configuration file contained startup data for
+lager, ranch and mqtt server configuration.</p>
+
+<h4>Add/Remove users</h4>
+
+The MQTT server is distributed with preset user dets db. Users are guest/guest and admin/admin.
+To add other users run Erlang shell:
+<pre>erl -pa _build/default/lib/*/ebin</pre>
+and issue command:
+<pre>1&gt;mqtt_server:add_user("UserName", &lt;&lt;"UserPassword"&gt;&gt;).</pre>
+or for user delete:
+<pre>1&gt;mqtt_server:remove_user("UserName").</pre>
+
+
+<hr>
+<div class="navbar"><a name="#navbar_bottom"></a><table width="100%" border="0" cellspacing="0" cellpadding="2" summary="navigation bar"><tr><td><a href="overview-summary.html" target="overviewFrame">Overview</a></td><td><a href="http://www.erlang.org/"><img src="erlang.png" align="right" border="0" alt="erlang logo"></a></td></tr></table></div>
+<p><i>Generated by EDoc</i></p>
+</body>
+</html>

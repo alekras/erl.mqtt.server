@@ -9,7 +9,8 @@
       <fileset dir="${basedir}" casesensitive="yes">
         <include name="doc/**/*"/>
         <include name="include/**/*.hrl"/>
-        <include name="src/**/*.e*"/>
+        <include name="src/**/*.erl"/>
+        <include name="src/**/*.edoc"/>
         <include name="src/**/*.src"/>
         <include name="priv/*.css"/>
         <include name="test/**/*.erl"/>
@@ -19,6 +20,8 @@
         <include name=".project"/>
         <include name=".settings/**/*"/>
         <include name="build.properties"/>
+        <include name="user-db-srv.bin"/>
+        <include name="*.sh"/>
 
         <exclude name="*.zip"/>
         <exclude name="_build/**/*.*"/>

@@ -1,17 +1,15 @@
 {application, mqtt_server,
 	[
     {description, "MQTT server"},
-    {vsn, "1.0.1"},
+    {vsn, "1.0.2"},
     {modules, [
       mqtt_server
       ]
     },
     {registered, []},
-    {applications, [kernel, stdlib, ssl]},
-    {mod, {mqtt_server, [{vsn, "1.0.1"}]}},
+    {applications, [kernel, stdlib, ssl, lager, mqtt_common]},
+    {mod, {mqtt_server, [{vsn, "1.0.2"}]}},
     {env, [
-%			{storage, mysql}
-			{storage, dets}
     ]}
 	]
 }.

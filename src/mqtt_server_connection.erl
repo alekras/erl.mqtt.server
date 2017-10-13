@@ -18,7 +18,8 @@
 %% @copyright 2017 Alexei Krasnopolski
 %% @author Alexei Krasnopolski <krasnop@bellsouth.net> [http://krasnopolski.org/]
 %% @version {@version}
-%% @doc @todo Add description to mqtt_server_connection.
+%% @doc The module implements ranch_protocol behaviour. This is start point to create
+%% socket connection process that keeps connection to MQTT client.
 
 
 -module(mqtt_server_connection).
@@ -41,8 +42,10 @@
 % ranch_protocol
 -export([start_link/4]).
 
-start_link(Ref, Socket, Transport, _Opts) ->
-	Storage = proplists:get_value(storage, _Opts, mqtt_dets_dao),
+-spec start_link(Ref :: atom(), Socket :: port(), Transport :: module(), Opts :: list()) -> {ok, Pid :: pid()}.
+%% @doc The function starts mqtt_connection process.
+start_link(Ref, Socket, Transport, Opts) ->
+	Storage = proplists:get_value(storage, Opts, mqtt_dets_dao),
 	ok = Transport:setopts(Socket, [{active, true}]),
  	State = #connection_state{socket = Socket, transport = Transport, storage = Storage, end_type = server},
 	{ok, proc_lib:spawn_link(fun() -> ok = ranch:accept_ack(Ref), mqtt_connection:init(State) end)}.

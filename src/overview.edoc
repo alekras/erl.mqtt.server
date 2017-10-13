@@ -1,0 +1,94 @@
+%%
+%% Copyright (C) 2017 by krasnop@bellsouth.net (Alexei Krasnopolski)
+%%
+%% Licensed under the Apache License, Version 2.0 (the "License");
+%% you may not use this file except in compliance with the License.
+%% You may obtain a copy of the License at
+%%
+%%		 http://www.apache.org/licenses/LICENSE-2.0
+%%
+%% Unless required by applicable law or agreed to in writing, software
+%% distributed under the License is distributed on an "AS IS" BASIS,
+%% WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+%% See the License for the specific language governing permissions and
+%% limitations under the License. 
+%%
+
+@since 2017-01-11
+@copyright 2017 Alexei Krasnopolski
+@author Alexei Krasnopolski <krasnop@bellsouth.net> [http://krasnopolski.org/]
+@version {@version}
+
+@title MQTT server for Erlang.
+@doc 
+<h3>Introduction</h3>
+The server implements MQTT messaging protokol version 3.1.1 and allows communicate with MQTT clients to send/receive messages.
+The server is written in Erlang. 
+The server was tested with Erlang MQTT client [https://sourceforge.net/projects/mqtt-client/].
+
+<h3>Architecture</h3>
+MQTT server is an OTP application. Application depends on other Erlang applications: 
+<ol>
+<li>lager for logging services,</li>
+<li>ranch for tcp and tsl connections,</li>
+<li>msql_client for connection to MySQL server,</li>
+<li>mqtt_common that is library keeping code that is common for client and server implementation</li>
+</ol>
+Session state data are storing in database (DETS or MySQL in current version)
+
+<h3>Getting started</h3>
+<h4>Installation</h4>
+To start with the server you have to complete two steps below:
+<ol>
+<li>Install Erlang [http://www.erlang.org/download.html].</li>
+<li>Install Rebar3 [https://www.rebar3.org/].</li>
+</ol>
+
+<h4>Building</h4>
+<h5>Download or clone from SourceForge GIT repository</h5>
+Download zip file erl.mqtt.server-vsn-1.0.{x}.zip from project files folder [https://sourceforge.net/projects/mqtt-server/files/versions-1.0.x/],
+unzip it and rename unziped folder to erl.mqtt.server. This is an Eclipse project folder. You do not need to use Eclipse to build server but 
+if you want you can use convenience of Eclipse and Erlide plugin.
+<p>
+Other way to get the server code is GIT. Type command
+<pre>git clone https://git.code.sf.net/p/mqtt-server/code erl.mqtt.server</pre>
+</p>
+<h5>Compiling</h5>
+After you have got source code of the server then change directory to the erl.mqtt.server:
+<pre>cd erl.mqtt.server</pre>
+Run rebar3 for this project. You have to add path to rebar3 to OS PATH variable or just use the whole path:
+<pre>/opt/local/bin/rebar3 compile</pre>
+Rebar will fetch code of all dependencies and compile source files of main project and all dependencies.
+
+<h4>Starting</h4>
+
+To start server run bach script:
+<pre>./start_mqtt_server.sh</pre>
+Erlang shell will open and log statements are appering in console.
+
+<h4>Testing</h4>
+
+You can test the server with any MQTT client complained with 3.1.1. I recomend to try Erlang MQTT client [https://sourceforge.net/projects/mqtt-client/].
+
+<h4>Configuration</h4>
+
+To set up ports for TCP and TSL socket connection go to mqtt.config. This is OTP application configuration file contained startup data for
+lager, ranch and mqtt server configuration.
+
+<h4>Add/Remove users</h4>
+
+The MQTT server is distributed with preset user dets db. Users are guest/guest and admin/admin.
+To add other users run Erlang shell:
+<pre>erl -pa _build/default/lib/*/ebin</pre>
+and issue command:
+<pre>1&gt;mqtt_server:add_user("UserName", &lt;&lt;"UserPassword"&gt;&gt;).</pre>
+or for user delete:
+<pre>1&gt;mqtt_server:remove_user("UserName").</pre>
+
+@reference [https://mosquitto.org/] - Mosquitto MQTT server.
+@reference [https://www.rabbitmq.com/] - RabbitMQ server with MQTT plugin.
+@reference [https://sourceforge.net/projects/mqtt-client/] - Erlang MQTT client.
+<!-- @reference [http://erlangcentral.org/wiki/index.php?title=] - article on Erlang Central. -->
+@see mqtt_server 
+
+
