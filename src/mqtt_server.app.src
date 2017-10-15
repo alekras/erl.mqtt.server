@@ -7,7 +7,7 @@
       ]
     },
     {registered, []},
-    {applications, [kernel, stdlib, ssl, lager, mqtt_common]},
+    {applications, [kernel, stdlib, ssl]},
     {mod, {mqtt_server, [{vsn, "1.0.2"}]}},
     {env, [
     ]}

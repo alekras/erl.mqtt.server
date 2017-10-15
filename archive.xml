@@ -20,7 +20,7 @@
         <include name=".project"/>
         <include name=".settings/**/*"/>
         <include name="build.properties"/>
-        <include name="user-db-srv.bin"/>
+        <include name="users-db-srv.bin"/>
         <include name="*.sh"/>
 
         <exclude name="*.zip"/>
