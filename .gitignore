@@ -6,6 +6,5 @@
 /session-db-srv.bin
 /subscription-db-cli.bin
 /subscription-db-srv.bin
-/users-db-srv.bin
 /rebar.lock
 /logs/
