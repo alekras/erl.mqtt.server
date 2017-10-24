@@ -24,7 +24,12 @@
 <h3>Introduction</h3>
 The server implements MQTT messaging protokol version 3.1.1 and allows communicate with MQTT clients to send/receive messages.
 The server is written in Erlang. 
-The server was tested with Erlang MQTT client [https://sourceforge.net/projects/mqtt-client/].
+The server was tested with 
+<ol>
+<li>Mosquitto tools [https://mosquitto.org/man/mosquitto_sub-1.html] and [https://mosquitto.org/man/mosquitto_pub-1.html]</li>
+<li>MQTT.fx client [http://www.mqttfx.org/]</li>
+<li>Erlang MQTT client [https://sourceforge.net/projects/mqtt-client/]</li>
+</ol>
 
 <h3>Architecture</h3>
 MQTT server is an OTP application. Application depends on other Erlang applications: 
@@ -62,15 +67,37 @@ Rebar will fetch code of all dependencies and compile source files of main proje
 
 <h4>Starting</h4>
 
-To start server run bach script:
+To start server run bash script:
 <pre>./start_mqtt_server.sh</pre>
 Erlang shell will open and log statements are appering in console.
 
-<h4>Testing</h4>
+<h3>Testing</h3>
 
-You can test the server with any MQTT client complained with 3.1.1. I recomend to try Erlang MQTT client [https://sourceforge.net/projects/mqtt-client/].
+You can test the server with any MQTT client complained with protocol version 3.1.1.
+I recomend to try Erlang MQTT client [https://sourceforge.net/projects/mqtt-client/].
 
-<h4>Configuration</h4>
+<h4>Testing with Mosquitto tools</h4>
+To test with Mosquitto tools you need to open two terminal windows. One for subscribing and other for publishing.
+Open the first terminal windows and change directory to folder where Mosquitto is installed:
+<pre>cd /usr/local/Cellar/mosquitto/1.4.10/</pre>
+Now subscribe to "test/c" topic:
+<pre>bin/mosquitto_sub -t test/c -p 18883 -i test -u guest -P guest -V mqttv311</pre>
+<pre></pre>
+Open the second terminal windows and change directory to Mosquitto installation:
+<pre>cd /usr/local/Cellar/mosquitto/1.4.10/</pre>
+Publish some message to "test/c" topic:
+<pre>bin/mosquitto_pub -t test/c -p 18883 -i test1 -u guest -P guest -m "Test message from mosquitto tools QoS=2" -q 2 -V mqttv311</pre>
+In first terminal you will see incoming message:
+<pre>Test message from mosquitto tools QoS=2</pre>
+
+<h4>Testing with other MQTT clients</h4>
+The server was tested with other clients:
+<ol>
+<li>Websocket MQTT client from HiveMQ [http://www.hivemq.com/demos/websocket-client/].</li>
+<li>MQTT.fx client [http://www.mqttfx.org/].</li>
+</ol>
+
+<h3>Configuration</h3>
 
 To set up ports for TCP and TSL socket connection go to mqtt.config. This is OTP application configuration file contained startup data for
 lager, ranch and mqtt server configuration.
@@ -88,6 +115,8 @@ or for user delete:
 @reference [https://mosquitto.org/] - Mosquitto MQTT server.
 @reference [https://www.rabbitmq.com/] - RabbitMQ server with MQTT plugin.
 @reference [https://sourceforge.net/projects/mqtt-client/] - Erlang MQTT client.
+@reference [http://www.hivemq.com/demos/websocket-client/] - MQTT websocket client.
+@reference [http://www.mqttfx.org/] - MQTT client.
 <!-- @reference [http://erlangcentral.org/wiki/index.php?title=] - article on Erlang Central. -->
 @see mqtt_server 
 

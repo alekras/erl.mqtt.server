@@ -35,7 +35,7 @@
 	remove_user/1
 ]).
 
--define(NUM_ACCEPTORS_IN_POOL, 10).
+-define(NUM_ACCEPTORS_IN_POOL, 2).
 
 %% ====================================================================
 %% Behavioural functions
@@ -81,6 +81,12 @@ start(_Type, _Args) ->
 	CA_Cert_File = application:get_env(mqtt_server, cacertfile, "tsl/ca.crt"),
 	Key_File = application:get_env(mqtt_server, keyfile, "tsl/server.key"),
 
+%% 	B0 = application:start(cowlib),
+%% 	lager:debug("After Cowlib start: ~p",[B0]),	
+%% 	B1 = application:start(cowboy),
+%% 	lager:debug("After Cowboy start: ~p",[B1]),
+	
+
 	lager:debug("running apps: ~p",[application:which_applications()]),	
 %% 	ChildSpec :: {Id :: term(), StartFunc, RestartPolicy, Shutdown, Type :: worker | supervisor, Modules},
 %% 	StartFunc :: {M :: module(), F :: atom(), A :: [term()] | undefined},
@@ -97,6 +103,8 @@ start(_Type, _Args) ->
 				supervisor, 
 				[ranch_sup]
 	},
+	CowboyClock = {cowboy_clock, {cowboy_clock, start_link, []},
+		permanent, 5000, worker, [cowboy_clock]},
 	TCPListenerSpec = ranch:child_spec(
 							mqtt_server, 
 							?NUM_ACCEPTORS_IN_POOL,
@@ -117,8 +125,61 @@ start(_Type, _Args) ->
 							], 
 							mqtt_server_connection, 
 							[{storage, Storage}]
-        ),
-	mqtt_server_sup:start_link([RanchSupSpec, TCPListenerSpec, TSLListenerSpec]).
+	),
+
+
+%% Web socket connection
+	Dispatch = cowboy_router:compile([
+		{'_', [{"/:protocol", mqtt_ws_handler, []}]}
+	]),
+%% 	{ok, _} = cowboy:start_clear(ws_listener,
+%% 		[{port, 8080}],
+%% 		#{env => #{dispatch => Dispatch}}
+%% 	),
+%% 
+%% start_clear(Ref, TransOpts0, ProtoOpts0) ->
+%% 	{TransOpts, ConnectionType} = ensure_connection_type(TransOpts0),
+%% 	ProtoOpts = ProtoOpts0#{connection_type => ConnectionType},
+%% 	ranch:start_listener(Ref, ranch_tcp, TransOpts, cowboy_clear, ProtoOpts).
+%% 
+%% ensure_connection_type(TransOpts) ->
+%% 	case proplists:get_value(connection_type, TransOpts) of
+%% 		undefined -> {[{connection_type, supervisor}|TransOpts], supervisor};
+%% 		ConnectionType -> {TransOpts, ConnectionType}
+%% 	end.
+%% 
+%% start_listener(Ref, Transport, TransOpts, Protocol, ProtoOpts) ->
+%% 	NumAcceptors = proplists:get_value(num_acceptors, TransOpts, 10),
+%% 	start_listener(Ref, NumAcceptors, Transport, TransOpts, Protocol, ProtoOpts).
+%% 
+%% start_listener(Ref, NumAcceptors, Transport, TransOpts, Protocol, ProtoOpts)
+%% 		when is_integer(NumAcceptors) andalso is_atom(Transport)
+%% 		andalso is_atom(Protocol) ->
+%% 	_ = code:ensure_loaded(Transport),
+%% 	case erlang:function_exported(Transport, name, 0) of
+%% 		false ->
+%% 			{error, badarg};
+%% 		true ->
+%% 			Res = supervisor:start_child(ranch_sup, child_spec(Ref, NumAcceptors,
+%% 					Transport, TransOpts, Protocol, ProtoOpts)),
+
+	WSListener = ranch:child_spec(
+				ws_listener, 
+				?NUM_ACCEPTORS_IN_POOL,
+				ranch_tcp, 
+				[{port, 8080}, 
+				 {connection_type, supervisor}
+				], 
+				cowboy_clear, 
+				#{env => #{dispatch => Dispatch}, 
+					connection_type => supervisor,
+					storage => Storage
+				 }
+	),
+	
+	mqtt_server_sup:start_link([RanchSupSpec, 
+															CowboyClock, 
+															TCPListenerSpec, TSLListenerSpec, WSListener]).
 
 %% ====================================================================
 %% @doc <a href="http://www.erlang.org/doc/apps/kernel/application.html#Module:stop-1">application:stop/1</a>

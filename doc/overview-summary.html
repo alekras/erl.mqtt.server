@@ -19,10 +19,15 @@
 </li></ul></p>
 <p><b>See also:</b> <a href="mqtt_server.html">mqtt_server</a>.</p>
 
-<h3>Introduction</h3><p>
+<h3>Introduction</h3>
 The server implements MQTT messaging protokol version 3.1.1 and allows communicate with MQTT clients to send/receive messages.
 The server is written in Erlang. 
-The server was tested with Erlang MQTT client <a href="https://sourceforge.net/projects/mqtt-client/" target="_top"><tt>https://sourceforge.net/projects/mqtt-client/</tt></a>.</p>
+The server was tested with 
+<ol>
+<li>Mosquitto tools <a href="https://mosquitto.org/man/mosquitto_sub-1.html" target="_top"><tt>https://mosquitto.org/man/mosquitto_sub-1.html</tt></a> and <a href="https://mosquitto.org/man/mosquitto_pub-1.html" target="_top"><tt>https://mosquitto.org/man/mosquitto_pub-1.html</tt></a></li>
+<li>MQTT.fx client <a href="http://www.mqttfx.org/" target="_top"><tt>http://www.mqttfx.org/</tt></a></li>
+<li>Erlang MQTT client <a href="https://sourceforge.net/projects/mqtt-client/" target="_top"><tt>https://sourceforge.net/projects/mqtt-client/</tt></a></li>
+</ol>
 
 <h3>Architecture</h3>
 MQTT server is an OTP application. Application depends on other Erlang applications: 
@@ -60,15 +65,29 @@ Rebar will fetch code of all dependencies and compile source files of main proje
 
 <h4>Starting</h4>
 
-To start server run bach script:
+To start server run bash script:
 <pre>./start_mqtt_server.sh</pre><p>
 Erlang shell will open and log statements are appering in console.</p>
 
-<h4>Testing</h4>
+<h3>Testing</h3>
 
 <p>You can test the server with any MQTT client complained with 3.1.1. I recomend to try Erlang MQTT client <a href="https://sourceforge.net/projects/mqtt-client/" target="_top"><tt>https://sourceforge.net/projects/mqtt-client/</tt></a>.</p>
 
-<h4>Configuration</h4>
+<h4>Testing with Mosquitto tools</h4>
+To test with Mosquitto tools you need to open two terminal windows. One for subscribing and other for publishing.
+Open the first terminal windows and change directory to folder where Mosquitto is installed:
+<pre>cd /usr/local/Cellar/mosquitto/1.4.10/</pre>
+Now subscribe to "test/c" topic:
+<pre>bin/mosquitto_sub -t test/c -p 18883 -i test -u guest -P guest -V mqttv311</pre>
+<pre></pre>
+Open the second terminal windows and change directory to Mosquitto installation:
+<pre>cd /usr/local/Cellar/mosquitto/1.4.10/</pre>
+Publish some message to "test/c" topic:
+<pre>bin/mosquitto_pub -t test/c -p 18883 -i test1 -u guest -P guest -m "Test message from mosquitto tools QoS=2" -q 2 -V mqttv311</pre>
+In first terminal you will see incoming message:
+<pre>Test message from mosquitto tools QoS=2</pre>
+
+<h3>Configuration</h3>
 
 <p>To set up ports for TCP and TSL socket connection go to mqtt.config. This is OTP application configuration file contained startup data for
 lager, ranch and mqtt server configuration.</p>
