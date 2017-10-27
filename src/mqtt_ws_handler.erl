@@ -19,25 +19,30 @@
 ]).
 
 init(Req0, State) ->
-	lager:debug("web socket init/2: ~p~n~p", [Req0, State]),	
+	lager:debug([{endtype, server}], "web socket starts req: ~p~n state~p~n", [Req0, State]),	
 	case cowboy_req:parse_header(<<"sec-websocket-protocol">>, Req0) of
 		undefined ->
 			{cowboy_websocket, Req0, #{}};
 		Subprotocols ->
-			lager:debug("Subprotokols: ~p", [Subprotocols]),	
-			case lists:member(<<"mqttv3.1">>, Subprotocols) of
-				true ->
-					Req = cowboy_req:set_resp_header(<<"sec-websocket-protocol">>, <<"mqttv3.1">>, Req0),
-					{cowboy_websocket, Req, #{}};
-				false ->
+			P1 = lists:member(<<"mqttv3.1.1">>, Subprotocols),
+			P2 = lists:member(<<"mqttv3.1">>, Subprotocols),
+			Protocol =
+			if P1 -> <<"mqttv3.1.1">>;
+				 P2 -> <<"mqttv3.1">>;
+				 true -> undefined
+			end,
+			case Protocol of
+				undefined ->
 					Req = cowboy_req:reply(400, Req0),
-					{ok, Req, #{}}
+					{ok, Req, #{}};
+				_ ->
+					Req = cowboy_req:set_resp_header(<<"sec-websocket-protocol">>, Protocol, Req0),
+					{cowboy_websocket, Req, #{}}
 			end
 	end.
 
 websocket_init(State) ->
 	Opts = ranch:get_protocol_options(ws_listener),
-	lager:debug("websocket_init/1: ~p~n~p", [State, Opts]),
 	Storage = maps:get(storage, Opts, mqtt_dets_dao),
   Conn_State = #connection_state{socket = self(), transport = mqtt_ws_handler, storage = Storage, end_type = server},
  	Conn_Pid = proc_lib:spawn_link(fun() -> mqtt_connection:init(Conn_State) end),
@@ -45,44 +50,40 @@ websocket_init(State) ->
 	{ok, State1}.
 
 websocket_handle({binary, Binary} = _Frame, State) ->
-	lager:debug("1) websocket_handle/1: ~p~n~p", [_Frame, State]),
 	Pid = maps:get(conn_pid, State, undefined),
 	Pid ! {tcp, self(), Binary},
 	{ok, State};
 websocket_handle(_Frame, State) ->
-	lager:debug("2) websocket_handle/1: ~p~n~p", [_Frame, State]),
+	lager:warning([{endtype, server}], "unknown message: ~p~n~p", [_Frame, State]),
 	{ok, State}.
 
 websocket_info({out, Packet} = _Info, State) ->
-	lager:debug("websocket_info/1: ~p~n~p", [_Info, State]),	
 	{reply, {binary, Packet}, State};
-websocket_info({'EXIT', _Pid, normal} = _Info, State) ->
-	lager:debug("websocket_info/1: ~p~n~p", [_Info, State]),	
+websocket_info({'EXIT', Pid, Reason}, State) ->
+	lager:info([{endtype, server}], "get EXIT from pid: ~p reason: ~p state: ~p~n", [Pid, Reason, State]),	
 	{stop, State};
+websocket_info(close_ws, State) ->
+	lager:info([{endtype, server}], "get close socket from connection, state: ~p~n", [State]),
+	State1 = maps:put(conn_pid, undefined, State),
+	{stop, State1};
 websocket_info(_Info, State) ->
-	lager:debug("websocket_info/1: ~p~n~p", [_Info, State]),	
+	lager:warning([{endtype, server}], "unknown message: ~p~n state:~p~n", [_Info, State]),	
 	{ok, State}.
-%% websocket_info(_Info, State) ->
-%% 	{reply, [
-%% 			{text, "Hello"},
-%% 			{text, <<"world!">>},
-%% 			{binary, <<0:8000>>}
-%% 	], State}.
 
 terminate(_Reason, _Req, State) ->
-	lager:debug("terminate/3: ~p~n~p~n~p", [_Reason, _Req, State]),	
 	Pid = maps:get(conn_pid, State, undefined),
-	Pid ! {tcp_closed, self()},
+	if is_pid(Pid) ->	Pid ! {tcp_closed, self()};
+		 true -> ok
+	end,
 	ok.
 
-send(Socket, Packet) ->
-	Socket ! {out, Packet},
+send(WS_Handler_Pid, Packet) ->
+	WS_Handler_Pid ! {out, Packet},
 	ok.
 	
-close(_Socket) ->
-	ok. %% @todo close websocket ???
+close(WS_Handler_Pid) ->
+	WS_Handler_Pid ! close_ws,
+	ok.
 %% ====================================================================
 %% Internal functions
 %% ====================================================================
-
-

@@ -130,38 +130,8 @@ start(_Type, _Args) ->
 
 %% Web socket connection
 	Dispatch = cowboy_router:compile([
-		{'_', [{"/:protocol", mqtt_ws_handler, []}]}
+		{'_', [{"/", mqtt_ws_handler, []}, {"/:protocol", mqtt_ws_handler, []}]}
 	]),
-%% 	{ok, _} = cowboy:start_clear(ws_listener,
-%% 		[{port, 8080}],
-%% 		#{env => #{dispatch => Dispatch}}
-%% 	),
-%% 
-%% start_clear(Ref, TransOpts0, ProtoOpts0) ->
-%% 	{TransOpts, ConnectionType} = ensure_connection_type(TransOpts0),
-%% 	ProtoOpts = ProtoOpts0#{connection_type => ConnectionType},
-%% 	ranch:start_listener(Ref, ranch_tcp, TransOpts, cowboy_clear, ProtoOpts).
-%% 
-%% ensure_connection_type(TransOpts) ->
-%% 	case proplists:get_value(connection_type, TransOpts) of
-%% 		undefined -> {[{connection_type, supervisor}|TransOpts], supervisor};
-%% 		ConnectionType -> {TransOpts, ConnectionType}
-%% 	end.
-%% 
-%% start_listener(Ref, Transport, TransOpts, Protocol, ProtoOpts) ->
-%% 	NumAcceptors = proplists:get_value(num_acceptors, TransOpts, 10),
-%% 	start_listener(Ref, NumAcceptors, Transport, TransOpts, Protocol, ProtoOpts).
-%% 
-%% start_listener(Ref, NumAcceptors, Transport, TransOpts, Protocol, ProtoOpts)
-%% 		when is_integer(NumAcceptors) andalso is_atom(Transport)
-%% 		andalso is_atom(Protocol) ->
-%% 	_ = code:ensure_loaded(Transport),
-%% 	case erlang:function_exported(Transport, name, 0) of
-%% 		false ->
-%% 			{error, badarg};
-%% 		true ->
-%% 			Res = supervisor:start_child(ranch_sup, child_spec(Ref, NumAcceptors,
-%% 					Transport, TransOpts, Protocol, ProtoOpts)),
 
 	WSListener = ranch:child_spec(
 				ws_listener, 
@@ -174,12 +144,33 @@ start(_Type, _Args) ->
 				#{env => #{dispatch => Dispatch}, 
 					connection_type => supervisor,
 					storage => Storage
-				 }
+				}
+	),
+	
+	WSSListener = ranch:child_spec(
+				wss_listener, 
+				?NUM_ACCEPTORS_IN_POOL,
+				ranch_ssl, 
+				[ {port, 8443}, 
+					{certfile, Cert_File},
+					{cacertfile, CA_Cert_File},
+					{keyfile, Key_File},
+					{verify, verify_peer},
+					{connection_type, supervisor},
+					{next_protocols_advertised, [<<"h2">>, <<"http/1.1">>]},
+					{alpn_preferred_protocols, [<<"h2">>, <<"http/1.1">>]}
+				], 
+				cowboy_tls, 
+				#{env => #{dispatch => Dispatch}, 
+					connection_type => supervisor,
+					storage => Storage
+				}
 	),
 	
 	mqtt_server_sup:start_link([RanchSupSpec, 
 															CowboyClock, 
-															TCPListenerSpec, TSLListenerSpec, WSListener]).
+															TCPListenerSpec, TSLListenerSpec, 
+															WSListener, WSSListener]).
 
 %% ====================================================================
 %% @doc <a href="http://www.erlang.org/doc/apps/kernel/application.html#Module:stop-1">application:stop/1</a>
