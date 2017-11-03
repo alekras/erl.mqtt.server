@@ -179,7 +179,7 @@ will_retain({1, will_retain} = _X, [Publisher, Subscriber] = _Conns) -> {"will w
 			keep_alive = 60000
 		}, 
 		"localhost", ?TEST_SERVER_PORT,
-		[?TEST_TLS]
+		[?TEST_CONN_TYPE]
 	),
 	?assert(is_pid(Subscriber_2)),
 	R2_0 = mqtt_client:subscribe(Subscriber_2, [{"AK_will_retain_test", 1, F}]), 

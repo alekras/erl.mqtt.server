@@ -62,7 +62,7 @@ connect(Name) when is_atom(Name) ->
 		?CONN_REC#connect{client_id = atom_to_list(Name)}, 
 		?TEST_SERVER_HOST_NAME, 
 		?TEST_SERVER_PORT, 
-		[?TEST_TLS]
+		[?TEST_CONN_TYPE]
 	);	
 connect(Name) when is_list(Name) ->
 	mqtt_client:connect(
@@ -70,7 +70,7 @@ connect(Name) when is_list(Name) ->
 		?CONN_REC#connect{client_id = Name}, 
 		?TEST_SERVER_HOST_NAME, 
 		?TEST_SERVER_PORT, 
-		[?TEST_TLS]
+		[?TEST_CONN_TYPE]
 	).	
 
 do_setup({_, publish} = _X) ->
@@ -82,13 +82,13 @@ do_setup({_, session} = _X) ->
 		publisher, 
 		?CONN_REC#connect{client_id = "publisher", clean_session = 0}, 
 		?TEST_SERVER_HOST_NAME, ?TEST_SERVER_PORT, 
-		[?TEST_TLS]
+		[?TEST_CONN_TYPE]
 	),
 	S1 = mqtt_client:connect(
 		subscriber, 
 		?CONN_REC#connect{client_id = "subscriber", clean_session = 0}, 
 		?TEST_SERVER_HOST_NAME, ?TEST_SERVER_PORT, 
-		[?TEST_TLS]
+		[?TEST_CONN_TYPE]
 	),
 	[P1, S1];
 do_setup({QoS, will} = _X) ->
@@ -103,7 +103,7 @@ do_setup({QoS, will} = _X) ->
 			will_topic = "AK_will_test"
 		}, 
 		?TEST_SERVER_HOST_NAME, ?TEST_SERVER_PORT, 
-		[?TEST_TLS]
+		[?TEST_CONN_TYPE]
 	),
 	S = connect(subscriber),
 	[P,S];
@@ -121,7 +121,7 @@ do_setup({QoS, will_retain} = _X) ->
 		}, 
 		?TEST_SERVER_HOST_NAME, 
 		?TEST_SERVER_PORT, 
-		[?TEST_TLS]
+		[?TEST_CONN_TYPE]
 	),
 	S = connect(subscriber),
 	[P,S];
@@ -135,7 +135,7 @@ do_setup({_, keep_alive}) ->
 		?CONN_REC#connect{client_id = "publisher", keep_alive = 5}, 
 		?TEST_SERVER_HOST_NAME, 
 		?TEST_SERVER_PORT, 
-		[?TEST_TLS]
+		[?TEST_CONN_TYPE]
 	);
 do_setup(_X) ->
 %  ?debug_Fmt("~n::test:: setup before: ~p",[_X]),
@@ -171,7 +171,7 @@ do_cleanup({_QoS, will} = _X, [P, S] = _Pids) ->
 %% 		}, 
 %% 		?TEST_SERVER_HOST_NAME,
 %% 		?TEST_SERVER_PORT, 
-%% 		[?TEST_TLS]
+%% 		[?TEST_CONN_TYPE]
 %% 	),
 %% 
 %% 	R1_1 = mqtt_client:disconnect(P1),
@@ -192,14 +192,15 @@ do_cleanup({QoS, will_retain} = _X, [P, S] = _Pids) ->
 		publisher, 
 		?CONN_REC#connect{
 			client_id = "publisher",
-			will = 1,
-			will_retain = 1,
-			will_qos = QoS,
-			will_message = <<"Test will retain message">>,
-			will_topic = "AK_will_retain_test"
+			clean_session = 1
+%% 			will = 1,
+%% 			will_retain = 1,
+%% 			will_qos = QoS,
+%% 			will_message = <<"Test will retain message">>,
+%% 			will_topic = "AK_will_retain_test"
 		}, 
 		?TEST_SERVER_HOST_NAME, ?TEST_SERVER_PORT, 
-		[?TEST_TLS]
+		[?TEST_CONN_TYPE]
 	),
  	R1_0 = mqtt_client:publish(P1, #publish{topic = "AK_will_retain_test", retain = 1, qos = QoS}, <<>>), 
 	?assertEqual(ok, R1_0),
@@ -226,7 +227,7 @@ do_cleanup({QoS, retain} = _X, [P1, S1, S2] = _Pids) ->
 						?CONN_REC#connect{client_id = "publisher", clean_session = 0}, 
 						?TEST_SERVER_HOST_NAME,
 						?TEST_SERVER_PORT, 
-						[?TEST_TLS]
+						[?TEST_CONN_TYPE]
 					),
 					mqtt_client:publish(P2, #publish{topic = "AK_retain_test", retain = 1, qos = QoS}, <<>>), 
 					mqtt_client:disconnect(P2);
@@ -271,10 +272,13 @@ wait_all(N) ->
 %			?assert(true)
 	end
 	and
-	case wait_all(1, 0) of
-		{fail, _Z} -> 
-%			?debug_Fmt("::test:: ~p additional done received.", [_Z]),
+	case wait_all(100, 0) of
+		{fail, 0} -> 
+%			?debug_Fmt("::test:: ~p unexpected done received.", [0]),
 			true;
+		{fail, _Z} -> 
+			?debug_Fmt("::test:: ~p unexpected done received.", [_Z]),
+			false;
 		{ok, _R} -> 
 			?debug_Fmt("::test:: ~p unexpected done received.", [_R]), 
 			false

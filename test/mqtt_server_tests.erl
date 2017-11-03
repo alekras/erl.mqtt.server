@@ -98,7 +98,7 @@ connect() ->
 		ConnRec, 
 		?TEST_SERVER_HOST_NAME, 
 		?TEST_SERVER_PORT, 
-		[?TEST_TLS]
+		[?TEST_CONN_TYPE]
 	),
   ?debug_Fmt("::test:: 1. successfully connected : ~p", [Conn]),
 	?assert(erlang:is_pid(Conn)),
@@ -110,7 +110,7 @@ connect() ->
 		}, 
 		?TEST_SERVER_HOST_NAME, 
 		3883, 
-		[?TEST_TLS]
+		[?TEST_CONN_TYPE]
 	),
   ?debug_Fmt("::test:: 2. wrong port number : ~120p", [Conn1]),
 	?assertMatch(#mqtt_client_error{}, Conn1),
@@ -124,7 +124,7 @@ connect() ->
 		}, 
 		?TEST_SERVER_HOST_NAME, 
 		?TEST_SERVER_PORT, 
-		[?TEST_TLS]
+		[?TEST_CONN_TYPE]
 	),
   ?debug_Fmt("::test:: 3. wrong user name : ~120p", [Conn2]),
 	?assertMatch(#mqtt_client_error{}, Conn2),
@@ -138,7 +138,7 @@ connect() ->
 		}, 
 		?TEST_SERVER_HOST_NAME, 
 		?TEST_SERVER_PORT, 
-		[?TEST_TLS]
+		[?TEST_CONN_TYPE]
 	),
   ?debug_Fmt("::test:: 4. wrong user password : ~120p", [Conn3]),
 	?assertMatch(#mqtt_client_error{}, Conn3),
@@ -148,7 +148,7 @@ connect() ->
 		ConnRec, 
 		?TEST_SERVER_HOST_NAME, 
 		?TEST_SERVER_PORT, 
-		[?TEST_TLS]
+		[?TEST_CONN_TYPE]
 	),
   ?debug_Fmt("::test:: 5. duplicate client id: ~p", [Conn4]),
 	?assert(erlang:is_pid(Conn4)),
@@ -164,7 +164,7 @@ connect() ->
 		}, 
 		?TEST_SERVER_HOST_NAME, 
 		?TEST_SERVER_PORT, 
-		[?TEST_TLS]
+		[?TEST_CONN_TYPE]
 	),
   ?debug_Fmt("::test:: 6. wrong utf-8 : ~p", [Conn5]),
 	?assert(erlang:is_pid(Conn5)),
@@ -179,7 +179,7 @@ connect() ->
 		}, 
 		?TEST_SERVER_HOST_NAME, 
 		?TEST_SERVER_PORT, 
-		[?TEST_TLS]
+		[?TEST_CONN_TYPE]
 	),
   ?debug_Fmt("::test:: 7. wrong utf-8 user name: ~p", [Conn6]),
 	?assertMatch(#mqtt_client_error{}, Conn6),
@@ -193,7 +193,7 @@ connect() ->
 		}, 
 		?TEST_SERVER_HOST_NAME, 
 		?TEST_SERVER_PORT, 
-		[?TEST_TLS]
+		[?TEST_CONN_TYPE]
 	),
   ?debug_Fmt("::test:: 8. wrong utf-8 password : ~p", [Conn7]),
 	?assertMatch(#mqtt_client_error{}, Conn7),

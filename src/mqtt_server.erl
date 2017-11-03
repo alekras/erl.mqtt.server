@@ -77,6 +77,8 @@ start(_Type, _Args) ->
 	Storage:start(server),
 	Port = application:get_env(mqtt_server, port, 1883),
 	Port_tsl = application:get_env(mqtt_server, port_tsl, 1884),
+	Port_ws = application:get_env(mqtt_server, port_ws, 8080),
+	Port_wss = application:get_env(mqtt_server, port_wss, 8443),
 	Cert_File = application:get_env(mqtt_server, certfile, "tsl/server.crt"),
 	CA_Cert_File = application:get_env(mqtt_server, cacertfile, "tsl/ca.crt"),
 	Key_File = application:get_env(mqtt_server, keyfile, "tsl/server.key"),
@@ -130,14 +132,18 @@ start(_Type, _Args) ->
 
 %% Web socket connection
 	Dispatch = cowboy_router:compile([
-		{'_', [{"/", mqtt_ws_handler, []}, {"/:protocol", mqtt_ws_handler, []}]}
+		{'_', [
+						{"/", mqtt_ws_handler, []}, 
+						{"/:protocol", mqtt_ws_handler, []}
+					]
+		}
 	]),
 
 	WSListener = ranch:child_spec(
 				ws_listener, 
 				?NUM_ACCEPTORS_IN_POOL,
 				ranch_tcp, 
-				[{port, 8080}, 
+				[{port, Port_ws}, 
 				 {connection_type, supervisor}
 				], 
 				cowboy_clear, 
@@ -151,7 +157,7 @@ start(_Type, _Args) ->
 				wss_listener, 
 				?NUM_ACCEPTORS_IN_POOL,
 				ranch_ssl, 
-				[ {port, 8443}, 
+				[ {port, Port_wss}, 
 					{certfile, Cert_File},
 					{cacertfile, CA_Cert_File},
 					{keyfile, Key_File},

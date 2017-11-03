@@ -97,9 +97,10 @@ publish_1({_QoS, publish} = _X, [Publisher, Subscriber] = _Conns) -> {"publish w
 	R3 = mqtt_client:publish(Publisher, #publish{topic = "AKTest"}, <<"Test Payload QoS = 0.">>), 
 	?assertEqual(ok, R3),
 
-	wait_all(4),
+	W = wait_all(4),
 	
 	unregister(test_result),
+	?assert(W),
 
 	?PASSED
 end}.
@@ -129,9 +130,10 @@ publish_2({_QoS, publish} = _X, [Publisher, Subscriber] = _Conns) -> {"publish w
 	R3 = mqtt_client:publish(Publisher, #publish{topic = "AKTest"}, <<"Test Payload QoS = 0.">>), 
 	?assertEqual(ok, R3),
 
-	wait_all(4),
+	W = wait_all(4),
 	
 	unregister(test_result),
+	?assert(W),
 
 	?PASSED
 end}.
