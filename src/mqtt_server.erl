@@ -134,6 +134,7 @@ start(_Type, _Args) ->
 	Dispatch = cowboy_router:compile([
 		{'_', [
 						{"/", mqtt_ws_handler, []}, 
+						{"/rest/user/:user_name/[pswd/:password]", mqtt_rest_handler, []},
 						{"/:protocol", mqtt_ws_handler, []}
 					]
 		}
@@ -149,7 +150,8 @@ start(_Type, _Args) ->
 				cowboy_clear, 
 				#{env => #{dispatch => Dispatch}, 
 					connection_type => supervisor,
-					storage => Storage
+					storage => Storage,
+					idle_timeout => 120000
 				}
 	),
 	
@@ -157,7 +159,7 @@ start(_Type, _Args) ->
 				wss_listener, 
 				?NUM_ACCEPTORS_IN_POOL,
 				ranch_ssl, 
-				[ {port, Port_wss}, 
+				[ {port, Port_wss},
 					{certfile, Cert_File},
 					{cacertfile, CA_Cert_File},
 					{keyfile, Key_File},
@@ -169,7 +171,8 @@ start(_Type, _Args) ->
 				cowboy_tls, 
 				#{env => #{dispatch => Dispatch}, 
 					connection_type => supervisor,
-					storage => Storage
+					storage => Storage,
+					idle_timeout => 120000
 				}
 	),
 	

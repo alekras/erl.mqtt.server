@@ -47,10 +47,13 @@ mqtt_client_test_() ->
 			fun testing:do_stop/1, 
 			{inorder, [
 				{"connect", fun connect/0},
-				{ foreachx, 
-					fun testing:do_setup/1, 
-					fun testing:do_cleanup/2, 
-					[
+				{"rest service", fun restful:post/0},
+				{"rest service", fun restful:get/0},
+				{"rest service", fun restful:delete/0},
+ 				{ foreachx, 
+ 					fun testing:do_setup/1, 
+ 					fun testing:do_cleanup/2, 
+ 					[
 						{{1, keep_alive}, fun keep_alive/2},
 						{{1, combined}, fun combined/2},
 						{{1, subs_list}, fun subs_list/2},
@@ -86,7 +89,7 @@ mqtt_client_test_() ->
 						{{0, retain}, fun retain:retain_1/2},
 						{{1, retain}, fun retain:retain_1/2},
 						{{2, retain}, fun retain:retain_1/2}
-					]}
+ 					]}
       ]}
     }
   ].

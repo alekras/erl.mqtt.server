@@ -67,7 +67,8 @@ session_1({1, session} = _X, [Publisher, Subscriber] = _Conns) -> {"session QoS=
 			client_id = "publisher",
 			user_name = "guest", password = <<"guest">>,
 			clean_session = 0,
-			keep_alive = 1000
+			keep_alive = 1000,
+			version = ?TEST_PROTOCOL
 		}, 
 		"localhost", ?TEST_SERVER_PORT, 
 		[?TEST_CONN_TYPE]
@@ -108,7 +109,8 @@ session_1({2, session} = _X, [Publisher, Subscriber] = _Conns) -> {"session QoS=
 			client_id = "publisher",
 			user_name = "guest", password = <<"guest">>,
 			clean_session = 0,
-			keep_alive = 1000
+			keep_alive = 1000,
+			version = ?TEST_PROTOCOL
 		}, 
 		"localhost", ?TEST_SERVER_PORT, 
 		[?TEST_CONN_TYPE]
@@ -152,7 +154,8 @@ session_1({3, session} = _X, [Publisher, Subscriber] = _Conns) -> {"session QoS=
 			client_id = "subscriber",
 			user_name = "guest", password = <<"guest">>,
 			clean_session = 0,
-			keep_alive = 60000
+			keep_alive = 60000,
+			version = ?TEST_PROTOCOL
 		}, 
 		"localhost", ?TEST_SERVER_PORT,
 		{F}, 
@@ -192,13 +195,15 @@ session_1({4, session} = _X, [Publisher, Subscriber] = _Conns) -> {"session QoS=
 	?assertEqual(ok, R3_0),
 	timer:sleep(500), %% allow subscriber to receive second message 
 	mqtt_client:disconnect(Subscriber),
+	timer:sleep(500),
 	Subscriber_2 = mqtt_client:connect(
 		subscriber, 
 		#connect{
 			client_id = "subscriber",
 			user_name = "guest", password = <<"guest">>,
 			clean_session = 0,
-			keep_alive = 60000
+			keep_alive = 60000,
+			version = ?TEST_PROTOCOL
 		}, 
 		"localhost", ?TEST_SERVER_PORT,
 		[?TEST_CONN_TYPE]
@@ -238,7 +243,8 @@ session_2({1, session} = _X, [Publisher, Subscriber] = _Conns) -> {"session QoS=
 			client_id = "publisher",
 			user_name = "guest", password = <<"guest">>,
 			clean_session = 0,
-			keep_alive = 1000
+			keep_alive = 1000,
+			version = ?TEST_PROTOCOL
 		}, 
 		"localhost", ?TEST_SERVER_PORT, 
 		[?TEST_CONN_TYPE]
@@ -275,7 +281,8 @@ session_2({2, session} = _X, [Publisher, Subscriber] = _Conns) -> {"session QoS=
 			client_id = "publisher",
 			user_name = "guest", password = <<"guest">>,
 			clean_session = 0,
-			keep_alive = 1000
+			keep_alive = 1000,
+			version = ?TEST_PROTOCOL
 		}, 
 		"localhost", ?TEST_SERVER_PORT, 
 		[?TEST_CONN_TYPE]
@@ -313,7 +320,8 @@ session_2({3, session} = _X, [Publisher, Subscriber] = _Conns) -> {"session QoS=
 			client_id = "publisher",
 			user_name = "guest", password = <<"guest">>,
 			clean_session = 0,
-			keep_alive = 1000
+			keep_alive = 1000,
+			version = ?TEST_PROTOCOL
 		}, 
 		"localhost", ?TEST_SERVER_PORT, 
 		[?TEST_CONN_TYPE]
@@ -351,7 +359,8 @@ session_2({4, session} = _X, [Publisher, Subscriber] = _Conns) -> {"session QoS=
 			client_id = "publisher",
 			user_name = "guest", password = <<"guest">>,
 			clean_session = 0,
-			keep_alive = 1000
+			keep_alive = 1000,
+			version = ?TEST_PROTOCOL
 		}, 
 		"localhost", ?TEST_SERVER_PORT, 
 		[?TEST_CONN_TYPE]
@@ -391,7 +400,8 @@ session_2({5, session} = _X, [Publisher, Subscriber] = _Conns) -> {"session QoS=
 			client_id = "subscriber",
 			user_name = "guest", password = <<"guest">>,
 			clean_session = 0,
-			keep_alive = 60000
+			keep_alive = 60000,
+			version = ?TEST_PROTOCOL
 		}, 
 		"localhost", ?TEST_SERVER_PORT,
 		[?TEST_CONN_TYPE]
@@ -434,7 +444,8 @@ session_2({6, session} = _X, [Publisher, Subscriber] = _Conns) -> {"session QoS=
 			client_id = "subscriber",
 			user_name = "guest", password = <<"guest">>,
 			clean_session = 0,
-			keep_alive = 60000
+			keep_alive = 60000,
+			version = ?TEST_PROTOCOL
 		}, 
 		"localhost", ?TEST_SERVER_PORT,
 		[?TEST_CONN_TYPE]
@@ -477,7 +488,8 @@ session_2({7, session} = _X, [Publisher, Subscriber] = _Conns) -> {"session QoS=
 			client_id = "subscriber",
 			user_name = "guest", password = <<"guest">>,
 			clean_session = 0,
-			keep_alive = 60000
+			keep_alive = 60000,
+			version = ?TEST_PROTOCOL
 		}, 
 		"localhost", ?TEST_SERVER_PORT,
 		[?TEST_CONN_TYPE]
@@ -514,13 +526,15 @@ session_2({8, session} = _X, [Publisher, Subscriber] = _Conns) -> {"session QoS=
 	?assertEqual(ok, R3_0),
 	timer:sleep(500), %% allow subscriber to receive second message 
 	mqtt_client:disconnect(Subscriber),
+	timer:sleep(500),
 	Subscriber_2 = mqtt_client:connect(
 		subscriber, 
 		#connect{
 			client_id = "subscriber",
 			user_name = "guest", password = <<"guest">>,
 			clean_session = 0,
-			keep_alive = 60000
+			keep_alive = 60000,
+			version = ?TEST_PROTOCOL
 		}, 
 		"localhost", ?TEST_SERVER_PORT,
 		[?TEST_CONN_TYPE]

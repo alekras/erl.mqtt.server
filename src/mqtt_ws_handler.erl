@@ -22,7 +22,7 @@ init(Req0, State) ->
 	lager:debug([{endtype, server}], "web socket starts req: ~p~n state~p~n", [Req0, State]),	
 	case cowboy_req:parse_header(<<"sec-websocket-protocol">>, Req0) of
 		undefined ->
-			{cowboy_websocket, Req0, #{}};
+			{cowboy_websocket, Req0, #{}, #{idle_timeout => 120000}};
 		Subprotocols ->
 			P1 = lists:member(<<"mqttv3.1.1">>, Subprotocols),
 			P2 = lists:member(<<"mqttv3.1">>, Subprotocols),
@@ -37,7 +37,7 @@ init(Req0, State) ->
 					{ok, Req, #{}};
 				_ ->
 					Req = cowboy_req:set_resp_header(<<"sec-websocket-protocol">>, Protocol, Req0),
-					{cowboy_websocket, Req, #{}}
+					{cowboy_websocket, Req, #{}, #{idle_timeout => 120000}}
 			end
 	end.
 

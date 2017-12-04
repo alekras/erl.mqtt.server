@@ -19,7 +19,7 @@
 %% @copyright 2015-2017 Alexei Krasnopolski
 %% @author Alexei Krasnopolski <krasnop@bellsouth.net> [http://krasnopolski.org/]
 %% @version {@version}
-%% @doc This module implements a tesing of MQTT retain meaasages.
+%% @doc This module implements a tesing of MQTT publish messages.
 
 -module(publish).
 

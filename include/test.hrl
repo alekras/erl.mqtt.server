@@ -23,13 +23,13 @@
 %-define(TEST_SERVER_PORT, 1883). %% RabbitMQ
 
 %%%%%%%%%%%%% Clear socket test %%%%%%%%%%%%%%%%% 
-%-define(TEST_CONN_TYPE, {conn_type, clear}). %% Clear tcp for client
-%-define(TEST_SERVER_PORT, 18883). %% Erlang
+-define(TEST_CONN_TYPE, {conn_type, clear}). %% Clear tcp for client
+-define(TEST_SERVER_PORT, 18883). %% Erlang
 %-define(TEST_SERVER_PORT, 2883). %% Mosquitto
 
 %%%%%%%%%%%%% SSL/TSL socket test %%%%%%%%%%%%%%%%% 
--define(TEST_CONN_TYPE, {conn_type, ssl}). %% TSL/SSL for client
--define(TEST_SERVER_PORT, 18483). %% Erlang TSL
+%-define(TEST_CONN_TYPE, {conn_type, ssl}). %% TSL/SSL for client
+%-define(TEST_SERVER_PORT, 18483). %% Erlang TSL
 %-define(TEST_SERVER_PORT, 2884). %% Mosquitto TSL
 
 %%%%%%%%%%%%% Clear WEB socket test %%%%%%%%%%%%%%%%% 
