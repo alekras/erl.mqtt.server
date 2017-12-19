@@ -78,10 +78,12 @@ start(_Type, _Args) ->
 	Port = application:get_env(mqtt_server, port, 1883),
 	Port_tsl = application:get_env(mqtt_server, port_tsl, 1884),
 	Port_ws = application:get_env(mqtt_server, port_ws, 8080),
-	Port_wss = application:get_env(mqtt_server, port_wss, 8443),
+	Port_wss = application:get_env(mqtt_server, port_wss, 4443),
 	Cert_File = application:get_env(mqtt_server, certfile, "tsl/server.crt"),
 	CA_Cert_File = application:get_env(mqtt_server, cacertfile, "tsl/ca.crt"),
 	Key_File = application:get_env(mqtt_server, keyfile, "tsl/server.key"),
+	Verify_peer = application:get_env(mqtt_server, verify, verify_none),
+	lager:info("TSL config files: ~p",[{Cert_File, CA_Cert_File, Key_File}]),	
 
 %% 	B0 = application:start(cowlib),
 %% 	lager:debug("After Cowlib start: ~p",[B0]),	
@@ -123,7 +125,7 @@ start(_Type, _Args) ->
 								{certfile, Cert_File},
 								{cacertfile, CA_Cert_File},
 								{keyfile, Key_File},
-								{verify, verify_peer}
+								{verify, Verify_peer}
 							], 
 							mqtt_server_connection, 
 							[{storage, Storage}]
@@ -150,8 +152,7 @@ start(_Type, _Args) ->
 				cowboy_clear, 
 				#{env => #{dispatch => Dispatch}, 
 					connection_type => supervisor,
-					storage => Storage,
-					idle_timeout => 120000
+					storage => Storage
 				}
 	),
 	
@@ -163,7 +164,7 @@ start(_Type, _Args) ->
 					{certfile, Cert_File},
 					{cacertfile, CA_Cert_File},
 					{keyfile, Key_File},
-					{verify, verify_peer},
+					{verify, Verify_peer},
 					{connection_type, supervisor},
 					{next_protocols_advertised, [<<"h2">>, <<"http/1.1">>]},
 					{alpn_preferred_protocols, [<<"h2">>, <<"http/1.1">>]}
@@ -171,8 +172,7 @@ start(_Type, _Args) ->
 				cowboy_tls, 
 				#{env => #{dispatch => Dispatch}, 
 					connection_type => supervisor,
-					storage => Storage,
-					idle_timeout => 120000
+					storage => Storage
 				}
 	),
 	
