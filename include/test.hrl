@@ -34,7 +34,7 @@
 
 %%%%%%%%%%%%% Clear WEB socket test %%%%%%%%%%%%%%%%% 
 %-define(TEST_CONN_TYPE, {conn_type, web_socket}). %% Web socket connection for client
-%-define(TEST_SERVER_PORT, 8080). %% Erlang WEBSocket
+%-define(TEST_SERVER_PORT, 8880). %% Erlang WEBSocket
 
 %%%%%%%%%%%%% SSL/TSL WEB socket test %%%%%%%%%%%%%%%%% 
 %-define(TEST_CONN_TYPE, {conn_type, web_sec_socket}). %% Web socket connection for client

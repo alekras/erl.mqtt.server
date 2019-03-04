@@ -21,11 +21,12 @@
 	delete_resource/2,
 
 	get_user/2,
-	add_user/2
+	add_user/2,
+	get_user_conn_status/2
 ]).
 
-init(Req0, State) ->
-	lager:info([{endtype, server}], "web starts req: ~p~n state: ~p~n", [Req0, State]),	
+init(Req0, [Path]) ->
+	lager:info([{endtype, server}], "web starts req: ~p~n path: ~p~n", [Req0, Path]),	
 	OrigHost = cowboy_req:header(<<"x-forwarded-for">>, Req0),
 	lager:info([{endtype, server}], "host: ~p~n", [OrigHost]),
 
@@ -35,7 +36,7 @@ init(Req0, State) ->
 		dets -> mqtt_dets_dao
 	end,
 
-	{cowboy_rest, Req0, #{storage => Storage}}.
+	{cowboy_rest, Req0, #{storage => Storage, path => Path}}.
 
 %% ====================================================================
 %% RESTfull callbacks
@@ -46,9 +47,13 @@ known_methods(Req, State) -> {[<<"GET">>, <<"POST">>, <<"DELETE">>], Req, State}
 
 is_authorized(Req, State) -> {true, Req, State}.
 
-content_types_provided(Req, State) ->
+content_types_provided(Req, #{path := auth} = State) ->
 	{[
 		{{<<"application">>, <<"json">>, []}, get_user}
+	], Req, State};
+content_types_provided(Req,  #{path := conn} = State) ->
+	{[
+		{{<<"application">>, <<"json">>, []}, get_user_conn_status}
 	], Req, State}.
 
 content_types_accepted(Req, State) ->
@@ -96,3 +101,11 @@ get_user(Req, #{exist := true, db_password := Password} = State) ->
 add_user(Req, #{storage := Storage, user := User, password := Password} = State) -> 
 	lager:info([{endtype, server}], "ADD USER req: ~p~n state: ~p~n", [Req, State]),
 	{Storage:save(server, #user{user_id = User, password = Password}), Req, State}.
+
+get_user_conn_status(Req, #{storage := Storage, user := User} = State) ->
+	Pid =  Storage:get(server, {client_id, User}),
+	lager:info([{endtype, server}], "USER ~p Connection: PID = ~p~n", [User, Pid]),
+	case Pid of
+		P when is_pid(P) ->	{<<"online">>, Req, State};
+		_ ->		{<<"offline">>, Req, State}
+	end.

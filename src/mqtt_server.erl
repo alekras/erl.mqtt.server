@@ -75,6 +75,8 @@ start(_Type, _Args) ->
 		dets -> mqtt_dets_dao
 	end,
 	Storage:start(server),
+	dets:delete_all_objects(connectpid_db_srv),
+	
 	Port = application:get_env(mqtt_server, port, 1883),
 	Port_tsl = application:get_env(mqtt_server, port_tsl, 1884),
 	Port_ws = application:get_env(mqtt_server, port_ws, 8080),
@@ -136,7 +138,8 @@ start(_Type, _Args) ->
 	Dispatch = cowboy_router:compile([
 		{'_', [
 						{"/", mqtt_ws_handler, []}, 
-						{"/rest/user/:user_name/[pswd/:password]", mqtt_rest_handler, []},
+						{"/rest/user/:user_name/[pswd/:password]", mqtt_rest_handler, [auth]},
+						{"/rest/user/:user_name/isconnected", mqtt_rest_handler, [conn]},
 						{"/:protocol", mqtt_ws_handler, []}
 					]
 		}

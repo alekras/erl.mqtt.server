@@ -107,7 +107,7 @@ $ erl -pa _build/default/lib/*/ebin
 ```
 and issue command in Erlang shell:
 ```erlang
-1>mqtt_server:add_user("UserName", <<"UserPassword">>;).
+1>mqtt_server:add_user("UserName", <<"UserPassword">>).
 ```
 or for user delete:
 ```erlang
