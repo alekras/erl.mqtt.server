@@ -32,7 +32,8 @@
 -export([start/2,
 	stop/1,
 	add_user/2,
-	remove_user/1
+	remove_user/1,
+	test_setup/0
 ]).
 
 -define(NUM_ACCEPTORS_IN_POOL, 2).
@@ -234,6 +235,12 @@ remove_user(User) ->
 	end,
 	Storage:start(server),
 	Storage:remove(server, {user_id, U}).
+
+test_setup() ->
+	add_user("alex", <<"alex">>),
+	add_user("tom", <<"tom">>),
+	add_user("sam", <<"sam">>),
+	add_user("john", <<"john">>).
 
 %% ====================================================================
 %% Internal functions
