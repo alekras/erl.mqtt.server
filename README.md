@@ -57,12 +57,12 @@ To start server run bash script:
 ```bash
 $ ./start_mqtt_server.sh
 ```
-Erlang shell will open and log statements are appering in console.
+Erlang shell will open and log statements are appearing in console.
 
 ## Testing
 
 You can test the server with any MQTT client complained with protocol version 3.1.1.
-I recomend to try Erlang MQTT client [https://sourceforge.net/projects/mqtt-client/] or [https://github.com/alekras/mqtt_client.git].
+I recommend to try Erlang MQTT client [https://sourceforge.net/projects/mqtt-client/] or [https://github.com/alekras/mqtt_client.git].
 
 ### Testing with Mosquitto tools
 To test with Mosquitto tools you need to open two terminal windows. One for subscribing and other for publishing.
