@@ -1,14 +1,25 @@
 {application, mqtt_server,
 	[
     {description, "MQTT server"},
-    {vsn, "1.0.2"},
+    {vsn, "1.0.3"},
     {modules, [
-      mqtt_server
-      ]
-    },
+      mqtt_server,
+      mqtt_server_sup,
+      mqtt_server_connection,
+      mqtt_ws_handler,
+      mqtt_rest_handler
+    ]},
     {registered, []},
-    {applications, [kernel, stdlib, ssl]},
-    {mod, {mqtt_server, [{vsn, "1.0.2"}]}},
+    {applications, [
+      kernel, 
+      stdlib, 
+      ssl,
+      lager,
+      cowboy,
+      ranch,
+      mqtt_common
+    ]},
+    {mod, {mqtt_server, [{vsn, "1.0.3"}]}},
     {env, [
     ]}
 	]
