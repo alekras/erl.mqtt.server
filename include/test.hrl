@@ -15,7 +15,7 @@
 %%
 
 %%-define(TEST_SERVER_HOST_NAME, "localhost").
--define(TEST_SERVER_HOST_NAME, "Alexei-Mac.attlocal.net").
+-define(TEST_SERVER_HOST_NAME, "MacBook-Pro.attlocal.net").
 -define(TEST_USER, "guest").
 -define(TEST_PASSWORD, <<"guest">>).
 -define(TEST_PROTOCOL, '3.1.1').
@@ -26,6 +26,7 @@
 -define(TEST_CONN_TYPE, {conn_type, clear}). %% Clear tcp for client
 -define(TEST_SERVER_PORT, 18883). %% Erlang
 %-define(TEST_SERVER_PORT, 2883). %% Mosquitto
+-define(TEST_REST_SERVER_URL, "http://" ++ ?TEST_SERVER_HOST_NAME ++ ":8880").
 
 %%%%%%%%%%%%% SSL/TSL socket test %%%%%%%%%%%%%%%%% 
 %-define(TEST_CONN_TYPE, {conn_type, ssl}). %% TSL/SSL for client

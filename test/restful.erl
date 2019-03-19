@@ -38,13 +38,12 @@
 ]).
 
 -import(testing, [wait_all/1]).
--define(URL, "http://localhost:8080").
 %%
 %% API Functions
 %%
 
 post() ->
-	Req0 = {?URL ++ "/rest/user/Alexei/pswd/25051954", [{"X-Forwarded-For", "localhost"}], "application/json", []},
+	Req0 = {?TEST_REST_SERVER_URL ++ "/rest/user/Alexei/pswd/25051954", [{"X-Forwarded-For", "localhost"}], "application/json", []},
 	Response0 = httpc:request(post, Req0, [{ssl, [{verify, 0}]}], []),
 	?debug_Fmt("Response #0: ~p~n", [Response0]),
 	{ok, {{_Pr, Status, _}, _Headers, Body}} = Response0,
@@ -54,14 +53,14 @@ post() ->
 	?PASSED.
 
 get() ->
-	Req0 = {?URL ++ "/rest/user/Alexei", [{"X-Forwarded-For", "localhost"}, {"Accept", "application/json"}]},
+	Req0 = {?TEST_REST_SERVER_URL ++ "/rest/user/Alexei", [{"X-Forwarded-For", "localhost"}, {"Accept", "application/json"}]},
 	Response0 = httpc:request(get, Req0, [], []),
 	?debug_Fmt("Response #0: ~p~n", [Response0]),
 	{ok, {{_Pr, Status, _}, _Headers, Body}} = Response0,
 	?assertEqual(200, Status),
 	?assertEqual([243,71,189,184,53,136,101,187,19,29,185,211,43,3,39,18,10], Body),
 
-	Req1 = {?URL ++ "/rest/user/Alexi", [{"X-Forwarded-For", "localhost"}, {"Accept", "application/json"}]},
+	Req1 = {?TEST_REST_SERVER_URL ++ "/rest/user/Alexi", [{"X-Forwarded-For", "localhost"}, {"Accept", "application/json"}]},
 	Response1 = httpc:request(get, Req1, [], []),
 	?debug_Fmt("Response #1: ~p~n", [Response1]),
 	{ok, {{_Pr1, Status1, _}, _Headers1, Body1}} = Response1,
@@ -71,7 +70,7 @@ get() ->
 	?PASSED.
 
 delete() ->
-	Req0 = {?URL ++ "/rest/user/Alexei", [{"X-Forwarded-For", "localhost"}, {"Accept", "application/json"}]},
+	Req0 = {?TEST_REST_SERVER_URL ++ "/rest/user/Alexei", [{"X-Forwarded-For", "localhost"}, {"Accept", "application/json"}]},
 	Response0 = httpc:request(delete, Req0, [], []),
 	?debug_Fmt("Response #0: ~p~n", [Response0]),
 	{ok, {{_Pr, Status, _}, _Headers, Body}} = Response0,

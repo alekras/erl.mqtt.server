@@ -1,0 +1,6 @@
+-sname mqtt_server
+
+-setcookie mqtt
+
++K true
++A30
