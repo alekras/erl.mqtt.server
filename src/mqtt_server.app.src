@@ -13,7 +13,9 @@
     {applications, [
       kernel, 
       stdlib, 
-      ssl,
+      ssl
+    ]},
+    {included_applications, [
       lager,
       cowboy,
       ranch,
