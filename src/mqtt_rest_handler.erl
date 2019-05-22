@@ -100,7 +100,8 @@ get_user(Req, #{exist := true, db_password := Password} = State) ->
 
 add_user(Req, #{storage := Storage, user := User, password := Password} = State) -> 
 	lager:info([{endtype, server}], "ADD USER req: ~p~n state: ~p~n", [Req, State]),
-	{Storage:save(server, #user{user_id = User, password = Password}), Req, State}.
+	Body = atom_to_binary(Storage:save(server, #user{user_id = User, password = Password}), latin1),
+	{{true, Body}, Req, State}.
 
 get_user_conn_status(Req, #{storage := Storage, user := User} = State) ->
 	Pid =  Storage:get(server, {client_id, User}),
