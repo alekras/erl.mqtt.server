@@ -86,7 +86,7 @@ start(_Type, _Args) ->
 	CA_Cert_File = application:get_env(mqtt_server, cacertfile, "tsl/ca.crt"),
 	Key_File = application:get_env(mqtt_server, keyfile, "tsl/server.key"),
 	Verify_peer = application:get_env(mqtt_server, verify, verify_none),
-	lager:info("TSL config files: ~p",[{Cert_File, CA_Cert_File, Key_File}]),	
+	lager:info("TLS config files: ~p",[{Cert_File, CA_Cert_File, Key_File}]),	
 
 %% 	B0 = application:start(cowlib),
 %% 	lager:debug("After Cowlib start: ~p",[B0]),	
@@ -114,22 +114,31 @@ start(_Type, _Args) ->
 		permanent, 5000, worker, [cowboy_clock]},
 	TCPListenerSpec = ranch:child_spec(
 							mqtt_server, 
-							?NUM_ACCEPTORS_IN_POOL,
 							ranch_tcp, 
-							[{port, Port}], 
+							#{
+								socket_opts => [{port, Port}],
+								num_acceptors => ?NUM_ACCEPTORS_IN_POOL
+							}, 
 							mqtt_server_connection, 
 							[{storage, Storage}]
 	),
 	TSLListenerSpec = ranch:child_spec(
 							mqtt_server_tls, 
-							?NUM_ACCEPTORS_IN_POOL,
 							ranch_ssl, 
-							[	{port, Port_tsl},
-								{certfile, Cert_File},
-								{cacertfile, CA_Cert_File},
-								{keyfile, Key_File},
-								{verify, Verify_peer}
-							], 
+							#{
+								num_acceptors => ?NUM_ACCEPTORS_IN_POOL,
+								socket_opts => [
+									{port, Port_tsl},
+									{certfile, Cert_File},
+									{cacertfile, CA_Cert_File},
+									{keyfile, Key_File},
+									{verify, Verify_peer}
+								]
+%% 								certfile => Cert_File,
+%% 								cacertfile => CA_Cert_File,
+%% 								keyfile => Key_File,
+%% 								verify => Verify_peer
+							}, 
 							mqtt_server_connection, 
 							[{storage, Storage}]
 	),
@@ -148,11 +157,12 @@ start(_Type, _Args) ->
 
 	WSListener = ranch:child_spec(
 				ws_listener, 
-				?NUM_ACCEPTORS_IN_POOL,
 				ranch_tcp, 
-				[{port, Port_ws}, 
-				 {connection_type, supervisor}
-				], 
+				#{
+					socket_opts => [{port, Port_ws}],
+					num_acceptors => ?NUM_ACCEPTORS_IN_POOL,
+					connection_type => supervisor
+				},
 				cowboy_clear, 
 				#{env => #{dispatch => Dispatch}, 
 					connection_type => supervisor,
@@ -162,17 +172,24 @@ start(_Type, _Args) ->
 	
 	WSSListener = ranch:child_spec(
 				wss_listener, 
-				?NUM_ACCEPTORS_IN_POOL,
 				ranch_ssl, 
-				[ {port, Port_wss},
-					{certfile, Cert_File},
-					{cacertfile, CA_Cert_File},
-					{keyfile, Key_File},
-					{verify, Verify_peer},
-					{connection_type, supervisor},
-					{next_protocols_advertised, [<<"h2">>, <<"http/1.1">>]},
-					{alpn_preferred_protocols, [<<"h2">>, <<"http/1.1">>]}
-				], 
+				#{port => Port_wss,
+					num_acceptors => ?NUM_ACCEPTORS_IN_POOL,
+					socket_opts => [
+						{port, Port_wss},
+						{certfile, Cert_File},
+						{cacertfile, CA_Cert_File},
+						{keyfile, Key_File},
+						{verify, Verify_peer}
+					],
+%% 					certfile => Cert_File,
+%% 					cacertfile => CA_Cert_File,
+%% 					keyfile => Key_File,
+%% 					verify => Verify_peer,
+					connection_type => supervisor,
+					next_protocols_advertised => [<<"h2">>, <<"http/1.1">>],
+					alpn_preferred_protocols => [<<"h2">>, <<"http/1.1">>]
+				}, 
 				cowboy_tls, 
 				#{env => #{dispatch => Dispatch}, 
 					connection_type => supervisor,
