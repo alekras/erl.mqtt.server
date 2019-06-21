@@ -1,5 +1,7 @@
 #!/bin/sh
 
+/opt/local/bin/rebar3 do version,compile
+
 erl \
  -pa _build/default/lib/*/ebin \
  -boot start_sasl \
