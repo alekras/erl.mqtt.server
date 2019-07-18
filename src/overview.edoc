@@ -31,6 +31,10 @@ The server was tested with
 <li>Erlang MQTT client [https://sourceforge.net/projects/mqtt-client/]</li>
 </ol>
 
+<h3>Messenger implementation based on the MQTT server</h3>
+Simple Instant messenger (SIM) [https://github.com/alekras/erl.web.sim] was created to test functionality of the MQQT server and prove good performance of the code.
+Live demo of SIM is running here: [http://lucky3p.com/sim].
+
 <h3>Architecture</h3>
 MQTT server is an OTP application. Application depends on other Erlang applications: 
 <ol>

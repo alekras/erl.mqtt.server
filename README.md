@@ -8,6 +8,10 @@ The server was tested with following clients
 2. [MQTT.fx client](http://www.mqttfx.org/)
 3. [Erlang MQTT client](https://sourceforge.net/projects/mqtt-client/)
 
+## Messenger implementation based on the MQTT server.
+Simple Instant messenger [SIM](https://github.com/alekras/erl.web.sim) was created to test functionality of the MQQT server and prove good performance of the code.
+Live demo of SIM is running [here](http://lucky3p.com/sim).
+
 ## Architecture
 MQTT server is an OTP application. Application depends on other Erlang applications: 
 
@@ -62,7 +66,7 @@ Erlang shell will open and log statements are appearing in console.
 ## Testing
 
 You can test the server with any MQTT client complained with protocol version 3.1.1.
-I recommend to try Erlang MQTT client [https://sourceforge.net/projects/mqtt-client/] or [https://github.com/alekras/mqtt_client.git].
+I recommend to try Erlang MQTT [client](https://sourceforge.net/projects/mqtt-client/) or [client](https://github.com/alekras/mqtt_client.git).
 
 ### Testing with Mosquitto tools
 To test with Mosquitto tools you need to open two terminal windows. One for subscribing and other for publishing.
