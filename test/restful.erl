@@ -47,7 +47,7 @@ post() ->
 	Response0 = httpc:request(post, Req0, [{ssl, [{verify, 0}]}], []),
 	?debug_Fmt("Response #0: ~p~n", [Response0]),
 	{ok, {{_Pr, Status, _}, _Headers, Body}} = Response0,
-	?assertEqual(204, Status),
+	?assertEqual(201, Status),
 	?assertEqual([], Body),
 
 	?PASSED.

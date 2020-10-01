@@ -14,8 +14,9 @@
 %% limitations under the License. 
 %%
 
-%%-define(TEST_SERVER_HOST_NAME, "localhost").
--define(TEST_SERVER_HOST_NAME, "MacBook-Pro.attlocal.net").
+%-define(TEST_SERVER_HOST_NAME, "localhost").
+%-define(TEST_SERVER_HOST_NAME, {127,0,0,1}).
+-define(TEST_SERVER_HOST_NAME, "MacBook-Pro").
 -define(TEST_USER, "guest").
 -define(TEST_PASSWORD, <<"guest">>).
 -define(TEST_PROTOCOL, '3.1.1').

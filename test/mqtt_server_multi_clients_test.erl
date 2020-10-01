@@ -137,7 +137,7 @@ subscriber_process(Pid, Name, Topics, Parent_Pid, N) ->
 			end
 	end.	
 
-process_message({{_Topic, _Q}, _QoS, _Dup, _Retain, Msg} = _A, Dest_Pid) -> 
+process_message({_Q, #publish{payload= Msg}} = _A, Dest_Pid) -> 
 %  ?debug_Fmt("~n::test:: process message: ~128p",[A]),
 	Payload = binary_to_term(Msg),
 	Name = proplists:get_value(name, Payload),

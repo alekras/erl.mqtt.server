@@ -43,15 +43,15 @@
 %% .
 retain_0({QoS, retain} = _X, [Publisher, Subscriber1, Subscriber2] = _Conns) -> {"retain QoS=" ++ integer_to_list(QoS) ++ ".", timeout, 100, fun() ->
 	register(test_result, self()),
-  
-	F1 = fun({{Topic, Q}, _QoS, _Dup, _Ret, Msg} = _Arg) -> 
+
+	F1 = fun({Q, #publish{topic= Topic, qos=_QoS, dup=_Dup, retain=_Ret, payload= Msg}} = _Arg) -> 
 					 ?debug_Fmt("::test:: fun 1 callback: ~100p",[_Arg]),
 					 ?assertEqual(QoS, Q),
 					 ?assertEqual("AK_retain_test", Topic),
 					 ?assertEqual(<<"Test retain message qos=", (integer_to_binary(QoS))/binary>>, Msg),
 					 test_result ! done 
 			end,
-	F2 = fun({{Topic, Q}, _QoS, _Dup, _Ret, Msg} = _Arg) -> 
+	F2 = fun({Q, #publish{topic= Topic, qos=_QoS, dup=_Dup, retain=_Ret, payload= Msg}} = _Arg) -> 
 					 ?debug_Fmt("::test:: fun 2 callback: ~100p",[_Arg]),
 					 ?assertEqual(QoS, Q),
 					 ?assertEqual("AK_retain_test", Topic),
@@ -59,13 +59,13 @@ retain_0({QoS, retain} = _X, [Publisher, Subscriber1, Subscriber2] = _Conns) -> 
 					 test_result ! done 
 			end,
 	R1_0 = mqtt_client:subscribe(Subscriber1, [{"AK_retain_test", QoS, F1}]), 
-	?assertEqual({suback,[QoS]}, R1_0),
+	?assertEqual({suback,[QoS],[]}, R1_0),
 timer:sleep(200),
 	R2_0 = mqtt_client:publish(Publisher, #publish{topic = "AK_retain_test", qos = QoS, retain = 1}, <<"Test retain message qos=", (integer_to_binary(QoS))/binary>>),
 	?assertEqual(ok, R2_0),
 timer:sleep(200),
 	R1_1 = mqtt_client:subscribe(Subscriber2, [{"AK_retain_test", QoS, F2}]), 
-	?assertEqual({suback,[QoS]}, R1_1),
+	?assertEqual({suback,[QoS],[]}, R1_1),
 
 	W = wait_all(2),
 
@@ -77,15 +77,15 @@ end}.
 %% .
 retain_1({QoS, retain} = _X, [Publisher, Subscriber1, Subscriber2] = _Conns) -> {"retain QoS=" ++ integer_to_list(QoS) ++ ".", timeout, 100, fun() ->
 	register(test_result, self()),
-  
-	F1 = fun({{Topic, Q}, _QoS, _Dup, _, Msg} = _Arg) -> 
+
+	F1 = fun({Q, #publish{topic= Topic, qos=_QoS, dup=_Dup, payload= Msg}} = _Arg) -> 
 					 ?debug_Fmt("::test:: fun 1 callback: ~100p",[_Arg]),
 					 ?assertEqual(QoS, Q),
 					 ?assertEqual("AK_retain_test", Topic),
 					 ?assertEqual(<<"Test retain message QoS=", (integer_to_binary(QoS))/binary>>, Msg),
 					 test_result ! done 
 			end,
-	F2 = fun({{Topic, Q}, _QoS, _Dup, _, Msg} = _Arg) -> 
+	F2 = fun({Q, #publish{topic= Topic, qos=_QoS, dup=_Dup, payload= Msg}} = _Arg) -> 
 					 ?debug_Fmt("::test:: fun 2 callback: ~100p",[_Arg]),
 					 ?assertEqual(QoS, Q),
 					 ?assertEqual("AK_retain_test", Topic),
@@ -97,13 +97,13 @@ retain_1({QoS, retain} = _X, [Publisher, Subscriber1, Subscriber2] = _Conns) -> 
 timer:sleep(200),
 
 	R2_0 = mqtt_client:subscribe(Subscriber1, [{"AK_retain_test", QoS, F1}]), 
-	?assertEqual({suback,[QoS]}, R2_0),
+	?assertEqual({suback,[QoS],[]}, R2_0),
 
 	R2_1 = mqtt_client:disconnect(Publisher),
 	?assertEqual(ok, R2_1),
 
 	R2_2 = mqtt_client:subscribe(Subscriber2, [{"AK_retain_test", QoS, F2}]), 
-	?assertEqual({suback,[QoS]}, R2_2),
+	?assertEqual({suback,[QoS],[]}, R2_2),
 
 	W = wait_all(2),
 

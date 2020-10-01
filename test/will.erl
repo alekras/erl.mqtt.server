@@ -44,7 +44,7 @@
 will_a({0, will} = _X, [Publisher, Subscriber] = _Conns) -> {"will QoS=0.", timeout, 100, fun() ->
 	register(test_result, self()),
   
-	F = fun({{Topic, Q}, _QoS, _Dup, _, Msg} = _Arg) -> 
+	F = fun({Q, #publish{topic= Topic, qos=_QoS, dup=_Dup, retain=_Ret, payload= Msg}} = _Arg) -> 
 %					 ?debug_Fmt("::test:: fun callback: ~100p",[_Arg]),
 					 ?assertEqual(0, Q),
 					 ?assertEqual("AK_will_test", Topic),
@@ -52,7 +52,7 @@ will_a({0, will} = _X, [Publisher, Subscriber] = _Conns) -> {"will QoS=0.", time
 					 test_result ! done 
 			end,
 	R1_0 = mqtt_client:subscribe(Subscriber, [{"AK_will_test", 0, F}]), 
-	?assertEqual({suback,[0]}, R1_0),
+	?assertEqual({suback,[0],[]}, R1_0),
 %% generate connection close:
 	R2 = mqtt_client:stop(Publisher),
 	?debug_Fmt("::test:: after stop publisher: ~100p",[R2]),
@@ -65,11 +65,10 @@ will_a({0, will} = _X, [Publisher, Subscriber] = _Conns) -> {"will QoS=0.", time
 	?PASSED
 end}.
 
-%% .
 will_0({0, will} = _X, [Publisher, Subscriber] = _Conns) -> {"will QoS=0.", timeout, 100, fun() ->
 	register(test_result, self()),
   
-	F = fun({{Topic, Q}, _QoS, _Dup, _, Msg} = _Arg) -> 
+	F = fun({Q, #publish{topic= Topic, qos=_QoS, dup=_Dup, retain=_Ret, payload= Msg}} = _Arg) -> 
 %					 ?debug_Fmt("::test:: fun callback: ~100p",[_Arg]),
 					 ?assertEqual(0, Q),
 					 ?assertEqual("AK_will_test", Topic),
@@ -77,7 +76,7 @@ will_0({0, will} = _X, [Publisher, Subscriber] = _Conns) -> {"will QoS=0.", time
 					 test_result ! done 
 			end,
 	R1_0 = mqtt_client:subscribe(Subscriber, [{"AK_will_test", 0, F}]), 
-	?assertEqual({suback,[0]}, R1_0),
+	?assertEqual({suback,[0],[]}, R1_0),
 %% generate connection lost:
 	gen_server:call(Publisher, {set_test_flag, break_connection}),
 	try
@@ -93,11 +92,10 @@ will_0({0, will} = _X, [Publisher, Subscriber] = _Conns) -> {"will QoS=0.", time
 	?PASSED
 end};
 
-%% .
 will_0({1, will} = _X, [Publisher, Subscriber] = _Conns) -> {"will QoS=1.", timeout, 100, fun() ->
 	register(test_result, self()),
   
-	F = fun({{Topic, Q}, _QoS, _Dup, _, Msg} = _Arg) -> 
+	F = fun({Q, #publish{topic= Topic, qos=_QoS, dup=_Dup, retain=_Ret, payload= Msg}} = _Arg) -> 
 %					 ?debug_Fmt("::test:: fun callback: ~100p",[_Arg]),
 					 ?assertEqual(1, Q),
 					 ?assertEqual("AK_will_test", Topic),
@@ -105,7 +103,7 @@ will_0({1, will} = _X, [Publisher, Subscriber] = _Conns) -> {"will QoS=1.", time
 					 test_result ! done 
 			end,
 	R1_0 = mqtt_client:subscribe(Subscriber, [{"AK_will_test", 1, F}]), 
-	?assertEqual({suback,[1]}, R1_0),
+	?assertEqual({suback,[1],[]}, R1_0),
 %% generate connection lost:
 	gen_server:call(Publisher, {set_test_flag, break_connection}),
 	try
@@ -125,7 +123,7 @@ end};
 will_0({2, will} = _X, [Publisher, Subscriber] = _Conns) -> {"will QoS=2.", timeout, 100, fun() ->
 	register(test_result, self()),
   
-	F = fun({{Topic, Q}, _QoS, _Dup, _, Msg} = _Arg) -> 
+	F = fun({Q, #publish{topic= Topic, qos=_QoS, dup=_Dup, retain=_Ret, payload= Msg}} = _Arg) -> 
 %					 ?debug_Fmt("::test:: fun callback: ~100p",[_Arg]),
 					 ?assertEqual(2, Q),
 					 ?assertEqual("AK_will_test", Topic),
@@ -133,7 +131,7 @@ will_0({2, will} = _X, [Publisher, Subscriber] = _Conns) -> {"will QoS=2.", time
 					 test_result ! done 
 			end,
 	R1_0 = mqtt_client:subscribe(Subscriber, [{"AK_will_test", 2, F}]), 
-	?assertEqual({suback,[2]}, R1_0),
+	?assertEqual({suback,[2],[]}, R1_0),
 %% generate connection lost:
 	gen_server:call(Publisher, {set_test_flag, break_connection}),
 	try
@@ -153,7 +151,7 @@ end}.
 will_retain({1, will_retain} = _X, [Publisher, Subscriber] = _Conns) -> {"will with retain QoS=1.", timeout, 100, fun() ->
 	register(test_result, self()),
   
-	F = fun({{Topic, Q}, _QoS, _Dup, _, Msg} = _Arg) -> 
+	F = fun({Q, #publish{topic= Topic, qos=_QoS, dup=_Dup, retain=_Ret, payload= Msg}} = _Arg) -> 
 					 ?debug_Fmt("::test:: fun callback: ~100p",[_Arg]),
 					 ?assertEqual(1, Q),
 					 ?assertEqual("AK_will_retain_test", Topic),
@@ -161,7 +159,7 @@ will_retain({1, will_retain} = _X, [Publisher, Subscriber] = _Conns) -> {"will w
 					 test_result ! done 
 			end,
 	R1_0 = mqtt_client:subscribe(Subscriber, [{"AK_will_retain_test", 1, F}]), 
-	?assertEqual({suback,[1]}, R1_0),
+	?assertEqual({suback,[1],[]}, R1_0),
 %% generate connection lost:
 	gen_server:call(Publisher, {set_test_flag, break_connection}),
 	try
@@ -183,7 +181,7 @@ will_retain({1, will_retain} = _X, [Publisher, Subscriber] = _Conns) -> {"will w
 	),
 	?assert(is_pid(Subscriber_2)),
 	R2_0 = mqtt_client:subscribe(Subscriber_2, [{"AK_will_retain_test", 1, F}]), 
-	?assertEqual({suback,[1]}, R2_0),
+	?assertEqual({suback,[1],[]}, R2_0),
 
   W = wait_all(2),
 

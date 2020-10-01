@@ -21,17 +21,19 @@
 %% @version {@version}
 %% @doc This module is running erlang unit tests.
 
--module(mqtt_server_tests).
+-module(mqtt_server_tests_v5).
 
 %%
 %% Include files
 %%
 -include_lib("eunit/include/eunit.hrl").
 -include_lib("mqtt_common/include/mqtt.hrl").
+-include_lib("mqtt_common/include/mqtt_property.hrl").
 -include("test.hrl").
 
 -export([
-  callback/1, 
+	make_callback/2,
+%%  callback/1, 
   ping_callback/1, 
   spring_callback/1, 
   summer_callback/1, 
@@ -43,52 +45,72 @@
 mqtt_server_test_() ->
 	[ 
 		{ setup, 
-			fun testing:do_start/0, 
-			fun testing:do_stop/1, 
+			fun testing_v5:do_start/0, 
+			fun testing_v5:do_stop/1, 
 			{inorder, [
-				{"connect", fun connect/0},
-				{"rest service", fun restful:post/0},
-				{"rest service", fun restful:get/0},
-				{"rest service", fun restful:delete/0},
+%% 				{"connect", fun connect/0},
+%% 				{"rest service", fun restful:post/0},
+%% 				{"rest service", fun restful:get/0},
+%% 				{"rest service", fun restful:delete/0},
  				{ foreachx, 
- 					fun testing:do_setup/1, 
- 					fun testing:do_cleanup/2, 
+ 					fun testing_v5:do_setup/1, 
+ 					fun testing_v5:do_cleanup/2, 
  					[
-						{{1, keep_alive}, fun keep_alive/2},
-						{{1, combined}, fun combined/2},
-						{{1, subs_list}, fun subs_list/2},
-						{{1, subs_filter}, fun subs_filter/2},
+%% 						{{1, keep_alive}, fun keep_alive/2},
+%% 						{{1, combined}, fun combined/2},
+%% 						{{1, subs_list}, fun subs_list/2},
+%% 						{{1, subs_filter}, fun subs_filter/2},
 
-						{{0, publish}, fun publish:publish_0/2},
-						{{1, publish}, fun publish:publish_0/2},
-						{{2, publish}, fun publish:publish_0/2},
+%% 						{{0, share}, fun share:publish_0/2},
+%% 						{{2, share}, fun share:publish_1/2},
 
-						{{1, session}, fun session:session_1/2},
-						{{2, session}, fun session:session_1/2},
-						{{3, session}, fun session:session_1/2},
-						{{4, session}, fun session:session_1/2},
+%% 						{{0, publish}, fun publish_v5:publish_0/2},
+%% 						{{1, publish}, fun publish_v5:publish_0/2},
+%% 						{{2, publish}, fun publish_v5:publish_0/2},
+%% 						{{0, publish}, fun publish_v5:publish_1/2},
+%% 						{{1, publish}, fun publish_v5:publish_1/2},
+%% 						{{2, publish}, fun publish_v5:publish_1/2}
 
-						{{1, session}, fun session:session_2/2},
-						{{2, session}, fun session:session_2/2},
-						{{3, session}, fun session:session_2/2},
-						{{4, session}, fun session:session_2/2},
-						{{5, session}, fun session:session_2/2},
-						{{6, session}, fun session:session_2/2},
-						{{7, session}, fun session:session_2/2},
-						{{8, session}, fun session:session_2/2},
+%% 						{{0, publish}, fun topic_alias:publish_0/2},
+%% 						{{2, publish}, fun topic_alias:publish_0/2},
+%% 						{{0, publish}, fun topic_alias:publish_1/2},
+%% 						{{1, publish}, fun topic_alias:publish_1/2},
+%% 						{{0, publish}, fun topic_alias:publish_2/2},
+%% 						{{2, publish}, fun topic_alias:publish_2/2},
+%% 						{{2, publish}, fun topic_alias:publish_3/2}
 
-						{{0, will}, fun will:will_a/2},
-						{{0, will}, fun will:will_0/2},
-						{{1, will}, fun will:will_0/2},
-						{{2, will}, fun will:will_0/2},
-						{{1, will_retain}, fun will:will_retain/2},
+%%						{{2, publish_rec_max}, fun publish_v5:publish_2/2}
+%% 
+%% 						{{1, session}, fun session:session_1/2},
+%% 						{{2, session}, fun session:session_1/2},
+%% 						{{3, session}, fun session:session_1/2},
+%% 						{{4, session}, fun session:session_1/2},
+%% 
+%% 						{{1, session}, fun session:session_2/2},
+%% 						{{2, session}, fun session:session_2/2},
+%% 						{{3, session}, fun session:session_2/2},
+%% 						{{4, session}, fun session:session_2/2},
+%% 						{{5, session}, fun session:session_2/2},
+%% 						{{6, session}, fun session:session_2/2},
+%% 						{{7, session}, fun session:session_2/2},
+%% 						{{8, session}, fun session:session_2/2},
+%% 
+%% 						{{0, will}, fun will:will_a/2},
+%% 						{{0, will}, fun will:will_0/2},
+%% 						{{1, will}, fun will:will_0/2},
+%% 						{{2, will}, fun will:will_0/2},
+%% 						{{1, will_retain}, fun will:will_retain/2},
 
-						{{0, retain}, fun retain:retain_0/2},
-						{{1, retain}, fun retain:retain_0/2},
-						{{2, retain}, fun retain:retain_0/2},
-						{{0, retain}, fun retain:retain_1/2},
-						{{1, retain}, fun retain:retain_1/2},
-						{{2, retain}, fun retain:retain_1/2}
+%% 						{{0, retain}, fun retain_v5:retain_0/2},
+%% 						{{1, retain}, fun retain_v5:retain_0/2},
+%% 						{{2, retain}, fun retain_v5:retain_0/2},
+%% 						{{0, retain}, fun retain_v5:retain_1/2},
+%% 						{{1, retain}, fun retain_v5:retain_1/2},
+%% 						{{2, retain}, fun retain_v5:retain_1/2},
+						{{2, retain}, fun retain_v5:retain_2/2}
+%% 						{{2, retain}, fun retain_v5:retain_3/2},
+%% 						{{2, retain}, fun retain_v5:subscription_option/2},
+%% 						{{2, retain}, fun retain_v5:subscription_id/2}
  					]}
       ]}
     }
@@ -220,7 +242,7 @@ combined(_, Conn) -> {"combined", timeout, 100, fun() ->
 	R3_0 = mqtt_client:publish(Conn, #publish{topic = "AKtest1"}, <<"Test Payload QoS = 0. annon. function callback. ">>), 
 	?assertEqual(ok, R3_0),
 
-	R2 = mqtt_client:subscribe(Conn, [{"AKtest", 2, {?MODULE, callback}}]), 
+	R2 = mqtt_client:subscribe(Conn, [{"AKtest", 2, make_callback(2,"AKtest")}]), 
 	?assertEqual({suback,[2],[]}, R2),
 	R3 = mqtt_client:publish(Conn, #publish{topic = "AKtest"}, <<"Test Payload QoS = 0.">>), 
 	?assertEqual(ok, R3),
@@ -236,7 +258,7 @@ combined(_, Conn) -> {"combined", timeout, 100, fun() ->
 	?assertEqual(ok, R8),
 	timer:sleep(500),
 	R9 = mqtt_client:unsubscribe(Conn, ["AKtest"]), 
-	?assertEqual({unsuback,[],[]}, R9),
+	?assertEqual({unsuback,[0],[]}, R9),
 	R10 = mqtt_client:pingreq(Conn, {?MODULE, ping_callback}), 
 	?assertEqual(ok, R10),
 % does not come
@@ -267,7 +289,7 @@ subs_list(_, Conn) -> {"subscribtion list", timeout, 100, fun() ->
 	W = wait_all(4),
 
 	R8 = mqtt_client:unsubscribe(Conn, ["Summer", "Winter"]), 
-	?assertEqual({unsuback,[],[]}, R8),
+	?assertEqual({unsuback,[0,0],[]}, R8),
 	R9 = mqtt_client:publish(Conn, #publish{topic = "Winter", qos = 2}, <<"Sent to winter. QoS = 2.">>), 
 	?assertEqual(ok, R9),
 	
@@ -306,7 +328,7 @@ subs_filter(_, Conn) -> {"subscription filter", fun() ->
 	W = wait_all(6),
 
 	R12 = mqtt_client:unsubscribe(Conn, ["Summer/+", "Winter/#", "Spring/+/Month/+"]),
-	?assertEqual({unsuback,[],[]}, R12),
+	?assertEqual({unsuback,[0,0,0],[]}, R12),
 
 	unregister(test_result),
 	?assert(W),
@@ -328,32 +350,43 @@ keep_alive(_, Conn) -> {"keep alive test", timeout, 15, fun() ->
 	?PASSED
 end}.
 
-callback({0, #publish{topic= "AKTest", qos=QoS}} = Arg) ->
-  case QoS of
-		0 -> ?assertMatch({0, #publish{topic= "AKTest", qos=QoS, payload= <<"Test Payload QoS = 0.">>}}, Arg)
-	end,
-%	?debug_Fmt("::test:: ~p:callback: ~p",[?MODULE, Arg]),
-	test_result ! done;
-callback({1, #publish{topic= "AKTest", qos=QoS, payload= _Msg}} = Arg) ->
-  case QoS of
-		0 -> ?assertMatch({1,#publish{topic= "AKTest", qos=QoS, payload= <<"Test Payload QoS = 0.">>}}, Arg);
-		1 -> ?assertMatch({1,#publish{topic= "AKTest", qos=QoS, payload= <<"Test Payload QoS = 1.">>}}, Arg)
-	end,
-	test_result ! done;
-callback({2, #publish{topic= "AKTest", qos=QoS, payload= _Msg}} = Arg) ->
-  case QoS of
-		0 -> ?assertMatch({2,#publish{topic= "AKTest", qos=QoS, payload= <<"Test Payload QoS = 0.">>}}, Arg);
-		1 -> ?assertMatch({2,#publish{topic= "AKTest", qos=QoS, payload= <<"Test Payload QoS = 2.">>}}, Arg)
-	end,
-	test_result ! done;
-callback({_, #publish{qos=QoS}} = Arg) ->
-  case QoS of
-		0 -> ?assertMatch({2,#publish{topic= "AKtest", qos=QoS, payload= <<"Test Payload QoS = 0.">>}}, Arg);
-		1 -> ?assertMatch({2,#publish{topic= "AKtest", qos=QoS, payload= <<"Test Payload QoS = 1.">>}}, Arg);
-		2 -> ?assertMatch({2,#publish{topic= "AKtest", qos=QoS, payload= <<"Test Payload QoS = 2.">>}}, Arg)
-	end,
-%	?debug_Fmt("::test:: ~p:callback: ~p",[?MODULE, Arg]),
-	test_result ! done.
+make_callback(SubsOpt, Topic) ->
+	fun({_, #publish{qos=QoS}} = Arg) ->
+		case QoS of
+			0 -> ?assertMatch({SubsOpt,#publish{topic= Topic, qos=QoS, payload= <<"Test Payload QoS = 0.">>}}, Arg);
+			1 -> ?assertMatch({SubsOpt,#publish{topic= Topic, qos=QoS, payload= <<"Test Payload QoS = 1.">>}}, Arg);
+			2 -> ?assertMatch({SubsOpt,#publish{topic= Topic, qos=QoS, payload= <<"Test Payload QoS = 2.">>}}, Arg)
+		end,
+		test_result ! done;
+		(_) -> skip
+	end.
+
+%% callback({0, #publish{topic= "AKTest", qos=QoS}} = Arg) ->
+%% 	case QoS of
+%% 		0 -> ?assertMatch({0, #publish{topic= "AKTest", qos=QoS, payload= <<"Test Payload QoS = 0.">>}}, Arg)
+%% 	end,
+%% %	?debug_Fmt("::test:: ~p:callback: ~p",[?MODULE, Arg]),
+%% 	test_result ! done;
+%% callback({1, #publish{topic= "AKTest", qos=QoS, payload= _Msg}} = Arg) ->
+%% 	case QoS of
+%% 		0 -> ?assertMatch({1,#publish{topic= "AKTest", qos=QoS, payload= <<"Test Payload QoS = 0.">>}}, Arg);
+%% 		1 -> ?assertMatch({1,#publish{topic= "AKTest", qos=QoS, payload= <<"Test Payload QoS = 1.">>}}, Arg)
+%% 	end,
+%% 	test_result ! done;
+%% callback({2, #publish{topic= "AKTest", qos=QoS, payload= _Msg}} = Arg) ->
+%% 	case QoS of
+%% 		0 -> ?assertMatch({2,#publish{topic= "AKTest", qos=QoS, payload= <<"Test Payload QoS = 0.">>}}, Arg);
+%% 		1 -> ?assertMatch({2,#publish{topic= "AKTest", qos=QoS, payload= <<"Test Payload QoS = 2.">>}}, Arg)
+%% 	end,
+%% 	test_result ! done;
+%% callback({_, #publish{qos=QoS}} = Arg) ->
+%% 	case QoS of
+%% 		0 -> ?assertMatch({2,#publish{topic= "AKtest", qos=QoS, payload= <<"Test Payload QoS = 0.">>}}, Arg);
+%% 		1 -> ?assertMatch({2,#publish{topic= "AKtest", qos=QoS, payload= <<"Test Payload QoS = 1.">>}}, Arg);
+%% 		2 -> ?assertMatch({2,#publish{topic= "AKtest", qos=QoS, payload= <<"Test Payload QoS = 2.">>}}, Arg)
+%% 	end,
+%% %	?debug_Fmt("::test:: ~p:callback: ~p",[?MODULE, Arg]),
+%% 	test_result ! done.
 
 ping_callback(Arg) ->
 %  ?debug_Fmt("::test:: ping callback: ~p",[Arg]),
