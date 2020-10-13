@@ -130,7 +130,7 @@ session_1({3, session} = _X, [Publisher, Subscriber] = _Conns) -> {"session QoS=
 	register(test_result, self()),
 
 	F = fun({Q, #publish{topic= Topic, qos=_QoS, dup=_Dup, retain=_Ret, payload= Msg}} = _Arg) -> 
-%					 ?debug_Fmt("::test:: fun callback: ~100p",[_Arg]),
+					 ?debug_Fmt("::test:: fun callback: ~100p",[_Arg]),
 					 ?assertEqual(1, Q),
 					 ?assertEqual("AKtest", Topic),
 					 test_result ! done 

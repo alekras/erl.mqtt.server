@@ -114,7 +114,7 @@ will_delay({QoS, will_delay} = _X, [Publisher, Subscriber] = _Conns) -> {"will Q
 	catch
 		_:_ -> ok
 	end,
-	timer:sleep(6000),
+	timer:sleep(5500),
   W = wait_all(1),
 
 	unregister(test_result),

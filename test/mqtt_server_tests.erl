@@ -89,10 +89,10 @@ mqtt_server_test_() ->
 						{{0, retain}, fun retain:retain_1/2},
 						{{1, retain}, fun retain:retain_1/2},
 						{{2, retain}, fun retain:retain_1/2}
- 					]}
-      ]}
-    }
-  ].
+					]}
+			]}
+		}
+	].
 
 connect() ->
 	ConnRec = testing:get_connect_rec(),	

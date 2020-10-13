@@ -77,6 +77,17 @@ connect(Name) when is_list(Name) ->
 do_setup({_, publish} = _X) ->
 %  ?debug_Fmt("~n::test:: setup before: ~p",[_X]),
 	[connect(publisher), connect(subscriber)];
+do_setup({_, publish_rec_max} = _X) ->
+%  ?debug_Fmt("~n::test:: setup before: ~p",[_X]),
+	P1 = mqtt_client:connect(
+		publisher, 
+		?CONN_REC#connect{client_id = "publisher", properties=[{?Receive_Maximum, 5}]}, 
+		?TEST_SERVER_HOST_NAME,
+		?TEST_SERVER_PORT, 
+		[?TEST_CONN_TYPE]
+	),
+	?assert(is_pid(P1)),
+	[P1, connect(subscriber)];
 do_setup({_, share} = _X) ->
 %  ?debug_Fmt("~n::test:: setup before: ~p",[_X]),
 	[connect(publisher), connect(subscriber1), connect(subscriber2), connect(subscriber3), connect(subscriber4)];
@@ -84,13 +95,13 @@ do_setup({_, session} = _X) ->
 %  ?debug_Fmt("~n::test:: setup before: ~p",[_X]),
 	P1 = mqtt_client:connect(
 		publisher, 
-		?CONN_REC#connect{client_id = "publisher", clean_session = 0}, 
+		?CONN_REC#connect{client_id = "publisher", clean_session = 0, properties=[{?Session_Expiry_Interval, 16#FFFFFFFF}]}, 
 		?TEST_SERVER_HOST_NAME, ?TEST_SERVER_PORT, 
 		[?TEST_CONN_TYPE]
 	),
 	S1 = mqtt_client:connect(
 		subscriber, 
-		?CONN_REC#connect{client_id = "subscriber", clean_session = 0}, 
+		?CONN_REC#connect{client_id = "subscriber", clean_session = 0, properties=[{?Session_Expiry_Interval, 16#FFFFFFFF}]}, 
 		?TEST_SERVER_HOST_NAME, ?TEST_SERVER_PORT, 
 		[?TEST_CONN_TYPE]
 	),
@@ -166,7 +177,7 @@ do_setup(_X) ->
 %  ?debug_Fmt("~n::test:: setup before: ~p",[_X]),
 	connect(publisher).
 
-do_cleanup({_, publish} = _X, [P, S] = _Pids) ->
+do_cleanup({_, Tag} = _X, [P, S] = _Pids) when Tag == publish; Tag == publish_rec_max ->
 	R1 = mqtt_client:disconnect(P),
 	R2 = mqtt_client:disconnect(S),
 	(get_storage(client)):cleanup(client),
@@ -203,7 +214,7 @@ do_cleanup({_QoS, Tag} = _X, [P, S] = _Pids)  when Tag == will; Tag == will_dela
 	R2 = mqtt_client:disconnect(S),
 
 	(get_storage(client)):cleanup(client),
-	(get_storage(server)):cleanup(server),
+%	(get_storage(server)):cleanup(server),
 	?assertEqual(ok, R1),
 %	?assertEqual(ok, R1_1),
 	?assertEqual(ok, R2);
