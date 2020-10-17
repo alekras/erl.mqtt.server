@@ -78,35 +78,35 @@ mqtt_server_test_() ->
 %% 						{{0, publish}, fun topic_alias:publish_2/2},
 %% 						{{2, publish}, fun topic_alias:publish_2/2},
 %% 						{{2, publish}, fun topic_alias:publish_3/2},
-%% 
-%% 						{{2, publish_rec_max}, fun publish_v5:publish_2/2},
-%% 
+
+						{{2, publish_rec_max}, fun publish_v5:publish_2/2}
+
 %% 						{{1, session}, fun session_v5:session_1/2},
 %% 						{{2, session}, fun session_v5:session_1/2},
 %% 						{{3, session}, fun session_v5:session_1/2},
 %% 						{{4, session}, fun session_v5:session_1/2},
 %% 
-						{{5, session}, fun session_v5:session_2/2},
-						{{6, session}, fun session_v5:session_2/2},
-						{{7, session}, fun session_v5:session_2/2},
-						{{8, session}, fun session_v5:session_2/2},
-						{{9, session}, fun session_v5:session_2/2},
-						{{10, session}, fun session_v5:session_2/2},
-						{{11, session}, fun session_v5:session_2/2},
-						{{12, session}, fun session_v5:session_2/2},
-						{{1, session_expire}, fun session_v5:session_expire/2},
-						{{2, session_expire}, fun session_v5:session_expire/2},
-						{{3, session_expire}, fun session_v5:session_expire/2},
-						{{4, session_expire}, fun session_v5:session_expire/2},
-						{{1, session}, fun session_v5:msg_expire/2},
-						{{2, session}, fun session_v5:msg_expire/2},
-
-						{{0, will}, fun will_v5:will_a/2},
-						{{0, will}, fun will_v5:will_0/2},
-						{{1, will}, fun will_v5:will_0/2},
-						{{2, will}, fun will_v5:will_0/2},
-						{{2, will_delay}, fun will_v5:will_delay/2},
- 						{{1, will_retain}, fun will_v5:will_retain/2}
+%% 						{{5, session}, fun session_v5:session_2/2},
+%% 						{{6, session}, fun session_v5:session_2/2},
+%% 						{{7, session}, fun session_v5:session_2/2},
+%% 						{{8, session}, fun session_v5:session_2/2},
+%% 						{{9, session}, fun session_v5:session_2/2},
+%% 						{{10, session}, fun session_v5:session_2/2},
+%% 						{{11, session}, fun session_v5:session_2/2},
+%% 						{{12, session}, fun session_v5:session_2/2},
+%% 						{{1, session_expire}, fun session_v5:session_expire/2},
+%% 						{{2, session_expire}, fun session_v5:session_expire/2},
+%% 						{{3, session_expire}, fun session_v5:session_expire/2},
+%% 						{{4, session_expire}, fun session_v5:session_expire/2},
+%% 						{{1, session}, fun session_v5:msg_expire/2},
+%% 						{{2, session}, fun session_v5:msg_expire/2},
+%% 
+%% 						{{0, will}, fun will_v5:will_a/2},
+%% 						{{0, will}, fun will_v5:will_0/2},
+%% 						{{1, will}, fun will_v5:will_0/2},
+%% 						{{2, will}, fun will_v5:will_0/2},
+%% 						{{2, will_delay}, fun will_v5:will_delay/2},  %% ** dets: Bug was found when accessing table
+%% 						{{1, will_retain}, fun will_v5:will_retain/2},
 %% 						{{2, will_retain}, fun will_v5:will_retain/2},
 %% 
 %% 						{{0, retain}, fun retain_v5:retain_0/2},
@@ -114,7 +114,7 @@ mqtt_server_test_() ->
 %% 						{{2, retain}, fun retain_v5:retain_0/2},
 %% 						{{0, retain}, fun retain_v5:retain_1/2},
 %% 						{{1, retain}, fun retain_v5:retain_1/2},
-%% 						{{2, retain}, fun retain_v5:retain_1/2},
+%% 						{{2, retain}, fun retain_v5:retain_1/2}, %% ** dets: Bug was found when accessing table
 %% 						{{2, retain}, fun retain_v5:retain_2/2},
 %% 						{{2, retain}, fun retain_v5:retain_3/2},
 %% 						{{2, retain}, fun retain_v5:subscription_option/2},

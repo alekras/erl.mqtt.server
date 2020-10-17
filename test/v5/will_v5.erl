@@ -102,7 +102,7 @@ will_delay({QoS, will_delay} = _X, [Publisher, Subscriber] = _Conns) -> {"will Q
 					 ?assertEqual(QoS, Q#subscription_options.max_qos),
 					 ?assertEqual("AK_will_test", Topic),
 					 ?assertEqual(<<"Test will message">>, Msg),
-					 ?assert(T2 >= 5),
+					 ?assert(T2 >= 2),
 					 test_result ! done 
 			end,
 	R1_0 = mqtt_client:subscribe(Subscriber, [{"AK_will_test", #subscription_options{max_qos=QoS}, F}]), 
@@ -156,7 +156,7 @@ will_retain({QoS, will_retain} = _X, [Publisher, Subscriber] = _Conns) -> {"will
 			user_name = "guest", password = <<"guest">>,
 			clean_session = 1,
 			keep_alive = 60000,
-			version = ?TEST_PROTOCOL
+			version = '5.0'
 		}, 
 		?TEST_SERVER_HOST_NAME, ?TEST_SERVER_PORT,
 		[?TEST_CONN_TYPE]

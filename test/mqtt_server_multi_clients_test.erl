@@ -83,7 +83,7 @@ do_cleanup({_, _} = _X, []) ->
   ?debug_Fmt("~n::test:: clean up after: ~p",[_X]).
 
 start_publisher_process(Name, Topics, N, Parent_Pid) ->
-	Conn_config = testing:get_connect_rec(),
+	Conn_config = (testing:get_connect_rec())#connect{version= '5.0'},
 	Pub_Pid = mqtt_client:connect(
 		Name, 
 		Conn_config#connect{client_id = atom_to_list(Name)}, 
@@ -104,7 +104,7 @@ gen_payload(N, Name) ->
 	term_to_binary([{name, Name}, {number, N}, {message, "Test message."}]).
 
 start_subscriber_process(Name, Topics, N, Parent_Pid) ->
-	Conn_config = testing:get_connect_rec(),
+	Conn_config = (testing:get_connect_rec())#connect{version= '5.0'},
 	Subs_Pid = mqtt_client:connect(
 		Name, 
 		Conn_config#connect{client_id = atom_to_list(Name)}, 

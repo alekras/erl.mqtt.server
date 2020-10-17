@@ -123,7 +123,7 @@ start(_Type, _Args) ->
 							[{storage, Storage}]
 	),
 	TSLListenerSpec = ranch:child_spec(
-							mqtt_server_tls, 
+							mqtt_server_tsl, 
 							ranch_ssl, 
 							#{
 								num_acceptors => ?NUM_ACCEPTORS_IN_POOL,
@@ -209,7 +209,7 @@ start(_Type, _Args) ->
 %% @private
 stop(_State) ->
 	ok = ranch:stop_listener(mqtt_server),
-	ok = ranch:stop_listener(mqtt_server_tls).
+	ok = ranch:stop_listener(mqtt_server_tsl).
 
 %% ====================================================================
 %% API functions

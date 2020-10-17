@@ -83,7 +83,8 @@ do_setup({_, publish_rec_max} = _X) ->
 		publisher, 
 		?CONN_REC#connect{client_id = "publisher", properties=[{?Receive_Maximum, 5}]}, 
 		?TEST_SERVER_HOST_NAME,
-		?TEST_SERVER_PORT, 
+		?TEST_SERVER_PORT,
+		{publish_v5, disconnect_callback}, 
 		[?TEST_CONN_TYPE]
 	),
 	?assert(is_pid(P1)),
@@ -135,7 +136,7 @@ do_setup({QoS, will_delay} = _X) ->
 			will_qos = QoS,
 			will_message = <<"Test will message">>,
 			will_topic = "AK_will_test",
-			will_properties =[{?Will_Delay_Interval, 5}]
+			will_properties =[{?Will_Delay_Interval, 2}]
 		}, 
 		?TEST_SERVER_HOST_NAME, 
 		?TEST_SERVER_PORT, 
