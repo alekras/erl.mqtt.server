@@ -1,7 +1,7 @@
 {application, mqtt_server,
 	[
     {description, "MQTT server"},
-    {vsn, "1.0.3"},
+    {vsn, "1.1.0"},
     {modules, [
       mqtt_server,
       mqtt_server_sup,
@@ -21,7 +21,7 @@
       ranch,
       mqtt_common
     ]},
-    {mod, {mqtt_server, [{vsn, "1.0.3"}]}},
+    {mod, {mqtt_server, [{vsn, "1.1.0"}]}},
     {env, [
     ]}
 	]

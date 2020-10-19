@@ -76,7 +76,7 @@ start(_Type, _Args) ->
 		dets -> mqtt_dets_dao
 	end,
 	Storage:start(server),
-	dets:delete_all_objects(connectpid_db_srv),
+	Storage:cleanup(server), %% TODO is it suitable for sessions?
 	
 	Port = application:get_env(mqtt_server, port, 1883),
 	Port_tsl = application:get_env(mqtt_server, port_tsl, 1884),

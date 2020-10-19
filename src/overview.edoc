@@ -78,7 +78,7 @@ Erlang shell will open and log statements are appering in console.
 <h3>Testing</h3>
 
 You can test the server with any MQTT client complained with protocol version 3.1.1.
-I recomend to try Erlang MQTT client [https://sourceforge.net/projects/mqtt-client/].
+I recommend to try Erlang MQTT client [https://sourceforge.net/projects/mqtt-client/].
 
 <h4>Testing with Mosquitto tools</h4>
 To test with Mosquitto tools you need to open two terminal windows. One for subscribing and other for publishing.

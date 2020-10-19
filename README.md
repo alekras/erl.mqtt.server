@@ -1,6 +1,6 @@
 # MQTT server for Erlang.
 ## Introduction
-The server implements MQTT messaging protocol version 3.1.1 and allows communicate with MQTT clients to send/receive messages.
+The server implements MQTT messaging protocol version 3.1, 3.1.1, 5.0 and allows communicate with MQTT clients to send/receive messages.
 The server is written in Erlang. 
 The server was tested with following clients
 
