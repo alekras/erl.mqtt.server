@@ -15,10 +15,10 @@ Live demo of SIM is running [here](http://lucky3p.com/sim).
 ## Architecture
 MQTT server is an OTP application. Application depends on other Erlang applications: 
 
-1. lager for logging services,
-2. ranch for tcp and tsl connections,
-3. msql_client for connection to MySQL server,
-4. mqtt_common that is library keeping code that is common for client and server implementation
+1. ```lager``` for logging services,
+2. ```ranch``` for tcp and tsl connections,
+3. ```msql_client``` for connection to MySQL server,
+4. ```mqtt_common``` that is library keeping code that is common for client and server implementation
 
 Session state data is storing in database (DETS or MySQL in current version)
 
@@ -31,11 +31,8 @@ To start with the server you have to complete two steps below:
 
 ### Building
 #### Download or clone from SourceForge GIT repository or from GitHub
-Download zip file erl.mqtt.server-vsn-1.0.{x}.zip from project files folder [https://sourceforge.net/projects/mqtt-server/files/versions-1.0.x/],
-unzip it and rename unziped folder to erl.mqtt.server. This is an Eclipse project folder. You do not need to use Eclipse to build server but 
-if you want you can use convenience of Eclipse and Erlide plugin.
 
-Other way to get the server code is GIT. Type command
+Download source code to local host. Type command
 ```bash
 $ git clone https://git.code.sf.net/p/mqtt-server/code erl.mqtt.server
 ```
@@ -63,9 +60,23 @@ $ ./start_mqtt_server.sh
 ```
 Erlang shell will open and log statements are appearing in console.
 
+### Using relx
+To make release of the application run command:
+```bash
+$ /opt/local/bin/rebar3 as prod release
+```
+Go to folder:
+```bash
+$ cd _build/prod/rel/mqtt_server
+```
+and run command to start server:
+```bash
+$ bin/mqtt_server console
+```
+
 ## Testing
 
-You can test the server with any MQTT client complained with protocol version 3.1.1.
+You can test the server with any MQTT client complained with protocol version 3.1.1 or 5.0.
 I recommend to try Erlang MQTT [client](https://sourceforge.net/projects/mqtt-client/) or [client](https://github.com/alekras/mqtt_client.git).
 
 ### Testing with Mosquitto tools
@@ -76,7 +87,7 @@ $ cd /usr/local/Cellar/mosquitto/1.4.10/
 ```
 Now subscribe to "test/c" topic:
 ```bash
-$ bin/mosquitto_sub -t test/c -p 18883 -i test -u guest -P guest -V mqttv311
+$ bin/mosquitto_sub -t test/c -p 18883 -i test -u guest -P guest -V mqttv5
 ```
 Open the second terminal windows and change directory to Mosquitto installation:
 ```bash
@@ -84,7 +95,7 @@ $ cd /usr/local/Cellar/mosquitto/1.4.10/
 ```
 Publish some message to "test/c" topic:
 ```bash
-$ bin/mosquitto_pub -t test/c -p 18883 -i test1 -u guest -P guest -m "Test message from mosquitto tools QoS=2" -q 2 -V mqttv311
+$ bin/mosquitto_pub -t test/c -p 18883 -i test1 -u guest -P guest -m "Test message from mosquitto tools QoS=2" -q 2 -V mqttv5
 ```
 In first terminal you will see incoming message:
 ```bash
