@@ -40,7 +40,7 @@
 	subscription_option/2,
 	subscription_id/2
 ]).
--import(testing, [wait_all/1]).
+-import(testing_v5, [wait_all/1]).
 %%
 %% API Functions
 %%

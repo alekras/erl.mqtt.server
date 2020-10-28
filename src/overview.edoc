@@ -73,7 +73,7 @@ Rebar will fetch code of all dependencies and compile source files of main proje
 
 To start server run bash script:
 <pre>./start_mqtt_server.sh</pre>
-Erlang shell will open and log statements are appering in console.
+Erlang shell will open and log statements are appearing in console.
 
 <h3>Testing</h3>
 

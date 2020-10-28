@@ -20,7 +20,10 @@ MQTT server is an OTP application. Application depends on other Erlang applicati
 3. ```msql_client``` for connection to MySQL server,
 4. ```mqtt_common``` that is library keeping code that is common for client and server implementation
 
-Session state data is storing in database (DETS or MySQL in current version)
+Session state data is storing in database (DETS or MySQL in current version). Server can establish connection using different network protocols:
+1. clear it/tcp
+2. tls/ssl
+3. web socket
 
 ## Getting started
 ### Installation
@@ -41,7 +44,7 @@ or
 $ git clone https://github.com/alekras/erl.mqtt.server.git erl.mqtt.server
 ```
 
-### Compiling
+#### Compiling
 After you have got source code of the server then change directory to the erl.mqtt.server:
 ```bash
 $ cd erl.mqtt.server

@@ -26,7 +26,7 @@
 -include_lib("mqtt_common/include/mqtt.hrl").
 -include("test.hrl").
 
--define(CONN_REC, (#connect{user_name = ?TEST_USER, password = ?TEST_PASSWORD, keep_alive = 60000}) ).
+-define(CONN_REC, (#connect{user_name = ?TEST_USER, password = ?TEST_PASSWORD, keep_alive = 60000, version = ?TEST_PROTOCOL}) ).
 
 %%
 %% API functions
@@ -127,7 +127,7 @@ do_setup({QoS, will_retain} = _X) ->
 	[P,S];
 do_setup({_QoS, retain} = _X) ->
 %  ?debug_Fmt("~n::test:: setup before: ~p",[_X]),
-	[connect(publisher), connect(subscriber_1), connect(subscriber_2)];
+	[connect(publisher), connect(subscriber01), connect(subscriber02)];
 do_setup({_, keep_alive}) ->
 %  ?debug_Fmt("~n::test:: setup before: ~p",[_X]),
 	mqtt_client:connect(
@@ -248,7 +248,7 @@ do_cleanup(_X, _Pids) ->
 	?assertEqual(ok, R).
 
 get_connect_rec() ->
-	?CONN_REC#connect{client_id = "test_client"}.
+	?CONN_REC#connect{client_id = "test0Client"}.
 
 get_storage(server) ->
 	case application:get_env(mqtt_server, storage, dets) of

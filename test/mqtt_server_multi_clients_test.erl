@@ -33,18 +33,18 @@ mqtt_multi_client_test_() ->
 start_task(_, []) -> {"start task", timeout, 150, fun() ->
 	N_Pub = 500,
 	Sub_List = [
-		{subscriber_1, [{"Winter/Jan/+", 0}, {"Spring/Apr/+", 1}], 4 * N_Pub},
-		{subscriber_2, [{"Summer/Jun/15", 0}, {"Fall/Nov/15", 2}], 5 * N_Pub},
-		{subscriber_3, [{"Winter/#", 0}, {"Summer/+/15", 0}], 5 * N_Pub},
-		{subscriber_4, [{"Fall/Nov/15", 2}, {"Winter/Feb/15", 1}], 4 * N_Pub},
-		{subscriber_5, [{"Spring/Apr/15", 1}, {"Summer/Jun/15", 0}], 3 * N_Pub}
+		{subscriber01, [{"Winter/Jan/+", 0}, {"Spring/Apr/+", 1}], 4 * N_Pub},
+		{subscriber02, [{"Summer/Jun/15", 0}, {"Fall/Nov/15", 2}], 5 * N_Pub},
+		{subscriber03, [{"Winter/#", 0}, {"Summer/+/15", 0}], 5 * N_Pub},
+		{subscriber04, [{"Fall/Nov/15", 2}, {"Winter/Feb/15", 1}], 4 * N_Pub},
+		{subscriber05, [{"Spring/Apr/15", 1}, {"Summer/Jun/15", 0}], 3 * N_Pub}
 	],
 	Pub_List = [
-		{publisher_1, [{"Winter/Jan/15", 1}, {"Summer/Jun/15", 0}], N_Pub},
-		{publisher_2, [{"Summer/Jun/15", 0}, {"Fall/Nov/15", 2}],   N_Pub},
-		{publisher_3, [{"Winter/Feb/15", 1}, {"Spring/Apr/30", 1}], N_Pub},
-		{publisher_4, [{"Fall/Nov/15", 2}, {"Winter/Jan/15", 0}],   N_Pub},
-		{publisher_5, [{"Spring/Apr/15", 1}, {"Fall/Nov/15", 2}],   N_Pub}
+		{publisher01, [{"Winter/Jan/15", 1}, {"Summer/Jun/15", 0}], N_Pub},
+		{publisher02, [{"Summer/Jun/15", 0}, {"Fall/Nov/15", 2}],   N_Pub},
+		{publisher03, [{"Winter/Feb/15", 1}, {"Spring/Apr/30", 1}], N_Pub},
+		{publisher04, [{"Fall/Nov/15", 2}, {"Winter/Jan/15", 0}],   N_Pub},
+		{publisher05, [{"Spring/Apr/15", 1}, {"Fall/Nov/15", 2}],   N_Pub}
 	],
 	[start_subscriber_process(Name, Topics, N, self()) || {Name, Topics, N} <- Sub_List],
 	timer:sleep(1000),
