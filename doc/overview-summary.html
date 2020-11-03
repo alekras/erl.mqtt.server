@@ -16,6 +16,8 @@
 <p><b>References</b><ul><li><a href="https://mosquitto.org/" target="_top"><tt>https://mosquitto.org/</tt></a> - Mosquitto MQTT server.
 </li><li><a href="https://www.rabbitmq.com/" target="_top"><tt>https://www.rabbitmq.com/</tt></a> - RabbitMQ server with MQTT plugin.
 </li><li><a href="https://sourceforge.net/projects/mqtt-client/" target="_top"><tt>https://sourceforge.net/projects/mqtt-client/</tt></a> - Erlang MQTT client.
+</li><li><a href="http://www.hivemq.com/demos/websocket-client/" target="_top"><tt>http://www.hivemq.com/demos/websocket-client/</tt></a> - MQTT websocket client.
+</li><li><a href="http://www.mqttfx.org/" target="_top"><tt>http://www.mqttfx.org/</tt></a> - MQTT client.
 </li></ul></p>
 <p><b>See also:</b> <a href="mqtt_server.html">mqtt_server</a>.</p>
 
@@ -28,6 +30,10 @@ The server was tested with
 <li>MQTT.fx client <a href="http://www.mqttfx.org/" target="_top"><tt>http://www.mqttfx.org/</tt></a></li>
 <li>Erlang MQTT client <a href="https://sourceforge.net/projects/mqtt-client/" target="_top"><tt>https://sourceforge.net/projects/mqtt-client/</tt></a></li>
 </ol>
+
+<h3>Messenger implementation based on the MQTT server</h3><p>
+Simple Instant messenger (SIM) <a href="https://github.com/alekras/erl.web.sim" target="_top"><tt>https://github.com/alekras/erl.web.sim</tt></a> was created to test functionality of the MQQT server and prove good performance of the code.
+Live demo of SIM is running here: <a href="http://lucky3p.com/sim" target="_top"><tt>http://lucky3p.com/sim</tt></a>.</p>
 
 <h3>Architecture</h3>
 MQTT server is an OTP application. Application depends on other Erlang applications: 
@@ -71,7 +77,8 @@ Erlang shell will open and log statements are appering in console.</p>
 
 <h3>Testing</h3>
 
-<p>You can test the server with any MQTT client complained with 3.1.1. I recomend to try Erlang MQTT client <a href="https://sourceforge.net/projects/mqtt-client/" target="_top"><tt>https://sourceforge.net/projects/mqtt-client/</tt></a>.</p>
+<p>You can test the server with any MQTT client complained with protocol version 3.1.1.
+I recomend to try Erlang MQTT client <a href="https://sourceforge.net/projects/mqtt-client/" target="_top"><tt>https://sourceforge.net/projects/mqtt-client/</tt></a>.</p>
 
 <h4>Testing with Mosquitto tools</h4>
 To test with Mosquitto tools you need to open two terminal windows. One for subscribing and other for publishing.
@@ -86,6 +93,13 @@ Publish some message to "test/c" topic:
 <pre>bin/mosquitto_pub -t test/c -p 18883 -i test1 -u guest -P guest -m "Test message from mosquitto tools QoS=2" -q 2 -V mqttv311</pre>
 In first terminal you will see incoming message:
 <pre>Test message from mosquitto tools QoS=2</pre>
+
+<h4>Testing with other MQTT clients</h4>
+The server was tested with other clients:
+<ol>
+<li>Websocket MQTT client from HiveMQ <a href="http://www.hivemq.com/demos/websocket-client/" target="_top"><tt>http://www.hivemq.com/demos/websocket-client/</tt></a>.</li>
+<li>MQTT.fx client <a href="http://www.mqttfx.org/" target="_top"><tt>http://www.mqttfx.org/</tt></a>.</li>
+</ol>
 
 <h3>Configuration</h3>
 

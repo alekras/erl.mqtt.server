@@ -98,9 +98,7 @@ do_setup({QoS, will} = _X) ->
 		?CONN_REC#connect{
 			client_id = "publisher",
 			will = 1,
-			will_qos = QoS,
-			will_message = <<"Test will message">>,
-			will_topic = "AK_will_test"
+			will_publish = #publish{topic= "AK_will_test", qos= QoS, payload= <<"Test will message">>}
 		}, 
 		?TEST_SERVER_HOST_NAME, ?TEST_SERVER_PORT, 
 		[?TEST_CONN_TYPE]
@@ -114,10 +112,7 @@ do_setup({QoS, will_retain} = _X) ->
 		?CONN_REC#connect{
 			client_id = "publisher",
 			will = 1,
-			will_retain = 1,
-			will_qos = QoS,
-			will_message = <<"Test will retain message">>,
-			will_topic = "AK_will_retain_test"
+			will_publish = #publish{topic= "AK_will_retain_test", qos= QoS, retain= 1, payload= <<"Test will retain message">>}
 		}, 
 		?TEST_SERVER_HOST_NAME, 
 		?TEST_SERVER_PORT, 

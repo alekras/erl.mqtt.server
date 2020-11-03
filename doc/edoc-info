@@ -1,3 +1,4 @@
 %% encoding: UTF-8
 {application,mqtt_server}.
-{modules,[mqtt_server,mqtt_server_connection,mqtt_server_sup]}.
+{modules,[mqtt_rest_handler,mqtt_server,mqtt_server_connection,
+          mqtt_server_sup,mqtt_ws_handler]}.
