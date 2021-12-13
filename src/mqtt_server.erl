@@ -79,12 +79,12 @@ start(_Type, _Args) ->
 	Storage:cleanup(server), %% TODO is it suitable for sessions?
 	
 	Port = application:get_env(mqtt_server, port, 1883),
-	Port_tsl = application:get_env(mqtt_server, port_tsl, 1884),
+	Port_tls = application:get_env(mqtt_server, port_tls, 1884),
 	Port_ws = application:get_env(mqtt_server, port_ws, 8080),
 	Port_wss = application:get_env(mqtt_server, port_wss, 4443),
-	Cert_File = application:get_env(mqtt_server, certfile, "tsl/server.crt"),
-	CA_Cert_File = application:get_env(mqtt_server, cacertfile, "tsl/ca.crt"),
-	Key_File = application:get_env(mqtt_server, keyfile, "tsl/server.key"),
+	Cert_File = application:get_env(mqtt_server, certfile, "tls/server.crt"),
+	CA_Cert_File = application:get_env(mqtt_server, cacertfile, "tls/ca.crt"),
+	Key_File = application:get_env(mqtt_server, keyfile, "tls/server.key"),
 	Verify_peer = application:get_env(mqtt_server, verify, verify_none),
 	lager:info("TLS config files: ~p",[{Cert_File, CA_Cert_File, Key_File}]),	
 
@@ -123,12 +123,12 @@ start(_Type, _Args) ->
 							[{storage, Storage}]
 	),
 	TSLListenerSpec = ranch:child_spec(
-							mqtt_server_tsl, 
+							mqtt_server_tls, 
 							ranch_ssl, 
 							#{
 								num_acceptors => ?NUM_ACCEPTORS_IN_POOL,
 								socket_opts => [
-									{port, Port_tsl},
+									{port, Port_tls},
 									{certfile, Cert_File},
 									{cacertfile, CA_Cert_File},
 									{keyfile, Key_File},
@@ -209,7 +209,7 @@ start(_Type, _Args) ->
 %% @private
 stop(_State) ->
 	ok = ranch:stop_listener(mqtt_server),
-	ok = ranch:stop_listener(mqtt_server_tsl).
+	ok = ranch:stop_listener(mqtt_server_tls).
 
 %% ====================================================================
 %% API functions
