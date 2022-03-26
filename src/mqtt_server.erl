@@ -86,8 +86,22 @@ start(_Type, _Args) ->
 	CA_Cert_File = application:get_env(mqtt_server, cacertfile, "tls/ca.crt"),
 	Key_File = application:get_env(mqtt_server, keyfile, "tls/server.key"),
 	Verify_peer = application:get_env(mqtt_server, verify, verify_none),
-	lager:info("TLS config files: ~p",[{Cert_File, CA_Cert_File, Key_File}]),	
-
+	lager:info("TLS config files: ~p~n",[{Cert_File, CA_Cert_File, Key_File,Verify_peer}]),	
+	case filelib:is_regular(Cert_File) of
+		true -> ok;
+		false -> 
+			lager:error("Certificate file does not exist: ~p.", [Cert_File])
+	end,
+	case filelib:is_regular(CA_Cert_File) of
+		true -> ok;
+		false ->
+			lager:error("CA Certificate file does not exist: ~p.", [CA_Cert_File])
+	end,
+	case filelib:is_regular(Key_File) of
+		true -> ok;
+		false ->
+			lager:error("Key file does not exist: ~p.", [Key_File])
+	end,
 %% 	B0 = application:start(cowlib),
 %% 	lager:debug("After Cowlib start: ~p",[B0]),	
 %% 	B1 = application:start(cowboy),
@@ -122,7 +136,7 @@ start(_Type, _Args) ->
 							mqtt_server_connection, 
 							[{storage, Storage}]
 	),
-	TSLListenerSpec = ranch:child_spec(
+	TLSListenerSpec = ranch:child_spec(
 							mqtt_server_tls, 
 							ranch_ssl, 
 							#{
@@ -132,17 +146,15 @@ start(_Type, _Args) ->
 									{certfile, Cert_File},
 									{cacertfile, CA_Cert_File},
 									{keyfile, Key_File},
+									{depth, 2},
+%%									{server_name_indication, disable}, 
 									{verify, Verify_peer}
 								]
-%% 								certfile => Cert_File,
-%% 								cacertfile => CA_Cert_File,
-%% 								keyfile => Key_File,
-%% 								verify => Verify_peer
 							}, 
 							mqtt_server_connection, 
 							[{storage, Storage}]
 	),
-
+%%	lager:debug("TLSListenerSpec: ~p~n",[TLSListenerSpec]),	
 
 %% Web socket connection
 	Dispatch = cowboy_router:compile([
@@ -182,10 +194,6 @@ start(_Type, _Args) ->
 						{keyfile, Key_File},
 						{verify, Verify_peer}
 					],
-%% 					certfile => Cert_File,
-%% 					cacertfile => CA_Cert_File,
-%% 					keyfile => Key_File,
-%% 					verify => Verify_peer,
 					connection_type => supervisor,
 					next_protocols_advertised => [<<"h2">>, <<"http/1.1">>],
 					alpn_preferred_protocols => [<<"h2">>, <<"http/1.1">>]
@@ -199,7 +207,7 @@ start(_Type, _Args) ->
 	
 	mqtt_server_sup:start_link([RanchSupSpec, 
 															CowboyClock, 
-															TCPListenerSpec, TSLListenerSpec, 
+															TCPListenerSpec, TLSListenerSpec, 
 															WSListener, WSSListener]).
 
 %% ====================================================================

@@ -113,7 +113,7 @@ The server was tested with other clients:
 
 ## Configuration
 
-To set up ports for TCP and TSL socket connection go to mqtt.config. This is OTP application configuration file contained startup data for
+To set up ports for TCP and TLS socket connection go to mqtt.config. This is OTP application configuration file contained startup data for
 lager, ranch and mqtt server configuration.
 
 ### Add/Remove users

@@ -21,7 +21,6 @@
 %% @doc The module implements ranch_protocol behaviour. This is start point to create
 %% socket connection process that keeps connection to MQTT client.
 
-
 -module(mqtt_server_connection).
 
 -behaviour(ranch_protocol).
@@ -34,7 +33,7 @@
 %% ====================================================================
 %% API functions
 %% ====================================================================
--export([]).
+-export([init/1]).
 
 %% ====================================================================
 %% Behavioural functions
@@ -44,9 +43,13 @@
 
 -spec start_link(Ref :: atom(), Socket :: port(), Transport :: module(), Opts :: list()) -> {ok, Pid :: pid()}.
 %% @doc The function starts mqtt_connection process.
-start_link(Ref, Socket, Transport, Opts) ->
+start_link(Ref, _Socket, Transport, Opts) ->
+	{ok, proc_lib:spawn_link(?MODULE, init, [{Ref, Transport, Opts}])}.
+
+init({Ref, Transport, Opts}) ->
+	%% Perform any required state initialization here.
+	{ok, Socket} = ranch:handshake(Ref),
 	Storage = proplists:get_value(storage, Opts, mqtt_dets_dao),
 	ok = Transport:setopts(Socket, [{active, true}]),
  	State = #connection_state{socket = Socket, transport = Transport, storage = Storage, end_type = server},
-	{ok, proc_lib:spawn_link(fun() -> ok = ranch:accept_ack(Ref), mqtt_connection:init(State) end)}.
-
+	mqtt_connection:init(State).

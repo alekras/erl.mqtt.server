@@ -1,4 +1,4 @@
-backend_version=20.0
+backend_version=22.0
 compiler/raw={i, "/Users/alexei/eclipse/data/workspace-Erlang/erl.mqtt.server/_build/default/lib"}
 eclipse.preferences.version=1
 external_includes=
