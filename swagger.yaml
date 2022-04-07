@@ -1,0 +1,148 @@
+swagger: "2.0"
+info:
+  title: "MQTT server API"
+  description: >-
+    This is a RESTful API of MQTT server. The API manages user database of MQTT server.
+    See for details https://github.com/alekras/erl.mqtt.server
+  contact:
+    email: krasnop@bellsouth.net
+  license:
+    name: "Apache 2.0"
+    url: "http://www.apache.org/licenses/LICENSE-2.0.html"
+  version: "1.0.0"
+externalDocs:
+  description: Find out more about Erlang MQTT server
+  url: https://github.com/alekras/erl.mqtt.server
+host: "lucky3p.com"
+basePath: "/v2"
+tags:
+- name: "user"
+  description: "Manage user database"
+  externalDocs:
+    description: "Find out more"
+    url: "http://lucky3p.com"
+schemes:
+- "https"
+- "http"
+paths:
+  /rest/user/{user_name}:
+    parameters:
+      - name: "user_name"
+        in: "path"
+        description: "User name"
+        required: true
+        type: "string"
+    get:
+      tags:
+        - "user"
+      summary: "Get user's password in md5 format"
+      description: "Returns a user's password"
+      operationId: "getUserPassword"
+      produces:
+      - "application/json"
+      responses:
+        "200":
+          description: "successful operation"
+          schema:
+            type: "string"
+        "400":
+          description: "Invalid user name supplied"
+        "404":
+          description: "User not found"
+    post:
+      tags:
+        - "user"
+      summary: "Add a new user/password to the database"
+      operationId: "createNewUser"
+      consumes:
+      - "application/x-www-form-urlencoded"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "body"
+        description: "User's password in md5 format"
+        required: true
+        schema:
+          type: "string"
+      responses:
+        "201":
+          description: "Successful operation"
+        "400":
+          description: "Invalid request"
+    delete:
+      tags:
+      - "user"
+      summary: "Delete user/password in the database"
+      operationId: "deleteUser"
+      responses:
+        "200":
+          description: "Successful operation"
+        "404":
+          description: "User not found"
+  /rest/user/{user_name}/status:
+    get:
+      tags:
+        - "user"
+      summary: "Get user connection status"
+      description: "Returns a user connection status"
+      operationId: "getStatus"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "user_name"
+        in: "path"
+        description: "User name"
+        required: true
+        type: "string"
+      responses:
+        "200":
+          description: "Successful operation"
+          schema:
+            $ref: "#/definitions/ConnectionStatus"
+        "400":
+          description: "Invalid user name supplied"
+        "404":
+          description: "User not found"
+  /rest/user/status:
+    get:
+      tags:
+        - "user"
+      summary: "Get user connection statuses"
+      description: "Returns a list of user statuses"
+      operationId: "getAllStatuses"
+      consumes:
+      - "application/x-www-form-urlencoded"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "query"
+        name: "users"
+        description: "List of user names"
+        required: true
+        uniqueItems: true
+        type: "array"
+        items:
+          type: "string"
+      responses:
+        "200":
+          description: "Successful operation"
+          schema:
+           $ref: "#/definitions/ConnectionStatusList"
+        "400":
+          description: "Invalid user name supplied"
+        "404":
+          description: "User not found"
+definitions:
+  ConnectionStatus:
+    type: "object"
+    properties:
+      id:
+        type: "string"
+      status:
+        type: "string"
+        enum: [on, off, notFound]
+  ConnectionStatusList:
+    type: "array"
+    items: 
+      $ref: "#/definitions/ConnectionStatus"
