@@ -1,0 +1,358 @@
+{
+  "openapi" : "3.0.1",
+  "info" : {
+    "contact" : {
+      "email" : "krasnop@bellsouth.net"
+    },
+    "description" : "This is a RESTful API of MQTT server. The API manages user database of MQTT server. See for details https://github.com/alekras/erl.mqtt.server",
+    "license" : {
+      "name" : "Apache 2.0",
+      "url" : "http://www.apache.org/licenses/LICENSE-2.0.html"
+    },
+    "title" : "MQTT server API",
+    "version" : "1.0.1"
+  },
+  "externalDocs" : {
+    "description" : "Find out more about Erlang MQTT server",
+    "url" : "https://github.com/alekras/erl.mqtt.server"
+  },
+  "servers" : [ {
+    "url" : "{protocol}://{server}:{port}/rest",
+    "variables" : {
+      "protocol" : {
+        "default" : "http",
+        "enum" : [ "http", "https" ]
+      },
+      "server" : {
+        "default" : "localhost",
+        "enum" : [ "lucky3p.com", "localhost" ]
+      },
+      "port" : {
+        "default" : "8880"
+      }
+    }
+  } ],
+  "security" : [ {
+    "ApiKeyAuth" : [ ]
+  } ],
+  "tags" : [ {
+    "description" : "Manage user database",
+    "externalDocs" : {
+      "description" : "Find out more",
+      "url" : "http://lucky3p.com"
+    },
+    "name" : "user"
+  } ],
+  "paths" : {
+    "/user/{user_name}" : {
+      "delete" : {
+        "operationId" : "deleteUser",
+        "parameters" : [ {
+          "description" : "User name",
+          "explode" : false,
+          "in" : "path",
+          "name" : "user_name",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          },
+          "style" : "simple"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Successfully deleted"
+          },
+          "204" : {
+            "description" : "Already deleted"
+          },
+          "404" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Error"
+                }
+              }
+            },
+            "description" : "User not found"
+          }
+        },
+        "summary" : "Delete user in the database",
+        "tags" : [ "user" ]
+      },
+      "get" : {
+        "description" : "Returns a user's password in md5 format and list of roles",
+        "operationId" : "getUserInfo",
+        "parameters" : [ {
+          "description" : "User name",
+          "explode" : false,
+          "in" : "path",
+          "name" : "user_name",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          },
+          "style" : "simple"
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/User"
+                }
+              }
+            },
+            "description" : "Successful operation"
+          },
+          "400" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Error"
+                }
+              }
+            },
+            "description" : "Invalid user name supplied"
+          },
+          "404" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Error"
+                }
+              }
+            },
+            "description" : "User not found"
+          }
+        },
+        "summary" : "Get user's information",
+        "tags" : [ "user" ]
+      },
+      "post" : {
+        "operationId" : "createNewUser",
+        "parameters" : [ {
+          "description" : "User name",
+          "explode" : false,
+          "in" : "path",
+          "name" : "user_name",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          },
+          "style" : "simple"
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/x-www-form-urlencoded" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/User"
+              }
+            }
+          },
+          "description" : "User's password in md5 format and roles",
+          "required" : true
+        },
+        "responses" : {
+          "201" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Error"
+                }
+              }
+            },
+            "description" : "Successful operation"
+          },
+          "400" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Error"
+                }
+              }
+            },
+            "description" : "Invalid request"
+          }
+        },
+        "summary" : "Add a new user to the database",
+        "tags" : [ "user" ]
+      }
+    },
+    "/user/{user_name}/status" : {
+      "get" : {
+        "description" : "Returns a user connection status",
+        "operationId" : "getStatus",
+        "parameters" : [ {
+          "description" : "User name",
+          "explode" : false,
+          "in" : "path",
+          "name" : "user_name",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          },
+          "style" : "simple"
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ConnectionStatus"
+                }
+              }
+            },
+            "description" : "Successful operation"
+          },
+          "400" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Error"
+                }
+              }
+            },
+            "description" : "Invalid user name supplied"
+          },
+          "404" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Error"
+                }
+              }
+            },
+            "description" : "User not found"
+          }
+        },
+        "summary" : "Get user connection status",
+        "tags" : [ "user" ]
+      }
+    },
+    "/user/status" : {
+      "get" : {
+        "description" : "Returns a list of user statuses",
+        "operationId" : "getAllStatuses",
+        "parameters" : [ {
+          "description" : "List of user names",
+          "example" : "alex,sam,john",
+          "explode" : false,
+          "in" : "query",
+          "name" : "users",
+          "required" : true,
+          "schema" : {
+            "items" : {
+              "type" : "string"
+            },
+            "type" : "array",
+            "uniqueItems" : true
+          },
+          "style" : "form"
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ConnectionStatusList"
+                }
+              }
+            },
+            "description" : "Successful operation"
+          },
+          "400" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Error"
+                }
+              }
+            },
+            "description" : "Invalid user name supplied"
+          },
+          "404" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Error"
+                }
+              }
+            },
+            "description" : "User not found"
+          }
+        },
+        "summary" : "Get user connection statuses",
+        "tags" : [ "user" ]
+      }
+    }
+  },
+  "components" : {
+    "schemas" : {
+      "User" : {
+        "example" : {
+          "password" : "password",
+          "roles" : [ "roles", "roles" ]
+        },
+        "properties" : {
+          "password" : {
+            "type" : "string"
+          },
+          "roles" : {
+            "items" : {
+              "type" : "string"
+            },
+            "type" : "array"
+          }
+        },
+        "required" : [ "password" ],
+        "type" : "object"
+      },
+      "ConnectionStatus" : {
+        "example" : {
+          "id" : "id",
+          "status" : "true"
+        },
+        "properties" : {
+          "id" : {
+            "type" : "string"
+          },
+          "status" : {
+            "enum" : [ "true", "false", "notFound" ],
+            "type" : "string"
+          }
+        },
+        "required" : [ "id" ],
+        "type" : "object"
+      },
+      "ConnectionStatusList" : {
+        "items" : {
+          "$ref" : "#/components/schemas/ConnectionStatus"
+        },
+        "type" : "array"
+      },
+      "Error" : {
+        "example" : {
+          "code" : "code",
+          "message" : "message"
+        },
+        "properties" : {
+          "code" : {
+            "type" : "string"
+          },
+          "message" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "code", "message" ],
+        "type" : "object"
+      }
+    },
+    "securitySchemes" : {
+      "ApiKeyAuth" : {
+        "in" : "header",
+        "name" : "X-API-Key",
+        "type" : "apiKey"
+      }
+    }
+  }
+}

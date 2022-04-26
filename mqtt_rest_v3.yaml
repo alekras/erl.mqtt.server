@@ -1,0 +1,243 @@
+openapi: 3.0.1
+info:
+  title: MQTT server API
+  description: >-
+    This is a RESTful API of MQTT server. The API manages user database of MQTT server.
+    See for details https://github.com/alekras/erl.mqtt.server
+  contact:
+    email: krasnop@bellsouth.net
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  version: 1.0.1
+
+externalDocs:
+  description: Find out more about Erlang MQTT server
+  url: https://github.com/alekras/erl.mqtt.server
+
+servers:
+- url: '{protocol}://{server}:{port}/rest'
+  variables:
+    protocol:
+      enum:
+        - http
+        - https
+      default: http
+    server:
+      enum:
+        - lucky3p.com
+        - localhost
+      default: localhost
+    port:
+      default: '8880'
+tags:
+- name: user
+  description: Manage user database
+  externalDocs:
+    description: Find out more
+    url: http://lucky3p.com
+paths:
+  /user/{user_name}:
+    get:
+      tags:
+      - user
+      summary: Get user's information
+      description: Returns a user's password in md5 format and list of roles
+      operationId: getUserInfo
+      parameters:
+      - name: user_name
+        in: path
+        description: User name
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '400':
+          description: Invalid user name supplied
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: User not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    post:
+      tags:
+      - user
+      summary: Add a new user to the database
+      operationId: createNewUser
+      parameters:
+      - name: user_name
+        in: path
+        description: User name
+        required: true
+        schema:
+          type: string
+      requestBody:
+        description: User's password in md5 format and roles
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/User'
+        required: true
+      responses:
+        '201':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    delete:
+      tags:
+      - user
+      summary: Delete user in the database
+      operationId: deleteUser
+      parameters:
+      - name: user_name
+        in: path
+        description: User name
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Successfully deleted
+        '204':
+          description: Already deleted
+        '404':
+          description: User not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /user/{user_name}/status:
+    get:
+      tags:
+      - user
+      summary: Get user connection status
+      description: Returns a user connection status
+      operationId: getStatus
+      parameters:
+      - name: user_name
+        in: path
+        description: User name
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConnectionStatus'
+        '400':
+          description: Invalid user name supplied
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: User not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /user/status:
+    get:
+      tags:
+      - user
+      summary: Get user connection statuses
+      description: Returns a list of user statuses
+      operationId: getAllStatuses
+      parameters:
+      - name: users
+        in: query
+        description: List of user names
+        required: true
+        style: form
+        explode: false
+        schema:
+          uniqueItems: true
+          type: array
+          items:
+            type: string
+        example: alex,sam,john
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConnectionStatusList'
+        '400':
+          description: Invalid user name supplied
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: User not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+security:
+  - ApiKeyAuth: []
+components:
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-API-Key
+  schemas:
+    User:
+      type: object
+      properties:
+        password:
+          type: string
+        roles:
+          type: array
+          items:
+            type: string
+      required: 
+        - password
+    ConnectionStatus:
+      type: object
+      properties:
+        id:
+          type: string
+        status:
+          type: string
+          enum: [on, off, notFound]
+      required: 
+        - id
+    ConnectionStatusList:
+      type: array
+      items:
+        $ref: '#/components/schemas/ConnectionStatus'
+    Error:
+      type: object
+      properties:
+        code:
+          type: string
+        message:
+          type: string
+      required:
+        - code
+        - message
