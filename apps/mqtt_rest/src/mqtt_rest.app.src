@@ -9,11 +9,13 @@
 		inets,
 		jsx,
 		jesse,
-		cowboy
+		cowboy,
+		lager
 	]},
 	{env, [
 	]},
 	{modules, []},
+	{mod, {mqtt_rest, [{vsn, "1.0.0"}]}},
 	{licenses, ["Apache 2.0"]},
 	{links, []}
 ]}.

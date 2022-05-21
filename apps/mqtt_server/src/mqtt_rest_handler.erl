@@ -1,7 +1,6 @@
 %% @author alexei
 %% @doc @todo Add description to mqtt_rest_handler.
 
-
 -module(mqtt_rest_handler).
 
 -include_lib("mqtt_common/include/mqtt.hrl").

@@ -13,7 +13,8 @@
     {applications, [
       kernel, 
       stdlib, 
-      ssl
+      ssl,
+      mqtt_rest
     ]},
     {included_applications, [
       lager,

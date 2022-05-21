@@ -21,6 +21,7 @@
 	operation_id :: mqtt_rest_api:operation_id(),
 	logic_handler :: atom(),
 	validator_state :: jesse_state:state(),
+	storage :: atom(),
 	context=#{} :: #{}
 }).
 
@@ -30,15 +31,25 @@
 	{cowboy_rest, Req :: cowboy_req:req(), State :: state()}.
 
 init(Req, {Operations, LogicHandler, ValidatorMod}) ->
+	Storage =
+	case application:get_env(mqtt_server, storage, dets) of
+		mysql -> mqtt_mysql_dao;
+		dets -> mqtt_dets_dao
+	end,
+
 	Method = cowboy_req:method(Req),
 	OperationID = maps:get(Method, Operations, undefined),
 	ValidatorState = ValidatorMod:get_validator_state(),
 
-	error_logger:info_msg("Attempt to process operation: ~p", [OperationID]),
+	lager:info([{endtype, server}], "Attempt to process operation: ~p~n~p, ~p~n", [OperationID, LogicHandler, ValidatorMod]),	
+	OrigHost = cowboy_req:header(<<"x-forwarded-for">>, Req),
+	lager:info([{endtype, server}], "host: ~p~n", [OrigHost]),
+
 	State = #state{
 		operation_id = OperationID,
 		logic_handler = LogicHandler,
-		validator_state = ValidatorState
+		validator_state = ValidatorState,
+		storage = Storage
 	},
 	{cowboy_rest, Req, State}.
 
@@ -304,7 +315,7 @@ process_response(Response, Req0, State = #state{operation_id = OperationID}) ->
 		{error, Message} ->
 			error_logger:error_msg("Unable to process request for ~p: ~p", [OperationID, Message]),
 
-			Req = cowboy_req:reply(400, Req0),
+			Req = cowboy_req:reply(400, #{}, <<"\"code\":400,\"message\":\"Unable to process request\"">>, Req0),
 			{stop, Req, State}
 	end.
 
@@ -314,16 +325,18 @@ handle_request_json(
 	State = #state{
 		operation_id = OperationID,
 		logic_handler = LogicHandler,
-		validator_state = ValidatorState
+		validator_state = ValidatorState,
+		storage = Storage
 	}
 ) ->
+%%	lager:debug([{endtype, server}], "request: ~p~nvalidatorstate:~p~n", [Req0, ValidatorState]),
 	case mqtt_rest_api:populate_request(OperationID, Req0, ValidatorState) of
 		{ok, Populated, Req1} ->
 			{Code, Headers, Body} = mqtt_rest_logic_handler:handle_request(
 				LogicHandler,
 				OperationID,
 				Req1,
-				maps:merge(State#state.context, Populated)
+				maps:put(storage, Storage, maps:merge(State#state.context, Populated))
 			),
 			_ = mqtt_rest_api:validate_response(
 				OperationID,

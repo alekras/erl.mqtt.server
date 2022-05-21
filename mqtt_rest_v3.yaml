@@ -85,17 +85,13 @@ paths:
       requestBody:
         description: User's password in md5 format and roles
         content:
-          application/x-www-form-urlencoded:
+          application/json:
             schema:
               $ref: '#/components/schemas/User'
         required: true
       responses:
         '201':
           description: Successful operation
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
         '400':
           description: Invalid request
           content:
@@ -224,7 +220,7 @@ components:
           type: string
         status:
           type: string
-          enum: [on, off, notFound]
+          enum: ['on', 'off', 'notFound']
       required: 
         - id
     ConnectionStatusList:

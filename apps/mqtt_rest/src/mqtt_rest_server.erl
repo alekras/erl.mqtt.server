@@ -16,6 +16,14 @@ start(ID, #{
 	port      := Port,
 	net_opts  := NetOpts
 } = Params) ->
+%% TODO: remove it when rest server will run as part of mqtt server
+%% 	Storage =
+%% 	case application:get_env(mqtt_server, storage, dets) of
+%% 		mysql -> mqtt_mysql_dao;
+%% 		dets -> mqtt_dets_dao
+%% 	end,
+%% 	Storage:start(server),
+	
 	{Transport, TransportOpts} = get_socket_transport(IP, Port, NetOpts),
 	LogicHandler = maps:get(logic_handler, Params, ?DEFAULT_LOGIC_HANDLER),
 	ExtraOpts = maps:get(cowboy_extra_opts, Params, []),

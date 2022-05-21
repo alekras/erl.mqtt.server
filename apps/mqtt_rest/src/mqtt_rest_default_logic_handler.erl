@@ -5,6 +5,8 @@
 -export([handle_request/3]).
 -export([authorize_api_key/2]).
 
+-include_lib("mqtt_common/include/mqtt.hrl").
+
 -spec authorize_api_key(OperationID :: mqtt_rest_api:operation_id(), ApiKey :: binary()) -> {true, #{}}.
 authorize_api_key(_, _) -> {true, #{}}.
 
@@ -14,6 +16,82 @@ authorize_api_key(_, _) -> {true, #{}}.
 	Context :: #{}
 ) ->
 	{Status :: cowboy:http_status(), Headers :: cowboy:http_headers(), Body :: jsx:json_term()}.
+handle_request('CreateNewUser', 
+							 Req, 
+							 Context = #{storage := Storage,
+													 user_name := User,
+													 'User' := #{<<"password">> := Password,
+																			 <<"roles">> := Roles}}) ->
+	lager:debug([{endtype, server}], "OperationID: 'CreateNewUser';~nrequest:~p;~ncontext:~p.~n", [Req, Context]),
+	case Storage:save(server, #user{user_id = User, password = Password, roles = Roles}) of
+		false ->
+			lager:info([{endtype, server}], "Cannot create new user, context: ~p~n", [Context]),
+			{400, #{}, #{code => <<"400">>, message => <<"Cannot create new user.">>}};
+		true ->
+			lager:info([{endtype, server}], "new user created, context: ~p~n", [Context]),
+			{201, #{}, #{}}
+	end;
+handle_request('GetUserInfo', 
+							 Req, 
+							 Context = #{storage := Storage,user_name := User}) ->
+	lager:debug([{endtype, server}], "OperationID: 'GetUserInfo';~nrequest:~p;~ncontext:~p.~n", [Req, Context]),
+	case Storage:get(server, {user_id, User}) of
+		undefined ->
+			lager:info([{endtype, server}], "USER DOES NOT EXIST context: ~p~n", [Context]),
+			{404, #{}, #{code => <<"404">>, message => <<"User does not found.">>}};
+		#{password := Password, roles := Roles} ->
+			lager:info([{endtype, server}], "USER EXISTS context: ~p~n", [Context]),
+			{200, #{}, #{password => Password, roles => Roles}}
+	end;
+handle_request('DeleteUser', 
+							 Req, 
+							 Context = #{storage := Storage,user_name := User}) ->
+	lager:debug([{endtype, server}], "OperationID: 'DeleteUser';~nrequest:~p;~ncontext:~p.~n", [Req, Context]),
+	case Storage:get(server, {user_id, User}) of
+		undefined ->
+			lager:info([{endtype, server}], "USER DOES NOT EXIST context: ~p~n", [Context]),
+			{404, #{}, #{code => <<"404">>, message => <<"User does not found.">>}};
+		_ ->
+			lager:info([{endtype, server}], "USER EXISTS context: ~p~n", [Context]),
+			case Storage:remove(server, {user_id, User}) of
+				false ->
+					{201, #{}, #{code => <<"201">>, message => <<"user already deleted">>}};
+				true -> {200, #{}, #{}}
+			end
+	end;
+handle_request('GetStatus', 
+							 Req, 
+							 Context = #{storage := Storage,user_name := User}) ->
+	lager:debug([{endtype, server}], "OperationID: 'GetStatus';~nrequest:~p;~ncontext:~p.~n", [Req, Context]),
+	case Storage:get(server, {user_id, User}) of
+		undefined ->
+			lager:info([{endtype, server}], "USER DOES NOT EXIST context: ~p~n", [Context]),
+			{404, #{}, #{code => <<"404">>, message => <<"User does not found.">>}};
+		_ ->
+			case Storage:get(server, {client_id, User}) of
+				P when is_pid(P) ->
+					Status = <<"on">>;
+				_ ->
+					Status = <<"off">>
+			end,
+			{200, #{}, #{id => User, status => Status}}
+	end;
+handle_request('GetAllStatuses', 
+							 Req, 
+							 Context = #{storage := Storage,users := Users}) ->
+	lager:debug([{endtype, server}], "OperationID: 'GetAllStatuses';~nrequest:~p;~ncontext:~p.~nUsers:~p.~n", [Req, Context, Users]),
+	GetStatus = fun(U) -> 
+		case Storage:get(server, {user_id, U}) of
+			undefined -> <<"notFound">>;
+			_ ->
+				case Storage:get(server, {client_id, U}) of
+					P when is_pid(P) -> <<"on">>;
+					_ -> <<"off">>
+				end
+		end
+	end,
+	L = [#{id => U, status => GetStatus(U)} || U <- string:split(Users, ",", all)],
+	{200, #{}, L};
 handle_request(OperationID, Req, Context) ->
 	error_logger:error_msg(
 		"Got not implemented request to process: ~p~n",

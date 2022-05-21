@@ -8,7 +8,7 @@ erl \
  -config mqtt \
  -sname mqtt-server@localhost \
  -s ssl \
- -eval "application:start(mqtt_server)" \
+ -eval "application:ensure_all_started(mqtt_server)" \
  -setcookie 'mqtt'
 
 # -detached \

@@ -29,11 +29,9 @@
 %% ====================================================================
 %% API functions
 %% ====================================================================
--export([start/2,
-	stop/1,
-	add_user/2,
-	remove_user/1,
-	test_setup/0
+-export([
+	start/2,
+	stop/1
 ]).
 
 -define(NUM_ACCEPTORS_IN_POOL, 2).
@@ -160,8 +158,6 @@ start(_Type, _Args) ->
 	Dispatch = cowboy_router:compile([
 		{'_', [
 						{"/", mqtt_ws_handler, []}, 
-						{"/rest/user/:user_name/[pswd/:password]", mqtt_rest_handler, [auth]},
-						{"/rest/user/:user_name/isconnected", mqtt_rest_handler, [conn]},
 						{"/:protocol", mqtt_ws_handler, []}
 					]
 		}
@@ -205,10 +201,11 @@ start(_Type, _Args) ->
 				}
 	),
 	
-	mqtt_server_sup:start_link([RanchSupSpec, 
-															CowboyClock, 
-															TCPListenerSpec, TLSListenerSpec, 
-															WSListener, WSSListener]).
+	mqtt_server_sup:start_link([
+%%		RanchSupSpec, 
+%%		CowboyClock, 
+		TCPListenerSpec, TLSListenerSpec, 
+		WSListener, WSSListener]).
 
 %% ====================================================================
 %% @doc <a href="http://www.erlang.org/doc/apps/kernel/application.html#Module:stop-1">application:stop/1</a>
@@ -218,54 +215,6 @@ start(_Type, _Args) ->
 stop(_State) ->
 	ok = ranch:stop_listener(mqtt_server),
 	ok = ranch:stop_listener(mqtt_server_tls).
-
-%% ====================================================================
-%% API functions
-%% ====================================================================
--spec add_user(User :: string(), Password :: binary()) -> term().
-% @doc Add user and password pair to USER DB (DETS or MySQL).
-add_user(User, Password) ->
-	U = if
-		is_binary(User) -> binary_to_list(User);
-		is_list(User) -> User;
-		true -> User
-	end,
-	P = if
-		is_binary(Password) -> Password;
-		is_list(Password) -> binary_to_list(Password);
-		true -> Password
-	end,
-	application:load(mqtt_server),
-	Storage =
-	case application:get_env(mqtt_server, storage, dets) of
-		mysql -> mqtt_mysql_dao;
-		dets -> mqtt_dets_dao
-	end,
-	Storage:start(server),
-	Storage:save(server, #user{user_id = U, password = P}).
-
--spec remove_user(User :: string()) -> term().
-% @doc Remove user from USER DB (DETS or MySQL).
-remove_user(User) ->
-	U = if
-		is_binary(User) -> binary_to_list(User);
-		is_list(User) -> User;
-		true -> User
-	end,
-	application:load(mqtt_server),
-	Storage =
-	case application:get_env(mqtt_server, storage, dets) of
-		mysql -> mqtt_mysql_dao;
-		dets -> mqtt_dets_dao
-	end,
-	Storage:start(server),
-	Storage:remove(server, {user_id, U}).
-
-test_setup() ->
-	add_user("alex", <<"alex">>),
-	add_user("tom", <<"tom">>),
-	add_user("sam", <<"sam">>),
-	add_user("john", <<"john">>).
 
 %% ====================================================================
 %% Internal functions

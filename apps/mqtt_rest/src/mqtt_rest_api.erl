@@ -16,8 +16,7 @@
 request_params('CreateNewUser') ->
 	[
 		'user_name',
-		'password',
-		'roles'
+		'User'
 	];
 request_params('DeleteUser') ->
 	[
@@ -70,19 +69,12 @@ request_param_info('CreateNewUser', 'user_name') ->
 			required
 		]
 	};
-request_param_info('CreateNewUser', 'password') ->
+request_param_info('CreateNewUser', 'User') ->
 	#{
 		source =>   body,
 		rules => [
-			{type, 'binary'},
+			schema,
 			required
-		]
-	};
-request_param_info('CreateNewUser', 'roles') ->
-	#{
-		source =>   body,
-		rules => [
-			not_required
 		]
 	};
 request_param_info('DeleteUser', 'user_name') ->
@@ -139,6 +131,7 @@ populate_request_params(OperationID, [FieldParams | T], Req0, ValidatorState, Mo
 		Error ->
 			Error
 	end.
+
 populate_request_param(OperationID, Name, Req0, ValidatorState) ->
 	#{rules := Rules, source := Source} = request_param_info(OperationID, Name),
 	case get_value(Source, Name, Req0) of
@@ -159,7 +152,7 @@ populate_request_param(OperationID, Name, Req0, ValidatorState) ->
 	ValidatorState :: jesse_state:state()
 ) -> ok | no_return().
 validate_response('CreateNewUser', 201, Body, ValidatorState) ->
-	validate_response_body('Error', 'Error', Body, ValidatorState);
+	validate_response_body('', '', Body, ValidatorState);
 validate_response('CreateNewUser', 400, Body, ValidatorState) ->
 	validate_response_body('Error', 'Error', Body, ValidatorState);
 
@@ -363,8 +356,8 @@ prepare_body(Body) ->
 			try
 				jsx:decode(Body, [return_maps])
 			catch
-			  error:_ ->
-				{error, {invalid_body, not_json, Body}}
+				error:_ ->
+					{error, {invalid_body, not_json, Body}}
 			end
 	end.
 

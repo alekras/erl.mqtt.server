@@ -44,8 +44,8 @@ do_start() ->
 	S = application:start(mqtt_server),
 	?assertEqual(ok, S),
 
-	(get_storage(server)):save(server, #user{user_id = "guest", password = <<"guest">>}),
-	(get_storage(server)):save(server, #user{user_id = "admin", password = <<"admin">>}),
+	(get_storage(server)):save(server, #user{user_id = <<"guest">>, password = <<"guest">>}),
+	(get_storage(server)):save(server, #user{user_id = <<"admin">>, password = <<"admin">>}),
 
 	C = application:start(mqtt_client),
 	?assertEqual(ok, C).
