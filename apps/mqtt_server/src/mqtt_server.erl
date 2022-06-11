@@ -122,35 +122,41 @@ start(_Type, _Args) ->
 				supervisor, 
 				[ranch_sup]
 	},
-	CowboyClock = {cowboy_clock, {cowboy_clock, start_link, []},
-		permanent, 5000, worker, [cowboy_clock]},
+	CowboyClock = {
+				cowboy_clock,
+				{cowboy_clock, start_link, []},
+				permanent,
+				5000, 
+				worker, 
+				[cowboy_clock]
+	},
 	TCPListenerSpec = ranch:child_spec(
-							mqtt_server, 
-							ranch_tcp, 
-							#{
-								socket_opts => [{port, Port}],
-								num_acceptors => ?NUM_ACCEPTORS_IN_POOL
-							}, 
-							mqtt_server_connection, 
-							[{storage, Storage}]
+				mqtt_server, 
+				ranch_tcp, 
+				#{
+					socket_opts => [{port, Port}],
+					num_acceptors => ?NUM_ACCEPTORS_IN_POOL
+				}, 
+				mqtt_server_connection, 
+				[{storage, Storage}]
 	),
 	TLSListenerSpec = ranch:child_spec(
-							mqtt_server_tls, 
-							ranch_ssl, 
-							#{
-								num_acceptors => ?NUM_ACCEPTORS_IN_POOL,
-								socket_opts => [
-									{port, Port_tls},
-									{certfile, Cert_File},
-									{cacertfile, CA_Cert_File},
-									{keyfile, Key_File},
-									{depth, 2},
-%%									{server_name_indication, disable}, 
-									{verify, Verify_peer}
-								]
-							}, 
-							mqtt_server_connection, 
-							[{storage, Storage}]
+				mqtt_server_tls, 
+				ranch_ssl, 
+				#{
+					num_acceptors => ?NUM_ACCEPTORS_IN_POOL,
+					socket_opts => [
+						{port, Port_tls},
+						{certfile, Cert_File},
+						{cacertfile, CA_Cert_File},
+						{keyfile, Key_File},
+						{depth, 2},
+%%					{server_name_indication, disable}, 
+						{verify, Verify_peer}
+					]
+				}, 
+				mqtt_server_connection, 
+				[{storage, Storage}]
 	),
 %%	lager:debug("TLSListenerSpec: ~p~n",[TLSListenerSpec]),	
 
@@ -202,8 +208,8 @@ start(_Type, _Args) ->
 	),
 	
 	mqtt_server_sup:start_link([
-%%		RanchSupSpec, 
-%%		CowboyClock, 
+		RanchSupSpec, 
+		CowboyClock, 
 		TCPListenerSpec, TLSListenerSpec, 
 		WSListener, WSSListener]).
 

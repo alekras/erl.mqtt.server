@@ -55,7 +55,16 @@ start_link(Children) ->
 	Modules :: [module()] | dynamic.
 %% ====================================================================
 init(Children) ->
-	{ok, {{one_for_one, 10, 10}, Children}}.
+	lager:debug("Children amount: ~p~n",[length(Children)]),
+	Pred = fun({_,{M,_,_},_,_,_,_}) ->
+		case whereis(M) of
+			undefined -> true;
+			Pid -> not is_process_alive(Pid)
+		end
+	end,
+	FilteredChildren = lists:filter(Pred, Children),
+	lager:debug("Children amount: ~p~n",[length(FilteredChildren)]),
+	{ok, {{one_for_one, 10, 10}, FilteredChildren}}.
 
 %% ====================================================================
 %% Internal functions

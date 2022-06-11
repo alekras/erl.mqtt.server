@@ -43,13 +43,10 @@
 mqtt_server_test_() ->
 	[ 
 		{ setup, 
-			fun testing:do_start/0, 
-			fun testing:do_stop/1, 
+			fun testing:do_start/0,
+			fun testing:do_stop/1,
 			{inorder, [
 				{"connect", fun connect/0},
-				{"rest service", fun restful:post/0},
-				{"rest service", fun restful:get/0},
-				{"rest service", fun restful:delete/0},
  				{ foreachx, 
  					fun testing:do_setup/1, 
  					fun testing:do_cleanup/2, 

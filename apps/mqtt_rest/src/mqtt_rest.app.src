@@ -1,16 +1,20 @@
 {application, mqtt_rest, [
-	{description, "This is a RESTful API of MQTT server. The API manages user database of MQTT server. See for details https://github.com/alekras/erl.mqtt.server"},
+	{description, "This is a RESTful API of MQTT server. The API manages user database of MQTT server."},
 	{vsn, "1.0.0"},
 	{registered, []},
 	{applications, [
 		kernel,
 		stdlib,
+		sasl,
 		ssl,
 		inets,
 		jsx,
 		jesse,
+		lager,
 		cowboy,
-		lager
+		ranch
+	]},
+	{included_applications, [
 	]},
 	{env, [
 	]},

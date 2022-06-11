@@ -102,91 +102,18 @@ allowed_methods(Req, State) ->
 is_authorized(
 	Req0,
 	State = #state{
-		operation_id = 'CreateNewUser' = OperationID,
+		operation_id = OperationID,
 		logic_handler = LogicHandler
 	}
-) ->
-	From = header,
+) when OperationID == 'CreateNewUser';
+			 OperationID == 'DeleteUser';
+			 OperationID == 'GetAllStatuses';
+			 OperationID == 'GetStatus';
+			 OperationID == 'GetUserInfo' ->
 	Result = mqtt_rest_auth:authorize_api_key(
 		LogicHandler,
 		OperationID,
-		From,
-		"X-API-Key",
-		Req0
-	),
-	case Result of
-		{true, Context, Req} ->  {true, Req, State#state{context = Context}};
-		{false, AuthHeader, Req} ->  {{false, AuthHeader}, Req, State}
-	end;
-is_authorized(
-	Req0,
-	State = #state{
-		operation_id = 'DeleteUser' = OperationID,
-		logic_handler = LogicHandler
-	}
-) ->
-	From = header,
-	Result = mqtt_rest_auth:authorize_api_key(
-		LogicHandler,
-		OperationID,
-		From,
-		"X-API-Key",
-		Req0
-	),
-	case Result of
-		{true, Context, Req} ->  {true, Req, State#state{context = Context}};
-		{false, AuthHeader, Req} ->  {{false, AuthHeader}, Req, State}
-	end;
-is_authorized(
-	Req0,
-	State = #state{
-		operation_id = 'GetAllStatuses' = OperationID,
-		logic_handler = LogicHandler
-	}
-) ->
-	From = header,
-	Result = mqtt_rest_auth:authorize_api_key(
-		LogicHandler,
-		OperationID,
-		From,
-		"X-API-Key",
-		Req0
-	),
-	case Result of
-		{true, Context, Req} ->  {true, Req, State#state{context = Context}};
-		{false, AuthHeader, Req} ->  {{false, AuthHeader}, Req, State}
-	end;
-is_authorized(
-	Req0,
-	State = #state{
-		operation_id = 'GetStatus' = OperationID,
-		logic_handler = LogicHandler
-	}
-) ->
-	From = header,
-	Result = mqtt_rest_auth:authorize_api_key(
-		LogicHandler,
-		OperationID,
-		From,
-		"X-API-Key",
-		Req0
-	),
-	case Result of
-		{true, Context, Req} ->  {true, Req, State#state{context = Context}};
-		{false, AuthHeader, Req} ->  {{false, AuthHeader}, Req, State}
-	end;
-is_authorized(
-	Req0,
-	State = #state{
-		operation_id = 'GetUserInfo' = OperationID,
-		logic_handler = LogicHandler
-	}
-) ->
-	From = header,
-	Result = mqtt_rest_auth:authorize_api_key(
-		LogicHandler,
-		OperationID,
-		From,
+		header,
 		"X-API-Key",
 		Req0
 	),

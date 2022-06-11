@@ -20,9 +20,11 @@ handle_request('CreateNewUser',
 							 Req, 
 							 Context = #{storage := Storage,
 													 user_name := User,
-													 'User' := #{<<"password">> := Password,
-																			 <<"roles">> := Roles}}) ->
+													 'User' := UserData}) ->
 	lager:debug([{endtype, server}], "OperationID: 'CreateNewUser';~nrequest:~p;~ncontext:~p.~n", [Req, Context]),
+%%	#{<<"password">> := Password, <<"roles">> := Roles} = UserData
+	Password = maps:get(<<"password">>, UserData, <<"">>),
+	Roles = maps:get(<<"roles">>, UserData, []),
 	case Storage:save(server, #user{user_id = User, password = Password, roles = Roles}) of
 		false ->
 			lager:info([{endtype, server}], "Cannot create new user, context: ~p~n", [Context]),
