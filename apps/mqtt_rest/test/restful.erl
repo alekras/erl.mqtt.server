@@ -32,8 +32,10 @@
 -include("test_rest.hrl").
 
 -export([
-  post/0,
-  get/0,
+	post/0,
+	get_user/0,
+	get_status/0,
+	get_all_statuses/0,
 	delete/0
 ]).
 
@@ -44,15 +46,12 @@
 
 post() ->
 	Req0 = {
-		?TEST_REST_SERVER_URL ++ "/rest/user/Alexei", 
-		[
-		 {"X-Forwarded-For", "localhost"},
-		 {"X-API-Key", "mqtt-rest-api"}
-		], 
-		"application/json", 
+		?TEST_REST_SERVER_URL ++ "/rest/user/Alexei",
+		headers(),
+		"application/json",
 		"{\"password\":\"aaaaaaa\", \"roles\":[\"ADMIN\",\"USER\"]}"
 	},
-	Response0 = httpc:request(post, Req0, [{timeout, 1000}], []), %%{ok, {{"", 201, ""}, [], ""}},
+	Response0 = httpc:request(post, Req0, [{timeout, 1000}], []),
 	?debug_Fmt(" >>> Response #0: ~p~n", [Response0]),
 	{ok, {{_Pr, Status, _}, _Headers, Body}} = Response0,
 	?assertEqual(201, Status),
@@ -60,14 +59,10 @@ post() ->
 
 	?PASSED.
 
-get() ->
+get_user() ->
 	Req0 = {
 		?TEST_REST_SERVER_URL ++ "/rest/user/Alexei",
-		[
-		 {"X-Forwarded-For", "localhost"},
-		 {"Accept", "application/json"},
-		 {"X-API-Key", "mqtt-rest-api"}
-		]
+		headers()
 	},
 	Response0 = httpc:request(get, Req0, [], []),
 	?debug_Fmt("Response #0: ~p~n", [Response0]),
@@ -77,11 +72,7 @@ get() ->
 
 	Req1 = {
 		?TEST_REST_SERVER_URL ++ "/rest/user/Alexi",
-		[
-		 {"X-Forwarded-For", "localhost"}, 
-		 {"Accept", "application/json"},
-		 {"X-API-Key", "mqtt-rest-api"}
-		]
+		headers()
 	},
 	Response1 = httpc:request(get, Req1, [], []),
 	?debug_Fmt("Response #1: ~p~n", [Response1]),
@@ -91,14 +82,46 @@ get() ->
 
 	?PASSED.
 
+get_status() ->
+	Req0 = {
+		?TEST_REST_SERVER_URL ++ "/rest/user/Alexei/status",
+		headers()
+	},
+	Response0 = httpc:request(get, Req0, [], []),
+	?debug_Fmt("Response #0: ~p~n", [Response0]),
+	{ok, {{_Pr, Status, _}, _Headers, Body}} = Response0,
+	?assertEqual(200, Status),
+	?assertEqual("{\"id\":\"Alexei\",\"status\":\"off\"}", Body),
+
+	Req1 = {
+		?TEST_REST_SERVER_URL ++ "/rest/user/Alexi/status",
+		headers()
+	},
+	Response1 = httpc:request(get, Req1, [], []),
+	?debug_Fmt("Response #1: ~p~n", [Response1]),
+	{ok, {{_Pr1, Status1, _}, _Headers1, Body1}} = Response1,
+	?assertEqual(404, Status1),
+	?assertEqual("{\"code\":\"404\",\"message\":\"User does not found.\"}", Body1),
+
+	?PASSED.
+
+get_all_statuses() ->
+	Req0 = {
+		?TEST_REST_SERVER_URL ++ "/rest/user/status" ++ "?users=Alexei,sam,john",
+		headers()
+	},
+	Response0 = httpc:request(get, Req0, [], []),
+	?debug_Fmt("Response #0: ~p~n", [Response0]),
+	{ok, {{_Pr, Status, _}, _Headers, Body}} = Response0,
+	?assertEqual(200, Status),
+	?assertEqual("[{\"id\":\"Alexei\",\"status\":\"off\"},{\"id\":\"sam\",\"status\":\"notFound\"},{\"id\":\"john\",\"status\":\"notFound\"}]", Body),
+
+	?PASSED.
+
 delete() ->
 	Req0 = {
 		?TEST_REST_SERVER_URL ++ "/rest/user/Alexei",
-		[
-		 {"X-Forwarded-For", "localhost"},
-		 {"Accept", "application/json"},
-		 {"X-API-Key", "mqtt-rest-api"}
-		]
+		headers()
 	},
 	Response0 = httpc:request(delete, Req0, [], []),
 	?debug_Fmt("Response #0: ~p~n", [Response0]),
@@ -113,3 +136,10 @@ delete() ->
 	?assertEqual("{\"code\":\"404\",\"message\":\"User does not found.\"}", Body1),
 
 	?PASSED.
+
+headers() ->
+[
+ {"X-Forwarded-For", "localhost"},
+ {"Accept", "application/json"},
+ {"X-API-Key", "mqtt-rest-api"}
+].

@@ -39,7 +39,9 @@ mqtt_server_test_() ->
 			fun mqtt_rest_test_utils:do_stop/1, 
 			{inorder, [
 				{"rest service", timeout, 15, fun restful:post/0},
-				{"rest service", fun restful:get/0},
+				{"rest service", fun restful:get_user/0},
+				{"rest service", fun restful:get_status/0},
+				{"rest service", fun restful:get_all_statuses/0},
 				{"rest service", fun restful:delete/0},
 				{foreachx, 
 					fun mqtt_rest_test_utils:do_setup/1, 
@@ -53,5 +55,6 @@ mqtt_server_test_() ->
 	].
 
 keep_alive(_, _Conn) -> {"keep alive test", timeout, 15, fun() ->
+	
 	?PASSED
 end}.

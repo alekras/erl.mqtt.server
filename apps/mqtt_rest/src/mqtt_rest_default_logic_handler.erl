@@ -56,9 +56,9 @@ handle_request('GetUserInfo',
 		undefined ->
 			lager:info([{endtype, server}], "USER DOES NOT EXIST context: ~p~n", [Context]),
 			{404, #{}, #{code => <<"404">>, message => <<"User does not found.">>}};
-		#{password := Password, roles := Roles} ->
-			lager:info([{endtype, server}], "USER EXISTS context: ~p~n", [Context]),
-			{200, #{}, #{password => Password, roles => Roles}}
+		#{password := Password, roles := Roles} = UserMap ->
+			lager:info([{endtype, server}], "USER EXISTS context: ~p Password: ~p~n", [Context, Password]),
+			{200, #{}, UserMap}
 	end;
 handle_request('DeleteUser', 
 							 Req, 
