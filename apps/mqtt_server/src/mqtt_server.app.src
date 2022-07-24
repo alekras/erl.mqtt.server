@@ -27,8 +27,7 @@
     {applications, [
       kernel, 
       stdlib, 
-      ssl,
-      mqtt_rest
+      ssl
     ]},
     {included_applications, [
       lager,
