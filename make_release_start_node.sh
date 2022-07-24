@@ -16,7 +16,7 @@ case "$1" in
 	prod)
 		$REBAR3 release -n mqtt_server
 		cd _build/default/rel/mqtt_server/bin
-		./mqtt_server foreground
+		./mqtt_server start
 		./mqtt_server pid
 		;;
 	*)
