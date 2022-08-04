@@ -2,28 +2,41 @@
 ## Introduction
 The server implements MQTT messaging protocol version 3.1, 3.1.1, 5.0 and allows communicate with MQTT clients to send/receive messages.
 The server is written in Erlang. 
-The server was tested with following clients
+The server was tested with following clients:
 
 1. Mosquitto command line tools [subscriber](https://mosquitto.org/man/mosquitto_sub-1.html) and [publisher](https://mosquitto.org/man/mosquitto_pub-1.html)
-2. [MQTT.fx client](http://www.mqttfx.org/)
-3. [Erlang MQTT client](https://sourceforge.net/projects/mqtt-client/)
+2. Javascript web-socket MQTT client [HiveMQ](http://www.hivemq.com/demos/websocket-client/)
+3. [Erlang MQTT client](https://github.com/alekras/mqtt_client/)
 
 ## Messenger implementation based on the MQTT server.
-Simple Instant messenger [SIM](https://github.com/alekras/erl.web.sim) was created to test functionality of the MQQT server and prove good performance of the code.
-Live demo of SIM is running [here](http://lucky3p.com/sim).
+Simple Instant messenger [SIM](https://github.com/alekras/erl.web.sim) was created to test functionality of the MQTT server and prove good performance of the code.
+Live demo of SIM is running [here](https://lucky3p.com/sim).
 
 ## Architecture
-MQTT server is an OTP application. Application depends on other Erlang applications: 
+The server consist of two OTP applications: core MQTT server and restful HTTP server for managing users DB. The both apps are combined in one release and are working closely.
 
-1. ```lager``` for logging services,
-2. ```ranch``` for tcp and tsl connections,
-3. ```msql_client``` for connection to MySQL server,
-4. ```mqtt_common``` that is library keeping code that is common for client and server implementation
+### Core MQTT server
+Core MQTT server is an OTP application that implements MQTT protocol versions 3.1, 3.1.1 and 5.0. It depends on other Erlang applications: 
 
-Session state data is storing in database (DETS or MySQL in current version). Server can establish connection using different network protocols:
+1. ```lager``` for logging service,
+2. ```cowboy``` for tcp, tls and web-socket (ws and wss) connections,
+3. ```msql_client``` for connection to MySQL server [see](https://github.com/alekras/mysql_client),
+4. ```mqtt_common``` that is library keeping [code](https://github.com/alekras/erl.mqtt.common) that is common for MQTT client and server implementation.
+
+### Resful Http server
+Http server implements Restful API described in OpenAPI configuration file 
+[mqtt_rest_v3.yaml](https://github.com/alekras/erl.mqtt.server/blob/master/mqtt_rest_v3.yaml).
+There is [swagger](https://lucky3p.com/rest/v3/swagger-ui) page of running instance of MQTT Rest Http server.
+
+### Backend database implementation
+Session state data is storing in database (DETS or MySQL in current version). Developing of Mnesia support is in progress.
+
+### Connection types
+Server can establish connection using different network protocols:
 1. clear it/tcp
 2. tls/ssl
 3. web socket
+4. secure web socket
 
 ## Getting started
 ### Installation
@@ -55,7 +68,7 @@ $ /opt/local/bin/rebar3 compile
 ```
 Rebar will fetch code of all dependencies and compile source files of main project and all dependencies.
 
-### Starting
+#### Starting
 
 To start server run bash script:
 ```bash
@@ -63,19 +76,25 @@ $ ./start_mqtt_server.sh
 ```
 Erlang shell will open and log statements are appearing in console.
 
-### Using relx
-To make release of the application run command:
+#### Using relx
+To make release of the application for development run command:
 ```bash
-$ /opt/local/bin/rebar3 as prod release
+$ /opt/local/bin/rebar3 release -n mqtt_server_dev
 ```
+for production:
+```bash
+$ /opt/local/bin/rebar3 release -n mqtt_server
+```
+
 Go to folder:
 ```bash
-$ cd _build/prod/rel/mqtt_server
+$ cd _build/prod/rel/mqtt_server_dev
 ```
 and run command to start server:
 ```bash
-$ bin/mqtt_server console
+$ bin/mqtt_server_dev console
 ```
+Example of script to make release and start server is [here](https://github.com/alekras/erl.mqtt.server/blob/master/make_release_start_node.sh)
 
 ## Testing
 
@@ -107,30 +126,18 @@ $ Test message from mosquitto tools QoS=2
 
 ### Testing with other MQTT clients
 The server was tested with other clients:
-
 1. Websocket MQTT client from HiveMQ [http://www.hivemq.com/demos/websocket-client/].</li>
 2. MQTT.fx client [http://www.mqttfx.org/].</li>
 
 ## Configuration
 
-To set up ports for TCP and TLS socket connection go to mqtt.config. This is OTP application configuration file contained startup data for
-lager, ranch and mqtt server configuration.
+To set up ports for TCP and TLS socket connection go to config[-dev]/sys.config. This is OTP application configuration file contained startup data for
+lager, ranch and mqtt server backend type and connection details.
 
 ### Add/Remove users
 
-The MQTT server is distributed with preset user dets db. Users are guest/guest and admin/admin.
-To add other users run Erlang shell:
-```bash
-$ erl -pa _build/default/lib/*/ebin
-```
-and issue command in Erlang shell:
-```erlang
-1>mqtt_server:add_user("UserName", <<"UserPassword">>).
-```
-or for user delete:
-```erlang
-1>mqtt_server:remove_user("UserName").
-```
+Rest HTTP server allows to manage users table on backend DB. If you start server on local environment
+you can reach swagger page as http://localhost:8080/rest/v3/swagger-ui.
 
 ## References
 
@@ -138,6 +145,4 @@ or for user delete:
 2. [https://www.rabbitmq.com/] - RabbitMQ server with MQTT plugin.
 3. [https://sourceforge.net/projects/mqtt-client/] - Erlang MQTT client.
 4. [http://www.hivemq.com/demos/websocket-client/] - MQTT websocket client.
-5. [http://www.mqttfx.org/] - MQTT client.
-
 

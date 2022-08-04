@@ -8,12 +8,12 @@ $REBAR3 do version
 
 case "$1" in
 	dev)
-		cd _build/default/rel/mqtt_server_dev/bin
-		SCRIPT_NAME="./mqtt_server_dev"
+		cd _build/default/rel/mqtt_server_dev
+		SCRIPT_NAME="./bin/mqtt_server_dev"
 		;;
 	prod)
-		cd _build/default/rel/mqtt_server/bin
-		SCRIPT_NAME="./mqtt_server"
+		cd _build/default/rel/mqtt_server
+		SCRIPT_NAME="./bin/mqtt_server"
 		;;
 	*)
 		echo "Usage: $0 [dev|prod] [start|stop]"
@@ -32,7 +32,5 @@ case "$2" in
 		echo "Usage: $0 [dev|prod] [start|stop]"
 		;;
 esac
-
-exit 0
 
 exit 0
