@@ -20,9 +20,5 @@ case "$1" in
 esac
 
 $REBAR3 release -n $REL_NAME
-cd _build/default/rel/$REL_NAME
-./bin/$REL_NAME start
-sleep 2
-./bin/$REL_NAME pid
 
 exit 0
