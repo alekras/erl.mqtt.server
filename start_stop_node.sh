@@ -16,7 +16,7 @@ case "$1" in
 		SCRIPT_NAME="./bin/mqtt_server"
 		;;
 	*)
-		echo "Usage: $0 [dev|prod] [start|stop]"
+		echo "Usage: $0 [dev|prod] [start|stop|console]"
 		;;
 esac
 
@@ -28,8 +28,11 @@ case "$2" in
 	stop)
 		$SCRIPT_NAME stop
 		;;
+	console)
+		$SCRIPT_NAME console
+		;;
 	*)
-		echo "Usage: $0 [dev|prod] [start|stop]"
+		echo "Usage: $0 [dev|prod] [start|stop|console]"
 		;;
 esac
 

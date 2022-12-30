@@ -127,7 +127,7 @@ $ Test message from mosquitto tools QoS=2
 ### Testing with other MQTT clients
 The server was tested with other clients:
 1. Websocket MQTT client from HiveMQ [http://www.hivemq.com/demos/websocket-client/].</li>
-2. MQTT.fx client [http://www.mqttfx.org/].</li>
+2. MQTT Erlang client [https://github.com/alekras/mqtt_client.git].</li>
 
 ## Configuration
 
