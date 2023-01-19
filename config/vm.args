@@ -1,4 +1,4 @@
--name mqtt_server@lucky3p.com
+-sname mqtt_server
 
 -setcookie mqtt
 
