@@ -8,12 +8,8 @@
 /subscription-db-srv.bin
 /logs/
 /.DS_Store
-/erl.mqtt.server-vsn-1.0.1.zip
-/erl.mqtt.server-vsn-1.0.2.zip
 /dets-storage/
 /rebar.lock
-/petstore_openapi.yaml
-/petstore_swagger.yaml
 /openapi.yaml
 /tls_cnfg/
 /openapi_1ed.yaml

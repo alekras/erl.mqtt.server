@@ -40,9 +40,11 @@ init(Req0, State) ->
 		Subprotocols ->
 			P1 = lists:member(<<"mqttv3.1.1">>, Subprotocols),
 			P2 = lists:member(<<"mqttv3.1">>, Subprotocols),
+			P3 = lists:member(<<"mqtt">>, Subprotocols),
 			Protocol =
 			if P1 -> <<"mqttv3.1.1">>;
 				 P2 -> <<"mqttv3.1">>;
+				 P3 -> <<"mqtt">>;
 				 true -> undefined
 			end,
 			case Protocol of
