@@ -75,6 +75,16 @@ start(_Type, _Args) ->
 	end,
 	Storage:start(server),
 	Storage:cleanup(server), %% TODO is it suitable for sessions?
+	Echo = Storage:get(server, {user_id, <<"echo">>}),
+	if (Echo =:= undefined) ->
+				Storage:save(server, #user{user_id = <<"echo">>, password = <<"echo">>, roles = [<<"USER">>]});
+			true -> ok
+	end,
+	Guest = Storage:get(server, {user_id, <<"guest">>}),
+	if (Guest =:= undefined) ->
+				Storage:save(server, #user{user_id = <<"guest">>, password = <<"guest">>, roles = [<<"USER">>]});
+			true -> ok
+	end,
 	
 	Port = application:get_env(mqtt_server, port, 1883),
 	Port_tls = application:get_env(mqtt_server, port_tls, 1884),
