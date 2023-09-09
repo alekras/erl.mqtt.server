@@ -1,6 +1,6 @@
 #!/bin/sh
 
-export PATH="$PATH:/usr/local/bin:/usr/local/Cellar/erlang/23.0/lib/erlang/bin"
+export PATH="$PATH:/usr/local/bin:/usr/local/opt/erlang@24/lib/erlang/bin"
 echo "arguments: $1 $2"
 REBAR3="/opt/local/bin/rebar3"
 $REBAR3 do version
@@ -22,7 +22,7 @@ esac
 
 case "$2" in
 	start)
-		$SCRIPT_NAME start
+		$SCRIPT_NAME daemon
 		$SCRIPT_NAME pid
 		;;
 	stop)

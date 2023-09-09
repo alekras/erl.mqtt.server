@@ -1,3 +1,5 @@
 erl -sname me -remsh mqtt_server -setcookie mqtt
 
 dets:match(users_db_srv,{'_','$1','_','$2'}).
+
+dets:match(subscription_db_srv,{'_','$1','$2','$3'}).
