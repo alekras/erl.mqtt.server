@@ -49,8 +49,9 @@
 	| {error, Reason :: term()}.
 %% ====================================================================
 start(_Type, _Args) ->
-	lager:start(),
-	application:load(sasl),
+	application:ensure_started(mqtt_common),
+	application:ensure_started(lager),
+	application:ensure_started(sasl),
 	case application:get_env(lager, log_root) of
 		{ok, _} -> ok;
 		undefined ->
@@ -70,19 +71,19 @@ start(_Type, _Args) ->
 
 	Storage =
 	case application:get_env(mqtt_server, storage, dets) of
-		mysql -> mqtt_mysql_dao;
-		dets -> mqtt_dets_dao
+		mysql -> mqtt_mysql_storage;
+		dets -> mqtt_dets_storage
 	end,
 	Storage:start(server),
 	Storage:cleanup(server), %% TODO is it suitable for sessions?
-	Echo = Storage:get(server, {user_id, <<"echo">>}),
+	Echo = Storage:user(get, <<"echo">>),
 	if (Echo =:= undefined) ->
-				Storage:save(server, #user{user_id = <<"echo">>, password = <<"echo">>, roles = [<<"USER">>]});
+				Storage:user(save, #user{user_id = <<"echo">>, password = <<"echo">>, roles = [<<"USER">>]});
 			true -> ok
 	end,
-	Guest = Storage:get(server, {user_id, <<"guest">>}),
+	Guest = Storage:user(get, <<"guest">>),
 	if (Guest =:= undefined) ->
-				Storage:save(server, #user{user_id = <<"guest">>, password = <<"guest">>, roles = [<<"USER">>]});
+				Storage:user(save, #user{user_id = <<"guest">>, password = <<"guest">>, roles = [<<"USER">>]});
 			true -> ok
 	end,
 	
