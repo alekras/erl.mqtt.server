@@ -1,5 +1,5 @@
 %%
-%% Copyright (C) 2015-2022 by krasnop@bellsouth.net (Alexei Krasnopolski)
+%% Copyright (C) 2015-2023 by krasnop@bellsouth.net (Alexei Krasnopolski)
 %%
 %% Licensed under the Apache License, Version 2.0 (the "License");
 %% you may not use this file except in compliance with the License.
@@ -47,8 +47,8 @@
 init(Req, {Operations, LogicHandler, ValidatorMod}) ->
 	Storage =
 	case application:get_env(mqtt_server, storage, dets) of
-		mysql -> mqtt_mysql_dao;
-		dets -> mqtt_dets_dao
+		mysql -> mqtt_mysql_storage;
+		dets -> mqtt_dets_storage
 	end,
 
 	Method = cowboy_req:method(Req),

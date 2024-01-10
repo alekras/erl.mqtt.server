@@ -1,5 +1,5 @@
 %%
-%% Copyright (C) 2015-2022 by krasnop@bellsouth.net (Alexei Krasnopolski)
+%% Copyright (C) 2015-2023 by krasnop@bellsouth.net (Alexei Krasnopolski)
 %%
 %% Licensed under the Apache License, Version 2.0 (the "License");
 %% you may not use this file except in compliance with the License.
@@ -15,7 +15,7 @@
 %%
 
 %% @since 2015-12-25
-%% @copyright 2015-2022 Alexei Krasnopolski
+%% @copyright 2015-2023 Alexei Krasnopolski
 %% @author Alexei Krasnopolski <krasnop@bellsouth.net> [http://krasnopolski.org/]
 %% @version {@version}
 %% @doc @todo Add description to testing.
@@ -26,7 +26,7 @@
 -include_lib("mqtt_common/include/mqtt.hrl").
 -include("test.hrl").
 
--define(CONN_REC, (#connect{user_name = ?TEST_USER, password = ?TEST_PASSWORD, keep_alive = 60000, version = ?TEST_PROTOCOL}) ).
+-define(CONN_REC, (#connect{user_name = ?TEST_USER, password = ?TEST_PASSWORD, host = ?TEST_SERVER_HOST_NAME, port = ?TEST_SERVER_PORT, conn_type = ?TEST_CONN_TYPE, keep_alive = 60000, version = ?TEST_PROTOCOL}) ).
 
 %%
 %% API functions
@@ -44,8 +44,8 @@ do_start() ->
 	S = application:ensure_all_started(mqtt_server),
 	?assertMatch({ok,_}, S),
 
-	(get_storage(server)):save(server, #user{user_id = <<"guest">>, password = <<"guest">>}),
-	(get_storage(server)):save(server, #user{user_id = <<"admin">>, password = <<"admin">>}),
+	(get_storage(server)):user(save, #user{user_id = <<"guest">>, password = <<"guest">>}),
+	(get_storage(server)):user(save, #user{user_id = <<"admin">>, password = <<"admin">>}),
 
 	C = application:start(mqtt_client),
 	?assertEqual(ok, C).
@@ -60,17 +60,13 @@ connect(Name) when is_atom(Name) ->
 	mqtt_client:connect(
 		Name, 
 		?CONN_REC#connect{client_id = atom_to_list(Name)}, 
-		?TEST_SERVER_HOST_NAME, 
-		?TEST_SERVER_PORT, 
-		[?TEST_CONN_TYPE]
+		undefined
 	);	
 connect(Name) when is_list(Name) ->
 	mqtt_client:connect(
 		list_to_atom(Name), 
 		?CONN_REC#connect{client_id = Name}, 
-		?TEST_SERVER_HOST_NAME, 
-		?TEST_SERVER_PORT, 
-		[?TEST_CONN_TYPE]
+		undefined
 	).	
 
 do_setup({_, publish} = _X) ->
@@ -97,7 +93,6 @@ do_setup({QoS, will} = _X) ->
 		publisher, 
 		?CONN_REC#connect{
 			client_id = "publisher",
-			will = 1,
 			will_publish = #publish{topic= "AK_will_test", qos= QoS, payload= <<"Test will message">>}
 		}, 
 		?TEST_SERVER_HOST_NAME, ?TEST_SERVER_PORT, 
@@ -111,7 +106,6 @@ do_setup({QoS, will_retain} = _X) ->
 		publisher, 
 		?CONN_REC#connect{
 			client_id = "publisher",
-			will = 1,
 			will_publish = #publish{topic= "AK_will_retain_test", qos= QoS, retain= 1, payload= <<"Test will retain message">>}
 		}, 
 		?TEST_SERVER_HOST_NAME, 
@@ -247,13 +241,13 @@ get_connect_rec() ->
 
 get_storage(server) ->
 	case application:get_env(mqtt_server, storage, dets) of
-		mysql -> mqtt_mysql_dao;
-		dets -> mqtt_dets_dao
+		mysql -> mqtt_mysql_storage;
+		dets -> mqtt_dets_storage
 	end;
 get_storage(client) ->
 	case application:get_env(mqtt_client, storage, dets) of
-		mysql -> mqtt_mysql_dao;
-		dets -> mqtt_dets_dao
+		mysql -> mqtt_mysql_storage;
+		dets -> mqtt_dets_storage
 	end.
 	
 wait_all(N) ->

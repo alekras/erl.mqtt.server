@@ -1,5 +1,5 @@
 %%
-%% Copyright (C) 2015-2022 by krasnop@bellsouth.net (Alexei Krasnopolski)
+%% Copyright (C) 2015-2023 by krasnop@bellsouth.net (Alexei Krasnopolski)
 %%
 %% Licensed under the Apache License, Version 2.0 (the "License");
 %% you may not use this file except in compliance with the License.
@@ -40,7 +40,7 @@ handle_request('CreateNewUser',
 %%	#{<<"password">> := Password, <<"roles">> := Roles} = UserData
 	Password = maps:get(<<"password">>, UserData, <<"">>),
 	Roles = maps:get(<<"roles">>, UserData, []),
-	case Storage:save(server, #user{user_id = User, password = Password, roles = Roles}) of
+	case Storage:user(save, #user{user_id = User, password = Password, roles = Roles}) of
 		false ->
 			lager:info([{endtype, server}], "Cannot create new user, context: ~p~n", [Context]),
 			{400, #{}, #{code => <<"400">>, message => <<"Cannot create new user.">>}};
@@ -52,11 +52,11 @@ handle_request('GetUserInfo',
 							 Req, 
 							 Context = #{storage := Storage,user_name := User}) ->
 	lager:debug([{endtype, server}], "OperationID: 'GetUserInfo';~nrequest:~p;~ncontext:~p.~n", [Req, Context]),
-	case Storage:get(server, {user_id, User}) of
+	case Storage:user(get, User) of
 		undefined ->
 			lager:info([{endtype, server}], "USER DOES NOT EXIST context: ~p~n", [Context]),
 			{404, #{}, #{code => <<"404">>, message => <<"User does not found.">>}};
-		#{password := Password, roles := Roles} = UserMap ->
+		#{password := Password, roles := _Roles} = UserMap ->
 			lager:info([{endtype, server}], "USER EXISTS context: ~p Password: ~p~n", [Context, Password]),
 			{200, #{}, UserMap}
 	end;
@@ -64,13 +64,13 @@ handle_request('DeleteUser',
 							 Req, 
 							 Context = #{storage := Storage,user_name := User}) ->
 	lager:debug([{endtype, server}], "OperationID: 'DeleteUser';~nrequest:~p;~ncontext:~p.~n", [Req, Context]),
-	case Storage:get(server, {user_id, User}) of
+	case Storage:user(get, User) of
 		undefined ->
 			lager:info([{endtype, server}], "USER DOES NOT EXIST context: ~p~n", [Context]),
 			{404, #{}, #{code => <<"404">>, message => <<"User does not found.">>}};
 		_ ->
 			lager:info([{endtype, server}], "USER EXISTS context: ~p~n", [Context]),
-			case Storage:remove(server, {user_id, User}) of
+			case Storage:user(remove, User) of
 				false ->
 					{201, #{}, #{code => <<"201">>, message => <<"user already deleted">>}};
 				true -> {200, #{}, #{}}
@@ -80,16 +80,17 @@ handle_request('GetStatus',
 							 Req, 
 							 Context = #{storage := Storage,user_name := User}) ->
 	lager:debug([{endtype, server}], "OperationID: 'GetStatus';~nrequest:~p;~ncontext:~p.~n", [Req, Context]),
-	case Storage:get(server, {user_id, User}) of
+	case Storage:user(get, User) of
 		undefined ->
 			lager:info([{endtype, server}], "USER DOES NOT EXIST context: ~p~n", [Context]),
 			{404, #{}, #{code => <<"404">>, message => <<"User does not found.">>}};
 		_ ->
-			case Storage:get(server, {client_id, User}) of
+			Status =
+			case Storage:connect_pid(get, User, server) of
 				P when is_pid(P) ->
-					Status = <<"on">>;
+					<<"on">>;
 				_ ->
-					Status = <<"off">>
+					<<"off">>
 			end,
 			{200, #{}, #{id => User, status => Status}}
 	end;
@@ -98,10 +99,10 @@ handle_request('GetAllStatuses',
 							 Context = #{storage := Storage,users := Users}) ->
 	lager:debug([{endtype, server}], "OperationID: 'GetAllStatuses';~nrequest:~p;~ncontext:~p.~nUsers:~p.~n", [Req, Context, Users]),
 	GetStatus = fun(U) -> 
-		case Storage:get(server, {user_id, U}) of
+		case Storage:user(get, U) of
 			undefined -> <<"notFound">>;
 			_ ->
-				case Storage:get(server, {client_id, U}) of
+				case Storage:connect_pid(get, U, server) of
 					P when is_pid(P) -> <<"on">>;
 					_ -> <<"off">>
 				end

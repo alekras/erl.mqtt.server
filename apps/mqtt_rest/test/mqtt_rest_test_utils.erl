@@ -1,5 +1,5 @@
 %%
-%% Copyright (C) 2015-2022 by krasnop@bellsouth.net (Alexei Krasnopolski)
+%% Copyright (C) 2015-2023 by krasnop@bellsouth.net (Alexei Krasnopolski)
 %%
 %% Licensed under the Apache License, Version 2.0 (the "License");
 %% you may not use this file except in compliance with the License.
@@ -15,7 +15,7 @@
 %%
 
 %% @since 2022-06-01
-%% @copyright 2015-2022 Alexei Krasnopolski
+%% @copyright 2015-2023 Alexei Krasnopolski
 %% @author Alexei Krasnopolski <krasnop@bellsouth.net> [http://krasnopolski.org/]
 %% @version {@version}
 %% @doc @todo Add description to testing.
@@ -43,8 +43,8 @@ do_start() ->
 	S = application:ensure_all_started(mqtt_rest),
 	Storage =
 	case application:get_env(mqtt_server, storage, dets) of
-		mysql -> mqtt_mysql_dao;
-		dets -> mqtt_dets_dao
+		mysql -> mqtt_mysql_storage;
+		dets -> mqtt_dets_storage
 	end,
 	Storage:start(server),
 %	[ ?debug_Fmt(" ### ~p", [T]) || T <- application:which_applications()],

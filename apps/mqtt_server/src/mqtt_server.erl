@@ -1,5 +1,5 @@
 %%
-%% Copyright (C) 2017-2022 by krasnop@bellsouth.net (Alexei Krasnopolski)
+%% Copyright (C) 2017-2023 by krasnop@bellsouth.net (Alexei Krasnopolski)
 %%
 %% Licensed under the Apache License, Version 2.0 (the "License");
 %% you may not use this file except in compliance with the License.
@@ -15,7 +15,7 @@
 %%
 
 %% @since 2017-01-11
-%% @copyright 2017-2022 Alexei Krasnopolski
+%% @copyright 2017-2023 Alexei Krasnopolski
 %% @author Alexei Krasnopolski <krasnop@bellsouth.net> [http://krasnopolski.org/]
 %% @version {@version}
 %% @doc Main module of the mqtt_server application.
@@ -115,9 +115,9 @@ start(_Type, _Args) ->
 %% 	lager:debug("After Cowlib start: ~p",[B0]),	
 %% 	B1 = application:start(cowboy),
 %% 	lager:debug("After Cowboy start: ~p",[B1]),
-	
 
-	lager:debug("running apps: ~p",[application:which_applications()]),	
+	S = lists:concat([io_lib:format("    ~p~n",[App]) || App <- application:which_applications()]),
+	lager:info([{endtype, server}], "running apps: ~n~s",[S]),	
 %% 	ChildSpec :: {Id :: term(), StartFunc, RestartPolicy, Shutdown, Type :: worker | supervisor, Modules},
 %% 	StartFunc :: {M :: module(), F :: atom(), A :: [term()] | undefined},
 %% 	RestartPolicy :: permanent
@@ -231,7 +231,9 @@ start(_Type, _Args) ->
 %% @private
 stop(_State) ->
 	ok = ranch:stop_listener(mqtt_server),
-	ok = ranch:stop_listener(mqtt_server_tls).
+	ok = ranch:stop_listener(mqtt_server_tls),
+	ok = ranch:stop_listener(ws_listener),
+	ok = ranch:stop_listener(wss_listener).
 
 %% ====================================================================
 %% Internal functions

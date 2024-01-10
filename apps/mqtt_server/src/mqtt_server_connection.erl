@@ -1,5 +1,5 @@
 %%
-%% Copyright (C) 2017-2022 by krasnop@bellsouth.net (Alexei Krasnopolski)
+%% Copyright (C) 2017-2023 by krasnop@bellsouth.net (Alexei Krasnopolski)
 %%
 %% Licensed under the Apache License, Version 2.0 (the "License");
 %% you may not use this file except in compliance with the License.
@@ -15,7 +15,7 @@
 %%
 
 %% @since 2017-01-11
-%% @copyright 2017-2022 Alexei Krasnopolski
+%% @copyright 2017-2023 Alexei Krasnopolski
 %% @author Alexei Krasnopolski <krasnop@bellsouth.net> [http://krasnopolski.org/]
 %% @version {@version}
 %% @doc The module implements ranch_protocol behaviour. This is start point to create

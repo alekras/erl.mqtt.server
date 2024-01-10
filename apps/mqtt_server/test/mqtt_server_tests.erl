@@ -1,5 +1,5 @@
 %%
-%% Copyright (C) 2015-2022 by krasnop@bellsouth.net (Alexei Krasnopolski)
+%% Copyright (C) 2015-2023 by krasnop@bellsouth.net (Alexei Krasnopolski)
 %%
 %% Licensed under the Apache License, Version 2.0 (the "License");
 %% you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@
 
 %% @hidden
 %% @since 2016-01-03
-%% @copyright 2015-2022 Alexei Krasnopolski
+%% @copyright 2015-2023 Alexei Krasnopolski
 %% @author Alexei Krasnopolski <krasnop@bellsouth.net> [http://krasnopolski.org/]
 %% @version {@version}
 %% @doc This module is running erlang unit tests.
@@ -93,111 +93,104 @@ mqtt_server_test_() ->
 
 connect() ->
 	ConnRec = testing:get_connect_rec(),	
-	Conn = mqtt_client:connect(
+	Conn = mqtt_client:create(test_client),
+	ok = mqtt_client:connect(
 		test_client, 
 		ConnRec, 
-		?TEST_SERVER_HOST_NAME, 
-		?TEST_SERVER_PORT, 
-		[?TEST_CONN_TYPE]
+		undefined
 	),
   ?debug_Fmt("::test:: 1. successfully connected : ~p", [Conn]),
 	?assert(erlang:is_pid(Conn)),
 	
-	Conn1 = mqtt_client:connect(
+	Conn1 = mqtt_client:create(test_client_1),
+	ok = mqtt_client:connect(
 		test_client_1, 
 		ConnRec#connect{
-			client_id = "test0client01"
+			client_id = "test0client01",
+			port = 3883
 		}, 
-		?TEST_SERVER_HOST_NAME, 
-		3883, 
-		[?TEST_CONN_TYPE]
+		undefined
 	),
   ?debug_Fmt("::test:: 2. wrong port number : ~120p", [Conn1]),
-	?assertMatch(#mqtt_client_error{}, Conn1),
+	?assertMatch(#mqtt_error{}, Conn1),
 	
-	Conn2 = mqtt_client:connect(
+		Conn2 = mqtt_client:create(test_client_2),
+		ok = mqtt_client:connect(
 		test_client_2, 
 		ConnRec#connect{
 			client_id = "test0client02",
 			user_name = "quest",
 			password = <<"guest">>
 		}, 
-		?TEST_SERVER_HOST_NAME, 
-		?TEST_SERVER_PORT, 
-		[?TEST_CONN_TYPE]
+		undefined
 	),
   ?debug_Fmt("::test:: 3. wrong user name : ~120p", [Conn2]),
-	?assertMatch(#mqtt_client_error{}, Conn2),
-	
-	Conn3 = mqtt_client:connect(
+	?assertMatch(#mqtt_error{}, Conn2),
+
+	Conn3 = mqtt_client:create(test_client_3),
+	ok = mqtt_client:connect(
 		test_client_3, 
 		ConnRec#connect{
 			client_id = "test0client03",
 			user_name = "guest",
 			password = <<"gueest">>
 		}, 
-		?TEST_SERVER_HOST_NAME, 
-		?TEST_SERVER_PORT, 
-		[?TEST_CONN_TYPE]
+		undefined
 	),
   ?debug_Fmt("::test:: 4. wrong user password : ~120p", [Conn3]),
-	?assertMatch(#mqtt_client_error{}, Conn3),
-	
-	Conn4 = mqtt_client:connect(
+	?assertMatch(#mqtt_error{}, Conn3),
+
+	Conn4 = mqtt_client:create(test_client_4),
+	ok = mqtt_client:connect(
 		test_client_4, 
 		ConnRec, 
-		?TEST_SERVER_HOST_NAME, 
-		?TEST_SERVER_PORT, 
-		[?TEST_CONN_TYPE]
+		undefined
 	),
   ?debug_Fmt("::test:: 5. duplicate client id: ~p", [Conn4]),
 	?assert(erlang:is_pid(Conn4)),
   ?debug_Fmt("::test:: 5. duplicate client id: ~p (disconnected)", [Conn]),
 	timer:sleep(500),
 	?assertEqual(disconnected, mqtt_client:status(Conn)),
-	
-	Conn5 = mqtt_client:connect(
+
+	Conn5 = mqtt_client:create(test_client_5),
+	ok = mqtt_client:connect(
 		test_client_5, 
 		ConnRec#connect{
 			client_id = binary_to_list(<<"test_",255,0,255,"client_5">>),
 			user_name = "guest",
 			password = <<"guest">>
 		}, 
-		?TEST_SERVER_HOST_NAME, 
-		?TEST_SERVER_PORT, 
-		[?TEST_CONN_TYPE]
+		undefined
 	),
   ?debug_Fmt("::test:: 6. wrong utf-8 : ~p", [Conn5]),
 	?assertNot(erlang:is_pid(Conn5)),
-	?assertMatch(#mqtt_client_error{}, Conn5),
-	
-	Conn6 = mqtt_client:connect(
+	?assertMatch(#mqtt_error{}, Conn5),
+
+	Conn6 = mqtt_client:create(test_client_6),
+	ok = mqtt_client:connect(
 		test_client_6, 
 		ConnRec#connect{
 			client_id = "test0client06",
 			user_name = binary_to_list(<<"gu", 16#d801:16, "est">>),
 			password = <<"guest">>
 		}, 
-		?TEST_SERVER_HOST_NAME, 
-		?TEST_SERVER_PORT, 
-		[?TEST_CONN_TYPE]
+		undefined
 	),
   ?debug_Fmt("::test:: 7. wrong utf-8 user name: ~p", [Conn6]),
-	?assertMatch(#mqtt_client_error{}, Conn6),
-	
-	Conn7 = mqtt_client:connect(
+	?assertMatch(#mqtt_error{}, Conn6),
+
+	Conn7 = mqtt_client:create(test_client_7),
+	ok = mqtt_client:connect(
 		test_client_7, 
 		ConnRec#connect{
 			client_id = "test0client07",
 			user_name = "guest",
 			password = <<"gu", 0, "est">>
 		}, 
-		?TEST_SERVER_HOST_NAME, 
-		?TEST_SERVER_PORT, 
-		[?TEST_CONN_TYPE]
+		undefined
 	),
   ?debug_Fmt("::test:: 8. wrong utf-8 password : ~p", [Conn7]),
-	?assertMatch(#mqtt_client_error{}, Conn7),
+	?assertMatch(#mqtt_error{}, Conn7),
 
 	mqtt_client:disconnect(Conn4),
 	mqtt_client:disconnect(Conn5),

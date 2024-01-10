@@ -1,5 +1,5 @@
 %%
-%% Copyright (C) 2015-2022 by krasnop@bellsouth.net (Alexei Krasnopolski)
+%% Copyright (C) 2015-2023 by krasnop@bellsouth.net (Alexei Krasnopolski)
 %%
 %% Licensed under the Apache License, Version 2.0 (the "License");
 %% you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@
 
 %% @hidden
 %% @since 2017-11-16
-%% @copyright 2015-2022 Alexei Krasnopolski
+%% @copyright 2015-2023 Alexei Krasnopolski
 %% @author Alexei Krasnopolski <krasnop@bellsouth.net> [http://krasnopolski.org/]
 %% @version {@version}
 %% @doc This module implements a tesing of MQTT restful service.
@@ -68,7 +68,7 @@ get_user() ->
 	?debug_Fmt("Response #0: ~p~n", [Response0]),
 	{ok, {{_Pr, Status, _}, _Headers, Body}} = Response0,
 	?assertEqual(200, Status),
-	?assertEqual("{\"password\":\"]y?Å°\\n#Hï¿½ï¿½ï¿½ï¿½ï¿½\\\\ï¿½ï¿½\",\"roles\":[\"ADMIN\",\"USER\"]}", Body),
+	?assertEqual("{\"password\":\"5d793fc5b00a2348c3fb9ab59e5ca98a\",\"roles\":[\"ADMIN\",\"USER\"]}", Body),
 
 	Req1 = {
 		?TEST_REST_SERVER_URL ++ "/rest/user/Alexi",
