@@ -26,7 +26,18 @@
 -include_lib("mqtt_common/include/mqtt.hrl").
 -include("test.hrl").
 
--define(CONN_REC, (#connect{user_name = ?TEST_USER, password = ?TEST_PASSWORD, host = ?TEST_SERVER_HOST_NAME, port = ?TEST_SERVER_PORT, conn_type = ?TEST_CONN_TYPE, keep_alive = 60000, version = ?TEST_PROTOCOL}) ).
+-define(
+	CONN_REC, 
+	(#connect{
+		user_name = ?TEST_USER,
+		password = ?TEST_PASSWORD,
+		host = ?TEST_SERVER_HOST_NAME,
+		port = ?TEST_SERVER_PORT,
+		conn_type = ?TEST_CONN_TYPE,
+		keep_alive = 60000,
+		version = ?TEST_PROTOCOL
+	})
+).
 
 %%
 %% API functions

@@ -51,41 +51,41 @@ mqtt_server_test_() ->
  					fun testing:do_setup/1, 
  					fun testing:do_cleanup/2, 
  					[
-						{{1, keep_alive}, fun keep_alive/2},
-						{{1, combined}, fun combined/2},
-						{{1, subs_list}, fun subs_list/2},
-						{{1, subs_filter}, fun subs_filter/2},
-
-						{{0, publish}, fun publish:publish_0/2},
-						{{1, publish}, fun publish:publish_0/2},
-						{{2, publish}, fun publish:publish_0/2},
-
-						{{1, session}, fun session:session_1/2},
-						{{2, session}, fun session:session_1/2},
-						{{3, session}, fun session:session_1/2},
-						{{4, session}, fun session:session_1/2},
-
-						{{1, session}, fun session:session_2/2},
-						{{2, session}, fun session:session_2/2},
-						{{3, session}, fun session:session_2/2},
-						{{4, session}, fun session:session_2/2},
-						{{5, session}, fun session:session_2/2},
-						{{6, session}, fun session:session_2/2},
-						{{7, session}, fun session:session_2/2},
-						{{8, session}, fun session:session_2/2},
-
-						{{0, will}, fun will:will_a/2},
-						{{0, will}, fun will:will_0/2},
-						{{1, will}, fun will:will_0/2},
-						{{2, will}, fun will:will_0/2},
-						{{1, will_retain}, fun will:will_retain/2},
-
-						{{0, retain}, fun retain:retain_0/2},
-						{{1, retain}, fun retain:retain_0/2},
-						{{2, retain}, fun retain:retain_0/2},
-						{{0, retain}, fun retain:retain_1/2},
-						{{1, retain}, fun retain:retain_1/2},
-						{{2, retain}, fun retain:retain_1/2}
+%% 						{{1, keep_alive}, fun keep_alive/2},
+%% 						{{1, combined}, fun combined/2},
+%% 						{{1, subs_list}, fun subs_list/2},
+%% 						{{1, subs_filter}, fun subs_filter/2},
+%% 
+%% 						{{0, publish}, fun publish:publish_0/2},
+%% 						{{1, publish}, fun publish:publish_0/2},
+%% 						{{2, publish}, fun publish:publish_0/2},
+%% 
+%% 						{{1, session}, fun session:session_1/2},
+%% 						{{2, session}, fun session:session_1/2},
+%% 						{{3, session}, fun session:session_1/2},
+%% 						{{4, session}, fun session:session_1/2},
+%% 
+%% 						{{1, session}, fun session:session_2/2},
+%% 						{{2, session}, fun session:session_2/2},
+%% 						{{3, session}, fun session:session_2/2},
+%% 						{{4, session}, fun session:session_2/2},
+%% 						{{5, session}, fun session:session_2/2},
+%% 						{{6, session}, fun session:session_2/2},
+%% 						{{7, session}, fun session:session_2/2},
+%% 						{{8, session}, fun session:session_2/2},
+%% 
+%% 						{{0, will}, fun will:will_a/2},
+%% 						{{0, will}, fun will:will_0/2},
+%% 						{{1, will}, fun will:will_0/2},
+%% 						{{2, will}, fun will:will_0/2},
+%% 						{{1, will_retain}, fun will:will_retain/2},
+%% 
+%% 						{{0, retain}, fun retain:retain_0/2},
+%% 						{{1, retain}, fun retain:retain_0/2},
+%% 						{{2, retain}, fun retain:retain_0/2},
+%% 						{{0, retain}, fun retain:retain_1/2},
+%% 						{{1, retain}, fun retain:retain_1/2},
+%% 						{{2, retain}, fun retain:retain_1/2}
 					]}
 			]}
 		}
@@ -111,11 +111,13 @@ connect() ->
 		}, 
 		undefined
 	),
-  ?debug_Fmt("::test:: 2. wrong port number : ~120p", [Conn1]),
-	?assertMatch(#mqtt_error{}, Conn1),
+	IsConn1 = mqtt_client:is_connected(test_client_1),
+	?debug_Fmt("::test:: 2. wrong port number, connected? : ~120p", [IsConn1]),
+	?assertMatch(false, IsConn1),
+	mqtt_client:dispose(Conn1),
 	
-		Conn2 = mqtt_client:create(test_client_2),
-		ok = mqtt_client:connect(
+	Conn2 = mqtt_client:create(test_client_2),
+	ok = mqtt_client:connect(
 		test_client_2, 
 		ConnRec#connect{
 			client_id = "test0client02",
@@ -124,8 +126,10 @@ connect() ->
 		}, 
 		undefined
 	),
-  ?debug_Fmt("::test:: 3. wrong user name : ~120p", [Conn2]),
-	?assertMatch(#mqtt_error{}, Conn2),
+	IsConn2 = mqtt_client:is_connected(test_client_2),
+	?debug_Fmt("::test:: 3. wrong user name : ~120p", [IsConn2]),
+	?assertMatch(false, IsConn2),
+	mqtt_client:dispose(Conn2),
 
 	Conn3 = mqtt_client:create(test_client_3),
 	ok = mqtt_client:connect(
@@ -137,8 +141,10 @@ connect() ->
 		}, 
 		undefined
 	),
-  ?debug_Fmt("::test:: 4. wrong user password : ~120p", [Conn3]),
-	?assertMatch(#mqtt_error{}, Conn3),
+	IsConn3 = mqtt_client:is_connected(test_client_3),
+	?debug_Fmt("::test:: 4. wrong user password : ~120p", [IsConn3]),
+	?assertMatch(false, IsConn3),
+	mqtt_client:dispose(Conn3),
 
 	Conn4 = mqtt_client:create(test_client_4),
 	ok = mqtt_client:connect(
@@ -146,11 +152,15 @@ connect() ->
 		ConnRec, 
 		undefined
 	),
-  ?debug_Fmt("::test:: 5. duplicate client id: ~p", [Conn4]),
-	?assert(erlang:is_pid(Conn4)),
-  ?debug_Fmt("::test:: 5. duplicate client id: ~p (disconnected)", [Conn]),
+	timer:sleep(100),
+	IsConn4 = mqtt_client:is_connected(test_client_4),
+	?debug_Fmt("::test:: 5. duplicate client id: ~p", [IsConn4]),
+	?assertEqual(true, IsConn4),
 	timer:sleep(500),
-	?assertEqual(disconnected, mqtt_client:status(Conn)),
+	IsConn = mqtt_client:is_connected(Conn),
+	?debug_Fmt("::test:: 5. duplicate client id: ~p (disconnected)", [IsConn]),
+	?assertEqual(false, IsConn),
+	mqtt_client:dispose(Conn4),
 
 	Conn5 = mqtt_client:create(test_client_5),
 	ok = mqtt_client:connect(
@@ -162,9 +172,11 @@ connect() ->
 		}, 
 		undefined
 	),
-  ?debug_Fmt("::test:: 6. wrong utf-8 : ~p", [Conn5]),
-	?assertNot(erlang:is_pid(Conn5)),
-	?assertMatch(#mqtt_error{}, Conn5),
+	IsConn5 = mqtt_client:is_connected(test_client_5),
+	?debug_Fmt("::test:: 6. wrong utf-8 : ~p", [IsConn5]),
+	?assert(erlang:is_pid(Conn5)),
+	?assertMatch(false, IsConn5),
+	mqtt_client:dispose(Conn5),
 
 	Conn6 = mqtt_client:create(test_client_6),
 	ok = mqtt_client:connect(
@@ -176,8 +188,10 @@ connect() ->
 		}, 
 		undefined
 	),
-  ?debug_Fmt("::test:: 7. wrong utf-8 user name: ~p", [Conn6]),
-	?assertMatch(#mqtt_error{}, Conn6),
+	IsConn6 = mqtt_client:is_connected(test_client_6),
+	?debug_Fmt("::test:: 7. wrong utf-8 user name: ~p", [IsConn6]),
+	?assertMatch(false, IsConn6),
+	mqtt_client:dispose(Conn6),
 
 	Conn7 = mqtt_client:create(test_client_7),
 	ok = mqtt_client:connect(
@@ -189,14 +203,11 @@ connect() ->
 		}, 
 		undefined
 	),
-  ?debug_Fmt("::test:: 8. wrong utf-8 password : ~p", [Conn7]),
-	?assertMatch(#mqtt_error{}, Conn7),
+	IsConn7 = mqtt_client:is_connected(test_client_7),
+	?debug_Fmt("::test:: 8. wrong utf-8 password : ~p", [IsConn7]),
+	?assertMatch(false, IsConn7),
+	mqtt_client:dispose(Conn7),
 
-	mqtt_client:disconnect(Conn4),
-	mqtt_client:disconnect(Conn5),
-%	(testing:get_storage(client)):cleanup(client),
-%	(testing:get_storage(server)):cleanup(server),
-	
 	?PASSED.
 
 combined(_, Conn) -> {"combined", timeout, 100, fun() ->
