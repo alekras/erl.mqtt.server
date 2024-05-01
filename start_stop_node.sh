@@ -22,7 +22,8 @@ esac
 
 case "$2" in
 	start)
-		$SCRIPT_NAME daemon
+		$SCRIPT_NAME start
+		sleep 2
 		$SCRIPT_NAME pid
 		;;
 	stop)

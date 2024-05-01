@@ -1,0 +1,9 @@
+erl -sname me -remsh mqtt_server -setcookie mqtt
+
+dets:match(users_db_srv,{'_','$1','_','$2'}).
+
+dets:match(subscription_db_srv,{'_','$1','$2','$3'}).
+
+[io:format("userName: ~p: roles: ~p~n", [User,Roles]) || [User,Roles] <- dets:match(users_db_srv,{'_','$1','_','$2'})].
+
+length(dets:match(user_db_srv, {'_','$1','_','$2'})).

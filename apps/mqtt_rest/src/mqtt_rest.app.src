@@ -15,7 +15,7 @@
 %%
 {application, mqtt_rest, [
 	{description, "This is a RESTful API of MQTT server. The API manages user database of MQTT server."},
-	{vsn, "1.0.0"},
+	{vsn, "2.1.0"},
 	{registered, []},
 	{applications, [
 		kernel,
@@ -34,7 +34,7 @@
 	{env, [
 	]},
 	{modules, []},
-	{mod, {mqtt_rest, [{vsn, "1.0.0"}]}},
+	{mod, {mqtt_rest, [{vsn, "2.1.0"}]}},
 	{licenses, ["Apache 2.0"]},
 	{links, []}
 ]}.
