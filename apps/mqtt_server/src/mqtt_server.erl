@@ -43,7 +43,7 @@
 %% ====================================================================
 %% @doc <a href="http://www.erlang.org/doc/apps/kernel/application.html#Module:start-2">application:start/2</a>
 %% @private
--spec start(Type :: normal | {takeover, Node} | {failover, Node}, Args :: term()) ->
+-spec start(Type :: normal | {takeover, _Node} | {failover, _Node}, Args :: term()) ->
 	{ok, Pid :: pid()}
 	| {ok, Pid :: pid(), State :: term()}
 	| {error, Reason :: term()}.

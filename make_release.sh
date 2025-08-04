@@ -1,11 +1,12 @@
 #!/bin/sh
 
-export PATH="$PATH:/usr/local/bin:/usr/local/Cellar/erlang/23.0/lib/erlang/bin"
+export PATH="$PATH:/usr/bin:/usr/local/bin:/usr/local/Cellar/erlang/28.0.2_1/bin"
 echo "argument: $1"
 REBAR3="/opt/local/bin/rebar3"
 $REBAR3 do version
+$REBAR3 do clean --all
 $REBAR3 do unlock --all
-$REBAR3 do upgrade
+$REBAR3 do upgrade --all
 
 case "$1" in
 	dev)
