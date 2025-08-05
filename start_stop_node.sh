@@ -22,12 +22,13 @@ esac
 
 case "$2" in
 	start)
-		$SCRIPT_NAME start
+		$SCRIPT_NAME daemon
 		sleep 2
 		$SCRIPT_NAME pid
 		;;
 	stop)
 		$SCRIPT_NAME stop
+		$SCRIPT_NAME status
 		;;
 	console)
 		$SCRIPT_NAME console
