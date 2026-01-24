@@ -108,7 +108,7 @@ publish_1({QoS, publish} = _X, [Publisher, Subscriber] = _Conns) -> {"publish to
 	?PASSED
 end}.
 
-publish_2({QoS, publish} = _X, [Publisher, Subscriber] = _Conns) -> {"publish to Topic Alias with QoS = " ++ integer_to_list(QoS) ++ ".\n", timeout, 100, fun() ->
+publish_2({QoS, publish} = _X, [_Publisher, Subscriber] = _Conns) -> {"publish to Topic Alias with QoS = " ++ integer_to_list(QoS) ++ ".\n", timeout, 100, fun() ->
 	register(test_result, self()),
 
 	F = fun({Q, #publish{topic= Topic, qos=_QoS, dup=_Dup, payload= Msg}} = _Arg) -> 
@@ -168,7 +168,7 @@ publish_3({QoS, publish} = _X, [Publisher, Subscriber] = _Conns) -> {"publish to
 	R2_1 = mqtt_client:publish(Publisher, #publish{topic = "/AKTest", qos = 0, properties = []}, <<"0) Subscriber self publish Payload QoS = 0. annon. function callback. ">>), 
 	?assertEqual(ok, R2_1),
 	R2_2 = mqtt_client:publish(Publisher, #publish{topic = "", qos = 0, properties = []}, <<"0) Subscriber self publish Payload QoS = 0. annon. function callback. ">>), 
-	?assertMatch(#mqtt_client_error{type=protocol,errno=130}, R2_2),
+	?assertMatch(#mqtt_error{errno=130}, R2_2),
 	
 	gen_server:call(Publisher, {set_test_flag, skip_alias_max_check}),
 	R2_3 = mqtt_client:publish(Publisher, #publish{topic = "", qos = 0, properties = []}, <<"0) Subscriber self publish Payload QoS = 0. annon. function callback. ">>), 

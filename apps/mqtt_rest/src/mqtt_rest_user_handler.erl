@@ -46,15 +46,17 @@
 
 init(Req, {Operations, LogicHandler, ValidatorMod}) ->
 	Storage =
-	case application:get_env(mqtt_server, storage, dets) of
+	case application:get_env(mqtt_rest, storage, dets) of
 		mysql -> mqtt_mysql_storage;
-		dets -> mqtt_dets_storage
+		dets -> mqtt_dets_storage;
+		mnesia -> mqtt_mnesia_storage
 	end,
 
 	Method = cowboy_req:method(Req),
 	OperationID = maps:get(Method, Operations, undefined),
 	ValidatorState = ValidatorMod:get_validator_state(),
 
+	lager:info([{endtype, server}], "Storage: ~p~n", [Storage]),	
 	lager:info([{endtype, server}], "Attempt to process operation: ~p~n~p, ~p~n", [OperationID, LogicHandler, ValidatorMod]),	
 	OrigHost = cowboy_req:header(<<"x-forwarded-for">>, Req),
 	lager:info([{endtype, server}], "host: ~p~n", [OrigHost]),

@@ -143,7 +143,7 @@ connect() ->
 		[?TEST_CONN_TYPE]
 	),
   ?debug_Fmt("::test:: 2. wrong port number : ~120p", [Conn1]),
-	?assertMatch(#mqtt_client_error{}, Conn1),
+	?assertMatch(#mqtt_error{}, Conn1),
 	
 	Conn2 = mqtt_client:connect(
 		test_client_2, 
@@ -157,7 +157,7 @@ connect() ->
 		[?TEST_CONN_TYPE]
 	),
   ?debug_Fmt("::test:: 3. wrong user name : ~120p", [Conn2]),
-	?assertMatch(#mqtt_client_error{}, Conn2),
+	?assertMatch(#mqtt_error{}, Conn2),
 	
 	Conn3 = mqtt_client:connect(
 		test_client_3, 
@@ -171,7 +171,7 @@ connect() ->
 		[?TEST_CONN_TYPE]
 	),
   ?debug_Fmt("::test:: 4. wrong user password : ~120p", [Conn3]),
-	?assertMatch(#mqtt_client_error{}, Conn3),
+	?assertMatch(#mqtt_error{}, Conn3),
 	
 	Conn4 = mqtt_client:connect(
 		test_client_4, 
@@ -199,7 +199,7 @@ connect() ->
 	),
   ?debug_Fmt("::test:: 6. wrong utf-8 : ~p", [Conn5]),
 	?assertNot(erlang:is_pid(Conn5)),
-	?assertMatch(#mqtt_client_error{}, Conn5),
+	?assertMatch(#mqtt_error{}, Conn5),
 	
 	Conn6 = mqtt_client:connect(
 		test_client_6, 
@@ -213,7 +213,7 @@ connect() ->
 		[?TEST_CONN_TYPE]
 	),
   ?debug_Fmt("::test:: 7. wrong utf-8 user name: ~p", [Conn6]),
-	?assertMatch(#mqtt_client_error{}, Conn6),
+	?assertMatch(#mqtt_error{}, Conn6),
 	
 	Conn7 = mqtt_client:connect(
 		test_client_7, 
@@ -227,7 +227,7 @@ connect() ->
 		[?TEST_CONN_TYPE]
 	),
   ?debug_Fmt("::test:: 8. wrong utf-8 password : ~p", [Conn7]),
-	?assertMatch(#mqtt_client_error{}, Conn7),
+	?assertMatch(#mqtt_error{}, Conn7),
 
 	mqtt_client:disconnect(Conn4),
 	mqtt_client:disconnect(Conn5),

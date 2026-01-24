@@ -42,12 +42,13 @@ do_start() ->
 	?debug_Fmt(">>> do start >>> ~n", []),
 	S = application:ensure_all_started(mqtt_rest),
 	Storage =
-	case application:get_env(mqtt_server, storage, dets) of
+	case application:get_env(mqtt_rest, storage, dets) of
 		mysql -> mqtt_mysql_storage;
-		dets -> mqtt_dets_storage
+		dets -> mqtt_dets_storage;
+		mnesia -> mqtt_mnesia_storage
 	end,
 	Storage:start(server),
-%	[ ?debug_Fmt(" ### ~p", [T]) || T <- application:which_applications()],
+	[ ?debug_Fmt(" ### ~p", [T]) || T <- application:which_applications()],
 	?assertMatch({ok,_}, S).
 
 do_stop(_R) ->
@@ -61,21 +62,10 @@ do_setup({_, _} = _X) ->
 do_setup(_X) ->
 	ok.
 
-do_cleanup({_, publish} = _X, [P, S] = _Pids) ->
+do_cleanup({_, publish} = _X, [_P, _S] = _Pids) ->
 	ok;
 do_cleanup(_X, _Pids) ->
 	ok.
-
-get_storage(server) ->
-	case application:get_env(mqtt_server, storage, dets) of
-		mysql -> mqtt_mysql_dao;
-		dets -> mqtt_dets_dao
-	end;
-get_storage(client) ->
-	case application:get_env(mqtt_client, storage, dets) of
-		mysql -> mqtt_mysql_dao;
-		dets -> mqtt_dets_dao
-	end.
 	
 wait_all(N) ->
 	case wait_all(N, 0) of

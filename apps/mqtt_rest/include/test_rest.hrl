@@ -16,7 +16,7 @@
 
 %-define(TEST_SERVER_HOST_NAME, "localhost").
 %-define(TEST_SERVER_HOST_NAME, {127,0,0,1}).
--define(TEST_SERVER_HOST_NAME, "MacBook-Pro").
+-define(TEST_SERVER_HOST_NAME, "MacBook-Pro.local").
 
 -define(CONN_TYPE, clear). %% clear | ssl | ws | wss
 

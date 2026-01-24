@@ -49,9 +49,14 @@
 	| {error, Reason :: term()}.
 %% ====================================================================
 start(_Type, _Args) ->
-	application:ensure_started(mqtt_common),
-	application:ensure_started(lager),
+	lager:start(),
 	application:ensure_started(sasl),
+	application:ensure_started(inets),
+	application:ensure_started(crypto),
+	application:ensure_started(asn1),
+	application:ensure_started(public_key),
+	application:ensure_started(ssl),
+	application:start(mqtt_common),
 	case application:get_env(lager, log_root) of
 		{ok, _} -> ok;
 		undefined ->
@@ -65,14 +70,15 @@ start(_Type, _Args) ->
 
 % for debug >
 	A = application:get_all_env(lager),
-	lager:debug("lager config env: ~p",[A]),	
-	lager:debug("mqtt_server config env: ~p",[application:get_all_env(mqtt_server)]),	
+	lager:debug([{endtype, server}], "lager config env: ~p",[A]),	
+	lager:debug([{endtype, server}], "mqtt_server config env: ~p",[application:get_all_env(mqtt_server)]),	
 %	< for debug
 
 	Storage =
 	case application:get_env(mqtt_server, storage, dets) of
 		mysql -> mqtt_mysql_storage;
-		dets -> mqtt_dets_storage
+		dets -> mqtt_dets_storage;
+		mnesia -> mqtt_mnesia_storage
 	end,
 	Storage:start(server),
 	Storage:cleanup(server), %% TODO is it suitable for sessions?
@@ -95,26 +101,26 @@ start(_Type, _Args) ->
 	CA_Cert_File = application:get_env(mqtt_server, cacertfile, "tls/ca.crt"),
 	Key_File = application:get_env(mqtt_server, keyfile, "tls/server.key"),
 	Verify_peer = application:get_env(mqtt_server, verify, verify_none),
-	lager:info("TLS config files: ~p~n",[{Cert_File, CA_Cert_File, Key_File,Verify_peer}]),	
+	lager:info([{endtype, server}], "TLS config files: ~p~n",[{Cert_File, CA_Cert_File, Key_File,Verify_peer}]),	
 	case filelib:is_regular(Cert_File) of
 		true -> ok;
 		false -> 
-			lager:error("Certificate file does not exist: ~p.", [Cert_File])
+			lager:error([{endtype, server}], "Certificate file does not exist: ~p.", [Cert_File])
 	end,
 	case filelib:is_regular(CA_Cert_File) of
 		true -> ok;
 		false ->
-			lager:error("CA Certificate file does not exist: ~p.", [CA_Cert_File])
+			lager:error([{endtype, server}], "CA Certificate file does not exist: ~p.", [CA_Cert_File])
 	end,
 	case filelib:is_regular(Key_File) of
 		true -> ok;
 		false ->
-			lager:error("Key file does not exist: ~p.", [Key_File])
+			lager:error([{endtype, server}], "Key file does not exist: ~p.", [Key_File])
 	end,
 %% 	B0 = application:start(cowlib),
-%% 	lager:debug("After Cowlib start: ~p",[B0]),	
+%% 	lager:debug([{endtype, server}], "After Cowlib start: ~p",[B0]),	
 %% 	B1 = application:start(cowboy),
-%% 	lager:debug("After Cowboy start: ~p",[B1]),
+%% 	lager:debug([{endtype, server}], "After Cowboy start: ~p",[B1]),
 
 	S = lists:concat([io_lib:format("    ~p~n",[App]) || App <- application:which_applications()]),
 	lager:info([{endtype, server}], "running apps: ~n~s",[S]),	

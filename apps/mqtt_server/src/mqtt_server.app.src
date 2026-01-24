@@ -16,7 +16,7 @@
 {application, mqtt_server,
 	[
     {description, "MQTT server"},
-    {vsn, "2.1.0"},
+    {vsn, "2.2.0"},
     {modules, [
       mqtt_server,
       mqtt_server_sup,
@@ -27,7 +27,8 @@
     {applications, [
       kernel, 
       stdlib, 
-      ssl
+      ssl,
+      mnesia
     ]},
     {included_applications, [
       lager,
@@ -35,7 +36,7 @@
       ranch,
       mqtt_common
     ]},
-    {mod, {mqtt_server, [{vsn, "2.1.0"}]}},
+    {mod, {mqtt_server, [{vsn, "2.2.0"}]}},
     {env, [
     ]}
 	]

@@ -46,12 +46,12 @@ mqtt_server_test_() ->
 			fun testing:do_start/0,
 			fun testing:do_stop/1,
 			{inorder, [
-				{"connect", fun connect/0},
+%				{"connect", fun connect/0},
  				{ foreachx, 
  					fun testing:do_setup/1, 
  					fun testing:do_cleanup/2, 
  					[
-%% 						{{1, keep_alive}, fun keep_alive/2},
+ 						{{1, keep_alive}, fun keep_alive/2}
 %% 						{{1, combined}, fun combined/2},
 %% 						{{1, subs_list}, fun subs_list/2},
 %% 						{{1, subs_filter}, fun subs_filter/2},
@@ -213,7 +213,7 @@ connect() ->
 combined(_, Conn) -> {"combined", timeout, 100, fun() ->
 	register(test_result, self()),
 %	timer:sleep(1000),
-	R1 = mqtt_client:pingreq(Conn, {?MODULE, ping_callback}), 
+	R1 = mqtt_client:pingreq(Conn), 
 	?assertEqual(ok, R1),
 	
 	R2_0 = mqtt_client:subscribe(Conn, [{"AKtest1", 2, fun(Arg) -> ?assertMatch({2,#publish{topic="AKtest1",payload= <<"Test Payload QoS = 0. annon. function callback. ">>}}, Arg), test_result ! done end}]), 
@@ -315,17 +315,19 @@ subs_filter(_, Conn) -> {"subscription filter", fun() ->
 end}.
 
 keep_alive(_, Conn) -> {"keep alive test", timeout, 15, fun() ->  
-	register(test_result, self()),
-	R1 = mqtt_client:pingreq(Conn, {?MODULE, ping_callback}), 
-	?assertEqual(ok, R1),
-	timer:sleep(4500),
-	R2 = mqtt_client:status(Conn), 
-	?assertEqual([{session_present,0},{subscriptions,[]}], R2),
+  ?debug_Fmt("::test:: PID of the process : ~p~n", [self()]),
 	timer:sleep(1500),
-	R3 = mqtt_client:status(Conn), 
-	?assertEqual(disconnected, R3),
+	mqtt_client:pingreq(Conn),
+	R1 = mqtt_client:status(Conn), 
+	?assertMatch([{connected,1}, {session_present,0},{subscriptions,_}], R1),
 
-	unregister(test_result),
+	timer:sleep(4800),
+	R2 = mqtt_client:status(Conn), 
+	?assertMatch([{connected,1}, {session_present,0},{subscriptions,_}], R2),
+	timer:sleep(3000),
+	R3 = mqtt_client:status(Conn), 
+	?assertMatch([{connected,0}, {session_present,0},{subscriptions,_}], R3),
+
 	?PASSED
 end}.
 

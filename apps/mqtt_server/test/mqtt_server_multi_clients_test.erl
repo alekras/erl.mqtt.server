@@ -138,8 +138,8 @@ subscriber_process(Pid, Name, Topics, Parent_Pid, 0) ->
 	Parent_Pid ! error;
 subscriber_process(Pid, Name, Topics, Parent_Pid, N) ->
 	receive
-		{Pub_Name, Mess_Number, Message} -> 
-%			?debug_Fmt("::test:: subscriber '~p' processed message[~p]: ~128p",[Name, N, {Pub_Name, Mess_Number, Message}]),
+		{_Pub_Name, _Mess_Number, _Message} -> 
+%			?debug_Fmt("::test:: subscriber '~p' processed message[~p]: ~128p",[Name, N, {_Pub_Name, _Mess_Number, _Message}]),
 			subscriber_process(Pid, Name, Topics, Parent_Pid, N - 1)
 	after 10000 -> 
 			?debug_Fmt("::test:: subscriber '~p' catched timeout while waiting message[~p]",[Name, N]),

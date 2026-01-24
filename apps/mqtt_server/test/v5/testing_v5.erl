@@ -27,8 +27,6 @@
 -include_lib("mqtt_common/include/mqtt_property.hrl").
 -include("test.hrl").
 
--define(CONN_REC, (#connect{user_name = ?TEST_USER, password = ?TEST_PASSWORD, keep_alive = 6000, version = '5.0'}) ).
-
 %%
 %% API functions
 %%
@@ -40,6 +38,13 @@
 	get_connect_rec/0,
 	get_storage/1, 
 	wait_all/1]).
+
+get_connect_rec() ->
+	#connect{
+		user_name = ?TEST_USER,
+		password = ?TEST_PASSWORD,
+		keep_alive = 6000,
+		version = '5.0'}.
 
 do_start() ->
 	S = application:ensure_all_started(mqtt_server),
@@ -60,7 +65,7 @@ do_stop(_R) ->
 connect(Name) when is_atom(Name) ->
 	mqtt_client:connect(
 		Name, 
-		?CONN_REC#connect{client_id = atom_to_list(Name), properties=[{?Topic_Alias_Maximum,7}]}, 
+		(get_connect_rec())#connect{client_id = atom_to_list(Name), properties=[{?Topic_Alias_Maximum,7}]}, 
 		?TEST_SERVER_HOST_NAME, 
 		?TEST_SERVER_PORT, 
 		[?TEST_CONN_TYPE]
@@ -68,7 +73,7 @@ connect(Name) when is_atom(Name) ->
 connect(Name) when is_list(Name) ->
 	mqtt_client:connect(
 		list_to_atom(Name), 
-		?CONN_REC#connect{client_id = Name}, 
+		(get_connect_rec())#connect{client_id = Name}, 
 		?TEST_SERVER_HOST_NAME, 
 		?TEST_SERVER_PORT, 
 		[?TEST_CONN_TYPE]
@@ -81,7 +86,7 @@ do_setup({_, publish_rec_max} = _X) ->
 %  ?debug_Fmt("~n::test:: setup before: ~p",[_X]),
 	P1 = mqtt_client:connect(
 		publisher, 
-		?CONN_REC#connect{client_id = "publisher", properties=[{?Receive_Maximum, 5}]}, 
+		(get_connect_rec())#connect{client_id = "publisher", properties=[{?Receive_Maximum, 5}]}, 
 		?TEST_SERVER_HOST_NAME,
 		?TEST_SERVER_PORT,
 		{publish_v5, disconnect_callback}, 
@@ -96,13 +101,13 @@ do_setup({_, session} = _X) ->
 %  ?debug_Fmt("~n::test:: setup before: ~p",[_X]),
 	P1 = mqtt_client:connect(
 		publisher, 
-		?CONN_REC#connect{client_id = "publisher", clean_session = 0, properties=[{?Session_Expiry_Interval, 16#FFFFFFFF}]}, 
+		(get_connect_rec())#connect{client_id = "publisher", clean_session = 0, properties=[{?Session_Expiry_Interval, 16#FFFFFFFF}]}, 
 		?TEST_SERVER_HOST_NAME, ?TEST_SERVER_PORT, 
 		[?TEST_CONN_TYPE]
 	),
 	S1 = mqtt_client:connect(
 		subscriber, 
-		?CONN_REC#connect{client_id = "subscriber", clean_session = 0, properties=[{?Session_Expiry_Interval, 16#FFFFFFFF}]}, 
+		(get_connect_rec())#connect{client_id = "subscriber", clean_session = 0, properties=[{?Session_Expiry_Interval, 16#FFFFFFFF}]}, 
 		?TEST_SERVER_HOST_NAME, ?TEST_SERVER_PORT, 
 		[?TEST_CONN_TYPE]
 	),
@@ -114,9 +119,8 @@ do_setup({QoS, will} = _X) ->
 %  ?debug_Fmt("~n::test:: setup before: ~p",[_X]),
 	P = mqtt_client:connect(
 		publisher, 
-		?CONN_REC#connect{
+		(get_connect_rec())#connect{
 			client_id = "publisher",
-			will = 1,
 			will_publish= #publish{topic= "AK_will_test", qos= QoS, payload= <<"Test will message">>}
 		}, 
 		?TEST_SERVER_HOST_NAME, ?TEST_SERVER_PORT, 
@@ -128,9 +132,8 @@ do_setup({QoS, will_delay} = _X) ->
 %  ?debug_Fmt("~n::test:: setup before: ~p",[_X]),
 	P = mqtt_client:connect(
 		publisher, 
-		?CONN_REC#connect{
+		(get_connect_rec())#connect{
 			client_id = "publisher",
-			will = 1,
 			will_publish= #publish{topic= "AK_will_test", qos= QoS, payload= <<"Test will message">>, properties =[{?Will_Delay_Interval, 2}]}
 		}, 
 		?TEST_SERVER_HOST_NAME, 
@@ -143,9 +146,8 @@ do_setup({QoS, will_retain} = _X) ->
 %  ?debug_Fmt("~n::test:: setup before: ~p",[_X]),
 	P = mqtt_client:connect(
 		publisher, 
-		?CONN_REC#connect{
+		(get_connect_rec())#connect{
 			client_id = "publisher",
-			will = 1,
 			will_publish= #publish{topic= "AK_will_retain_test", retain= 1, qos= QoS, payload= <<"Test will retain message">>}
 		}, 
 		?TEST_SERVER_HOST_NAME, 
@@ -161,7 +163,7 @@ do_setup({_, keep_alive}) ->
 %  ?debug_Fmt("~n::test:: setup before: ~p",[_X]),
 	mqtt_client:connect(
 		publisher, 
-		?CONN_REC#connect{client_id = "publisher", keep_alive = 5}, 
+		(get_connect_rec())#connect{client_id = "publisher", keep_alive = 5}, 
 		?TEST_SERVER_HOST_NAME, 
 		?TEST_SERVER_PORT, 
 		[?TEST_CONN_TYPE]
@@ -218,7 +220,7 @@ do_cleanup({QoS, will_retain} = _X, [P, S] = _Pids) ->
 
 	P1 = mqtt_client:connect(
 		publisher, 
-		?CONN_REC#connect{
+		(get_connect_rec())#connect{
 			client_id = "publisher",
 			clean_session = 1
 %% 			will = 1,
@@ -247,7 +249,7 @@ do_cleanup({QoS, retain} = _X, [P1, S1, S2] = _Pids) ->
 				disconnected ->
 					P2 = mqtt_client:connect(
 						publisher, 
-						?CONN_REC#connect{client_id = "publisher", clean_session = 0}, 
+						(get_connect_rec())#connect{client_id = "publisher", clean_session = 0}, 
 						?TEST_SERVER_HOST_NAME,
 						?TEST_SERVER_PORT, 
 						[?TEST_CONN_TYPE]
@@ -270,18 +272,17 @@ do_cleanup(_X, _Pids) ->
 	(get_storage(server)):cleanup(server),
 	?assertEqual(ok, R).
 
-get_connect_rec() ->
-	?CONN_REC#connect{client_id = "Test0Client"}.
-
 get_storage(server) ->
 	case application:get_env(mqtt_server, storage, dets) of
-		mysql -> mqtt_mysql_dao;
-		dets -> mqtt_dets_dao
+		mysql -> mqtt_mysql_storage;
+		dets -> mqtt_dets_storage;
+		mnesia -> mqtt_mnesia_storage
 	end;
 get_storage(client) ->
 	case application:get_env(mqtt_client, storage, dets) of
-		mysql -> mqtt_mysql_dao;
-		dets -> mqtt_dets_dao
+		mysql -> mqtt_mysql_storage;
+		dets -> mqtt_dets_storage;
+		mnesia -> mqtt_mnesia_storage
 	end.
 	
 wait_all(N) ->
