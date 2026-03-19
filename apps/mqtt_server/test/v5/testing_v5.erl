@@ -272,14 +272,8 @@ do_cleanup(_X, _Pids) ->
 	(get_storage(server)):cleanup(server),
 	?assertEqual(ok, R).
 
-get_storage(server) ->
-	case application:get_env(mqtt_server, storage, dets) of
-		mysql -> mqtt_mysql_storage;
-		dets -> mqtt_dets_storage;
-		mnesia -> mqtt_mnesia_storage
-	end;
-get_storage(client) ->
-	case application:get_env(mqtt_client, storage, dets) of
+get_storage(_) ->
+	case application:get_env(mqtt_common, storage, dets) of
 		mysql -> mqtt_mysql_storage;
 		dets -> mqtt_dets_storage;
 		mnesia -> mqtt_mnesia_storage

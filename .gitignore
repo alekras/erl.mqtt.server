@@ -13,3 +13,4 @@
 /openapi.yaml
 /tls_cnfg/
 /openapi_1ed.yaml
+/init_mnesia_cluster_node.sh

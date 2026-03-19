@@ -41,32 +41,32 @@
   ]},
 
 	{mqtt_client, [
-		{storage, mnesia},
 		{host, "localhost"}, 
 		{port, 8080}
 	]},
 	{mqtt_rest, [
-		{storage, mnesia}
+		{port, ${PORT_REST}}
 	]},
 	{mqtt_server, [
-		{storage, mnesia},
-%		{storage, dets},
-%		{dets_home_folder, "/private/var/data/dets-storage"},
-		{port, 18883},
-		{port_tls, 18483},
-		{port_ws, 8880},
-		{port_wss, 4443},
-		{port_rest, 8080},
+		{port, ${PORT_CLEAR}},
+		{port_tls, ${PORT_TLS}},
+		{port_ws, ${PORT_WS}},
+		{port_wss, ${PORT_WSS}},
 		{certfile, "tls_cnfg/server/cert.pem"},
 		{cacertfile, "tls_cnfg/server/cacerts.pem"},
 		{keyfile, "tls_cnfg/server/key.pem"},
 		{verify, verify_none}
 	]},
 	{mqtt_common, [
+%		{storage, dets},
+%		{dets_home_folder, "/private/var/data/dets-storage"},
 		{storage, mnesia},
+		{mnesia_master, ${MNESIA_MASTER}},
+		{cluster_nodes, [${CLUSTER_NODES}]},
 		{timeout, 102}
 	]},
 	{mnesia, [
-		{dir, "/private/tmp/mnesia"}
+		{dir, ${MNESIA_DIR}},
+		{schema_location, opt_disc}
 	]}
 ].

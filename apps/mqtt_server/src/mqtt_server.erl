@@ -75,7 +75,7 @@ start(_Type, _Args) ->
 %	< for debug
 
 	Storage =
-	case application:get_env(mqtt_server, storage, dets) of
+	case application:get_env(mqtt_common, storage, dets) of
 		mysql -> mqtt_mysql_storage;
 		dets -> mqtt_dets_storage;
 		mnesia -> mqtt_mnesia_storage
@@ -147,7 +147,12 @@ start(_Type, _Args) ->
 				worker, 
 				[cowboy_clock]
 	},
-	TCPListenerSpec = ranch:child_spec(
+	Children = [RanchSupSpec, CowboyClock],
+%%	TCPListenerSpec
+	Children1 =
+	if (Port > 0) ->
+			[
+				ranch:child_spec(
 				mqtt_server, 
 				ranch_tcp, 
 				#{
@@ -156,8 +161,15 @@ start(_Type, _Args) ->
 				}, 
 				mqtt_server_connection, 
 				[{storage, Storage}]
-	),
-	TLSListenerSpec = ranch:child_spec(
+				)
+				| Children];
+		true -> Children
+	end,
+%%	TLSListenerSpec
+	Children2 =
+	if (Port_tls > 0) ->
+			[
+				ranch:child_spec(
 				mqtt_server_tls, 
 				ranch_ssl, 
 				#{
@@ -174,7 +186,10 @@ start(_Type, _Args) ->
 				}, 
 				mqtt_server_connection, 
 				[{storage, Storage}]
-	),
+				)
+				| Children1];
+		true -> Children1
+	end,
 %%	lager:debug("TLSListenerSpec: ~p~n",[TLSListenerSpec]),	
 
 %% Web socket connection
@@ -186,7 +201,11 @@ start(_Type, _Args) ->
 		}
 	]),
 
-	WSListener = ranch:child_spec(
+%%	WSListener
+	Children3 =
+	if (Port_ws > 0) ->
+			[
+				ranch:child_spec(
 				ws_listener, 
 				ranch_tcp, 
 				#{
@@ -198,10 +217,16 @@ start(_Type, _Args) ->
 				#{env => #{dispatch => Dispatch}, 
 					connection_type => supervisor,
 					storage => Storage
-				}
-	),
+				})
+				| Children2];
+		true -> Children2
+	end,
 	
-	WSSListener = ranch:child_spec(
+%%	WSSListener
+	Children4 =
+	if (Port_wss > 0) ->
+			[
+				ranch:child_spec(
 				wss_listener, 
 				ranch_ssl, 
 				#{port => Port_wss,
@@ -221,21 +246,26 @@ start(_Type, _Args) ->
 				#{env => #{dispatch => Dispatch}, 
 					connection_type => supervisor,
 					storage => Storage
-				}
-	),
+				})
+				| Children3];
+		true -> Children3
+	end,
 	
-	mqtt_server_sup:start_link([
-		RanchSupSpec, 
-		CowboyClock, 
-		TCPListenerSpec, TLSListenerSpec, 
-		WSListener, WSSListener]).
+	mqtt_server_sup:start_link(lists:reverse(Children4)).
 
 %% ====================================================================
 %% @doc <a href="http://www.erlang.org/doc/apps/kernel/application.html#Module:stop-1">application:stop/1</a>
 -spec stop(State :: term()) ->  Any :: term().
 %% ====================================================================
 %% @private
-stop(_State) ->
+stop(State) ->
+	lager:info("STOP mqtt_server: ~p~n",[State]),	
+	ok = application:stop(mqtt_common),
+	case application:get_env(mqtt_common, storage, dets) of
+		mysql -> mqtt_mysql_storage:close(server);
+		dets -> mqtt_dets_storage:close(server);
+		mnesia -> mqtt_mnesia_storage:close(server)
+	end,
 	ok = ranch:stop_listener(mqtt_server),
 	ok = ranch:stop_listener(mqtt_server_tls),
 	ok = ranch:stop_listener(ws_listener),

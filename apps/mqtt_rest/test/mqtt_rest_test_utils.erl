@@ -42,7 +42,7 @@ do_start() ->
 	?debug_Fmt(">>> do start >>> ~n", []),
 	S = application:ensure_all_started(mqtt_rest),
 	Storage =
-	case application:get_env(mqtt_rest, storage, dets) of
+	case application:get_env(mqtt_common, storage, dets) of
 		mysql -> mqtt_mysql_storage;
 		dets -> mqtt_dets_storage;
 		mnesia -> mqtt_mnesia_storage

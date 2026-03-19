@@ -1,0 +1,6 @@
+-sname ${NODE_NAME}
+
+-setcookie mqtt_server_secret_cookie
+
++K true
++A30

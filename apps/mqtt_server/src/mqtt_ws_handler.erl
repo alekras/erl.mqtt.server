@@ -59,7 +59,7 @@ init(Req0, State) ->
 
 websocket_init(State) ->
 	Opts = ranch:get_protocol_options(ws_listener),
-	Storage = maps:get(storage, Opts, mqtt_dets_dao),
+	Storage = maps:get(storage, Opts, mqtt_dets_storage),
   Conn_State = #connection_state{socket = self(), transport = mqtt_ws_handler, storage = Storage, end_type = server},
  	Conn_Pid = proc_lib:spawn_link(fun() -> mqtt_connection:init(Conn_State) end),
 	State1 = maps:put(conn_pid, Conn_Pid, State),
