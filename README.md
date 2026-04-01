@@ -113,7 +113,11 @@ $ docker build -t mqtt_server_dev --file Dockerfile .
 
 #### Build Docker compose cluster
 
- *TO DO*
+ *TO DO* Run two containers: one mqtt server, other mnesia server. Connection to mnesia server thru RPC
+
+#### Build Docker swarm cluster
+
+ *TO DO* Run swarm cluster with load balancer.
 
 ### Deployment
 
@@ -155,11 +159,41 @@ $ ./start_stop_cluster_node_1.sh dev console
 Now you can connect a few MQTT clients to different ports (18883 or 28883) to test the cluster.
 
 #### Start standalone docker container
- *TO DO*
+
+Build docker image ([see "Build Docker image"](#build-docker-image)) and after that run bash script:
+ 
+ ```bash
+ $ docker_run_standalone_mode.sh
+```
+Logging messages appear in terminal window.
+
 #### Start distributed docker containers
+
+You need to do a few steps to deploy cluster:
+ - Create docker network
+
+```bash
+$ docker network create mqtt_net 
+```
+ - Open first terminal window and run commands
+
+```bash
+$ cd erl.mqtt.server
+$ ./docker_run_cluster_node_0.sh 
+```
+ - Open second terminal window and run commands
+
+```bash
+$ cd erl.mqtt.server
+$ ./docker_run_cluster_node_1.sh 
+```
+Now you can connect a few MQTT clients to different ports (18883 or 28883) to test the cluster.
+
+#### Start docker compose cluster 
  *TO DO*
-#### Start docker-compose 
+#### Start docker swarm cluster 
  *TO DO*
+
 ## Configuration file sys.config
 To set up ports for TCP and TLS socket connection go to config[-dev]/sys.config. This is OTP application configuration file contained startup data for
 lager, ranch and mqtt server backend type and connection details.
