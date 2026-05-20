@@ -1,0 +1,66 @@
+version: '3.8'
+
+x-common-environment: &common-env
+  PORT_REST: 8080
+  PORT_CLEAR: 18883
+  PORT_TLS: 18483
+  PORT_WS: 8880
+  PORT_WSS: 4443
+  NODE_NAME: mqtt_server
+  CLUSTER_NODES: "'mqtt_server@docker_container_0','mqtt_server@docker_container_1'"
+  MNESIA_DIR: "'/opt/mnesia_data'"
+
+services:
+  mqtt-service-0:
+    image: mqtt_server_dev
+    container_name: docker_container_0
+    hostname: docker_container_0
+    tty: "true"
+    environment:
+      <<: *common-env
+      MNESIA_MASTER: "true"
+    expose:
+      - "18883"  # Internal port mqtt server listens on
+    volumes:
+      - mnesia-volume-0:/opt/mnesia_data
+#      - ${HOME}/MyData/mqtt/cluster/node_0/mnesia:/opt/mnesia_data
+    networks:
+      - mqtt_net
+
+  mqtt-service-1:
+    image: mqtt_server_dev
+    container_name: docker_container_1
+    hostname: docker_container_1
+    tty: "true"
+    environment:
+      <<: *common-env
+      MNESIA_MASTER: "false"
+    expose:
+      - "18883"  # Internal port mqtt server listens on
+    volumes:
+      - mnesia-volume-1:/opt/mnesia_data
+#      - ${HOME}/MyData/mqtt/cluster/node_1/mnesia:/opt/mnesia_data
+    networks:
+      - mqtt_net
+
+  nginx-lb:                     # TCP Load Balancer
+    image: nginx:stable-alpine
+    ports:
+      - "18883:18883"             # Expose on host (clients connect here)
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf
+    depends_on:
+      - mqtt-service-0
+      - mqtt-service-1
+    networks:
+      - mqtt_net
+
+networks:
+  mqtt_net:
+    driver: bridge
+
+volumes:
+  mnesia-volume-0:
+    name: mnesia-volume-0
+  mnesia-volume-1:
+    name: mnesia-volume-1
