@@ -22,7 +22,7 @@
 start(_Type, _Args) ->
 	Port = application:get_env(mqtt_rest, port, 8080),
 	lager:info([{endtype, server}], "Start mqtt_rest app = ~p Port:~p.~n", [_Args, Port]),	
-	mqtt_rest_server:start(mqtt_rest, #{ip=>{127,0,0,1}, port=>Port, net_opts=>[]}).
+	mqtt_rest_server:start(mqtt_rest, #{transport_opts => [{ip,{0,0,0,0}}, {port,Port}]}).
 
 stop(_State) ->
 		ok = ranch:stop_listener(mqtt_rest).

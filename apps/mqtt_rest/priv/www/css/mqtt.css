@@ -1,0 +1,488 @@
+
+body {
+	margin: 0px; 
+	align-content: center;
+}
+
+#main {
+	width: 100%;
+	height: 100%;
+}
+
+table {
+	border-spacing: 0px;
+}
+
+table tr td {
+	padding: 0px;
+}
+
+.table {
+	margin: 50px auto 50px auto;
+	border: 2px solid green; 
+	text-align:center;
+	align-content: center;
+}
+
+.title {
+	height: 25px;
+	width:100%;
+/*	padding: 0 15px 0 0; */
+	text-align: center;
+	font-family: sans-serif;
+	font-style: normal;
+	font-weight: bold;
+	font-size: 9pt;
+/*	border: 1px solid black;*/
+}
+
+.title-username {
+	width:132px;
+	color:#3e7878;
+	margin:5px 2px 0 2px;
+	font-weight: normal;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	float:right;
+}
+
+.menu {
+	background-color: rgb(104,209,248);
+	text-align:justify;
+	cursor: default;
+	outline: 2px solid rgba(0,137,215,1)
+}
+
+.menuItem {
+	background-color:transparent;
+	height: 30px;
+	width: 25%;
+	margin: 3px;
+	text-align:center;
+/*	border: 1px solid red;*/
+}
+
+.menuLabel-active {
+	background-color:rgb(38,71,155);
+	color:rgb(255,255,255);
+}
+.menuLabel-mover {
+	background-color:rgb(89,194,233);
+	color:rgb(48,81,165);
+}
+.menuLabel-mover-a {
+	background-color:rgb(38,71,155);
+	color:rgb(104,209,248);
+}
+.menuLabel-initial {
+	background-color:transparent;
+	color:rgb(38,71,155);
+}
+.menuLabel {
+	height: 15px;
+	padding: 2px;
+	margin: 2px;
+	text-align:center;
+	vertical-align: baseline;
+	cursor: pointer;
+	font-size: 10pt; font-family: sans-serif; font-style: normal; font-weight: bold;
+/*	border: 1px solid red;*/
+}
+
+.board-container {
+	background-color: rgba(240, 234, 227, 1);
+	height: auto;
+}
+
+.text-inp {
+	height: 55px; /* set */
+	text-align:left;
+}
+
+.btn-login {
+	width: 100px;
+}
+
+.button {
+	padding: 0px;
+	margin: 2px 5px;
+	height: 35px;
+	border: 2px solid rgba(77,210,155,1);
+	border-radius: 8px;
+	cursor: pointer;
+}
+
+.label {
+	display: flex;
+	flex-direction: column-reverse;
+	color: rgba(70,160,185,1);
+	white-space:nowrap;
+	align-content:center;
+	font-size: 12pt;
+	font-family: monospace;
+	font-style: normal;
+	font-weight: normal;
+}
+
+.label-text {
+	color: rgba(70,160,185,1);
+	white-space:nowrap;
+	font-size: 12pt;
+	font-family: monospace;
+	font-style: normal;
+	font-weight: normal;
+}
+
+.text-input {
+	width: 90%; /* 50*5=250-24 */	/* set */
+	padding-left: 5px;
+	text-align: left;
+	margin: 0px 0px;
+	border: 2px solid rgba(155,192,235,1);
+	border-radius: 8px;
+	/*
+	font-size: 12pt;
+	font-family: monospace;
+	font-style: normal;
+	font-weight: normal;
+	*/
+}
+.text-input:focus {
+	border: 2px solid rgba(0,137,215,1);
+	border-radius: 8px;
+	/*background-color: lightblue;*/
+}
+
+.error-msg {
+	text-align:right;
+	color: red;
+	font-size:8pt;
+	font-style: italic;
+	font-weight: normal;
+}
+/** --------------------------
+	CSSs for Board Users 
+*/
+.tbl-users {
+	width: 100%; /* set */
+	height: 100%;
+	border-spacing: 0px;
+	align-content: center;
+}
+
+.td-users-header {
+	height: 42px;
+	width: 45px;
+}
+
+.board-users {
+/*	width: 100%;*/
+	min-height: 100% !important;
+	height: 100%; /* set */
+	border: 0px solid black;
+	margin-top: 2px;
+	padding: 0px;
+	background-color: rgba(240, 234, 227, 1);
+	overflow: auto;
+}
+
+.users-header {
+  height: 20px;
+  color:yellow;
+  font-size: 8pt;
+	font-family:sans-serif;
+	font-style: normal;
+	font-weight: bold;
+  text-align: center;
+  border: 2px solid blue;
+  white-space: nowrap;
+}
+
+.users-header-name {
+  float: left;
+  width: 30%;
+  margin: 0px 2px 0 4px;
+  padding: 1px 6px;
+  background-color: rgb(38,71,155);
+}
+
+.users-header-roles {
+  float: left;
+  width: 30%;
+  margin: 0px 2px 0 2px;
+  padding: 1px 6px;
+  background-color: rgb(38,71,155);
+}
+
+.users-header-status {
+  width:auto !important;
+  float: right;
+  margin: 0px 2px 0 2px;
+  padding: 1px 6px;
+  background-color: rgb(38,71,155);
+}
+
+.users-header-remove {
+  width: 45px;
+  float: right;
+  margin: 0px 1px 0px 2px;
+  padding: 1px 1px;
+  background-color: rgb(38,71,155);
+}
+
+.div-user-record {
+	width: auto;	/* set */
+	height: 40px;
+	text-align: left;
+	margin: 1px 0px 0px 2px;
+	padding: 2px;
+	border: 2px solid white;
+	border-radius: 8px;
+}
+
+.btn-add {
+	width: 35px;
+	background-color: white;
+	background-image: url("/mqtt/img/add-user.png");
+	background-repeat:no-repeat;
+	background-size:cover;
+}
+
+.btn-refresh {
+	width: 35px;
+	background-color: white;
+	background-image: url("/mqtt/img/refresh.png");
+	background-repeat:no-repeat;
+	background-size:cover;
+}
+
+.btn-remove {
+	float:right;
+	width: 35px;
+	background-color: white;
+	background-image: url("/mqtt/img/remove-user.png");
+	background-repeat:no-repeat;
+	background-size:cover;
+}
+
+.user-id-record {
+	float:left;
+	width: 30%; /* set */
+	text-align: left;
+	margin: 6px 4px;
+	padding: 2px 6px;
+	background-color: aquamarine;
+	font-size: 10pt;
+	font-family: monospace;
+	font-style: normal;
+	font-weight: normal;
+	vertical-align: middle;
+	cursor: pointer;
+}
+
+.user-roles-record {
+	float:left;
+	width: 30%;
+	text-align: left;
+	margin: 6px 4px;
+	padding: 2px 6px;
+	background-color: transparent;
+	font-size: 10pt;
+	font-family: serif;
+	font-style: normal;
+	font-weight: normal;
+	vertical-align: middle;
+	cursor: pointer;
+}
+
+.user-status-record {
+	float: right;
+	text-align: right;
+	margin: 6px 4px;
+	padding: 2px 6px;
+	background-color: transparent;
+	font-size: 10pt;
+	font-family: sans-serif;
+	font-style: normal;
+	font-weight: normal;
+	vertical-align: middle;
+}
+
+/** --------------------------
+	CSSs for Board Configuration 
+*/
+.tbl-config {
+	width: 100%; /* set */
+	height: 100%;
+	border-spacing: 0px;
+}
+
+.board-config-app {
+	width: 100%;
+	min-height: 100% !important;
+	height: 12pt; /* set */
+	border: 0px solid black;
+	overflow: auto;
+}
+
+.board-config-app-name {
+	width: 50%;
+	padding: 2px 10px;
+	background-color: yellow;
+	text-align: left;
+	font-size: 10pt;
+	font-family: monospace;
+	font-style: normal;
+	font-weight: bold;
+	overflow: auto;
+}
+
+.board-config-line {
+	width: 100%;
+	min-height: 100% !important;
+	height: 10pt; /* set */
+	border: 0px solid black;
+	overflow: auto;
+}
+
+.board-config-line-name {
+	width: 50%;
+	padding: 2px;
+	text-align: right;
+	font-size: 10pt;
+	font-family: monospace;
+	font-style: normal;
+	font-weight: bold;
+	overflow: auto;
+}
+
+.board-config-line-value {
+	width: 50%;
+	padding: 2px;
+	overflow: auto;
+}
+
+::placeholder { /* Chrome, Firefox, Opera, Safari 10.1+ */
+	color: rgba(230, 224, 217, 1);
+	opacity: 1; /* Firefox */
+}
+
+:-ms-input-placeholder { /* Internet Explorer 10-11 */
+	color: rgba(230, 224, 217, 1);
+}
+
+::-ms-input-placeholder { /* Microsoft Edge */
+	color: rgba(230, 224, 217, 1);
+}
+
+.warning-mask {
+	display:block;
+	position:absolute;
+	background-color:rgba(200,200,200,0.35);
+}
+
+.warning-box {
+	border: 4px solid yellow;
+	padding:4px;
+	position:relative;
+}
+
+.warning-inside {
+	background-color:yellow;
+	height:100%;
+	text-align: center;
+	position: relative;
+}
+
+.warning-msg {
+ color: red;
+ position: relative;
+ top:15%;
+ margin:0px;
+ padding-left:20px;
+ padding-right:20px;
+ text-align: center;
+}
+
+.warning-btn-container {
+	position: relative;
+	top: 25%;
+	width: 100%;
+}
+
+.warning-btn {
+	position: relative;
+	width: 70px;
+}
+
+.help {
+  min-height: 100% !important;
+	height:100%;
+	background-color: rgba(240, 234, 227, 1);
+	overflow: auto;
+}
+
+.help p{
+	text-align:left;
+	text-indent:15px;
+	padding-left: 10px;
+	font: normal normal 11pt Helvetica, Arial, sans-serif;
+}
+/*
+.help p::first-line {
+	background-color: rgb(105,209,248);
+}
+*/
+.help p::first-letter {
+	font: normal bold 11pt Helvetica, Arial, sans-serif;
+}
+
+.help dt::after {
+  content: ": ";
+}
+
+.help dt {
+  font-weight:bold;
+  text-align: left;
+  padding-left: 10px;
+}
+
+.help dd {
+  text-align: left;
+}
+
+.copyright {
+	color:gray;
+	font-family: serif;
+	font-style: italic;
+	font-weight: lighter;
+	font-size: xx-small;
+	text-align: right;
+}
+
+.ssl-seal {
+	float:left;
+	height: 23px;
+	width: 98px;
+	background-color: white;
+	background-image: url("/mqtt/img/empty_positivessl_trust_seal_sm_124x32.png");
+	background-repeat:no-repeat;
+	background-size:contain;
+}
+
+/*
+label {
+	display: flex;
+	flex-direction: column-reverse;
+}
+label>div {
+	transition: all .2s;
+	transform-origin: bottom left;
+}
+*/
+label>input[placeholder=" "]:not(:focus):placeholder-shown + div {
+	transform: translateY(1em) scale(1.00);
+	pointer-events: none;
+	opacity: .5
+}

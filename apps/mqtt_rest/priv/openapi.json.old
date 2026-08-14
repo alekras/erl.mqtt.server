@@ -10,7 +10,7 @@
       "url" : "http://www.apache.org/licenses/LICENSE-2.0.html"
     },
     "title" : "MQTT server API",
-    "version" : "2.2.1"
+    "version" : "1.0.1"
   },
   "externalDocs" : {
     "description" : "Find out more about Erlang MQTT server",
@@ -42,77 +42,8 @@
       "url" : "http://lucky3p.com"
     },
     "name" : "user"
-  }, {
-    "description" : "Manage server state and configuration",
-    "name" : "server"
   } ],
   "paths" : {
-    "/user/login/{user_name}" : {
-      "post" : {
-        "operationId" : "loginUser",
-        "parameters" : [ {
-          "description" : "User name",
-          "explode" : false,
-          "in" : "path",
-          "name" : "user_name",
-          "required" : true,
-          "schema" : {
-            "type" : "string"
-          },
-          "style" : "simple"
-        } ],
-        "requestBody" : {
-          "content" : {
-            "application/json" : {
-              "examples" : {
-                "password" : {
-                  "summary" : "alex"
-                }
-              },
-              "schema" : {
-                "$ref" : "#/components/schemas/User"
-              }
-            }
-          },
-          "description" : "User's password in plain text format",
-          "required" : true
-        },
-        "responses" : {
-          "200" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/SuccessLogin"
-                }
-              }
-            },
-            "description" : "Successful operation"
-          },
-          "400" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/Error"
-                }
-              }
-            },
-            "description" : "Invalid request"
-          },
-          "404" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/Error"
-                }
-              }
-            },
-            "description" : "User not found or password is invalid"
-          }
-        },
-        "summary" : "User is trying to log in to server",
-        "tags" : [ "user" ]
-      }
-    },
     "/user/{user_name}" : {
       "delete" : {
         "operationId" : "deleteUser",
@@ -218,7 +149,7 @@
               }
             }
           },
-          "description" : "User's password in plain text format and roles",
+          "description" : "User's password in md5 format and roles",
           "required" : true
         },
         "responses" : {
@@ -293,10 +224,10 @@
     },
     "/user/status" : {
       "get" : {
-        "description" : "Returns a list of user's statuses",
+        "description" : "Returns a list of user statuses",
         "operationId" : "getAllStatuses",
         "parameters" : [ {
-          "description" : "List of user's names",
+          "description" : "List of user names",
           "example" : "alex,sam,john",
           "explode" : false,
           "in" : "query",
@@ -346,105 +277,6 @@
         "summary" : "Get user connection statuses",
         "tags" : [ "user" ]
       }
-    },
-    "/user/list" : {
-      "get" : {
-        "description" : "Returns a list of users roles and connection statuses",
-        "operationId" : "getUserList",
-        "parameters" : [ {
-          "description" : "start index and end index in list of users",
-          "example" : "0,100",
-          "explode" : false,
-          "in" : "query",
-          "name" : "indexes",
-          "required" : false,
-          "schema" : {
-            "items" : {
-              "type" : "integer"
-            },
-            "type" : "array",
-            "uniqueItems" : false
-          },
-          "style" : "form"
-        } ],
-        "responses" : {
-          "200" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/UserList"
-                }
-              }
-            },
-            "description" : "Successful operation"
-          },
-          "400" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/Error"
-                }
-              }
-            },
-            "description" : "Invalid indexes supplied"
-          },
-          "404" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/Error"
-                }
-              }
-            },
-            "description" : "Users not found"
-          }
-        },
-        "summary" : "Get list of users",
-        "tags" : [ "user" ]
-      }
-    },
-    "/server/config" : {
-      "get" : {
-        "description" : "Returns a list of configuration items",
-        "operationId" : "getConfig",
-        "parameters" : [ {
-          "description" : "configuration for Erlang applications",
-          "example" : "common",
-          "explode" : false,
-          "in" : "query",
-          "name" : "app",
-          "required" : false,
-          "schema" : {
-            "type" : "string",
-            "uniqueItems" : false
-          },
-          "style" : "form"
-        } ],
-        "responses" : {
-          "200" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/Config"
-                }
-              }
-            },
-            "description" : "Successful operation"
-          },
-          "400" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/Error"
-                }
-              }
-            },
-            "description" : "Invalid argument"
-          }
-        },
-        "summary" : "Get server configuration",
-        "tags" : [ "server" ]
-      }
     }
   },
   "components" : {
@@ -471,7 +303,7 @@
       "ConnectionStatus" : {
         "example" : {
           "id" : "id",
-          "status" : "on"
+          "status" : "true"
         },
         "properties" : {
           "id" : {
@@ -491,80 +323,7 @@
         },
         "type" : "array"
       },
-      "SuccessLogin" : {
-        "example" : {
-          "success" : true,
-          "roles" : [ "roles", "roles" ]
-        },
-        "properties" : {
-          "success" : {
-            "type" : "boolean"
-          },
-          "roles" : {
-            "items" : {
-              "type" : "string"
-            },
-            "type" : "array"
-          }
-        },
-        "type" : "object"
-      },
-      "UserStatus" : {
-        "example" : {
-          "user_name" : "user_name",
-          "roles" : [ "roles", "roles" ],
-          "status" : "on"
-        },
-        "properties" : {
-          "user_name" : {
-            "type" : "string"
-          },
-          "roles" : {
-            "items" : {
-              "type" : "string"
-            },
-            "type" : "array"
-          },
-          "status" : {
-            "enum" : [ "on", "off" ],
-            "type" : "string"
-          }
-        },
-        "required" : [ "id" ],
-        "type" : "object"
-      },
-      "UserList" : {
-        "items" : {
-          "$ref" : "#/components/schemas/UserStatus"
-        },
-        "type" : "array"
-      },
-      "Application" : {
-        "example" : {
-          "app" : "app",
-          "config" : "{}"
-        },
-        "properties" : {
-          "app" : {
-            "type" : "string"
-          },
-          "config" : {
-            "type" : "object"
-          }
-        },
-        "type" : "object"
-      },
-      "Config" : {
-        "items" : {
-          "$ref" : "#/components/schemas/Application"
-        },
-        "type" : "array"
-      },
       "Error" : {
-        "example" : {
-          "code" : "code",
-          "message" : "message"
-        },
         "properties" : {
           "code" : {
             "type" : "string"
@@ -580,7 +339,7 @@
     "securitySchemes" : {
       "ApiKeyAuth" : {
         "in" : "header",
-        "name" : "authorization",
+        "name" : "X-API-Key",
         "type" : "apiKey"
       }
     }

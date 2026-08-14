@@ -34,9 +34,11 @@
 -export([
 	post/0,
 	get_user/0,
+	login/0,
 	get_status/0,
 	get_all_statuses/0,
-	delete/0
+	delete/0,
+	config/0
 ]).
 
 -import(testing, [wait_all/1]).
@@ -78,7 +80,7 @@ get_user() ->
 	?debug_Fmt("Response #1: ~p~n", [Response1]),
 	{ok, {{_Pr1, Status1, _}, _Headers1, Body1}} = Response1,
 	?assertEqual(404, Status1),
-	?assertEqual("{\"code\":\"404\",\"message\":\"User does not found.\"}", Body1),
+	?assertEqual("{\"code\":404,\"message\":\"User does not found\"}", Body1),
 
 	?PASSED.
 
@@ -101,7 +103,46 @@ get_status() ->
 	?debug_Fmt("Response #1: ~p~n", [Response1]),
 	{ok, {{_Pr1, Status1, _}, _Headers1, Body1}} = Response1,
 	?assertEqual(404, Status1),
-	?assertEqual("{\"code\":\"404\",\"message\":\"User does not found.\"}", Body1),
+	?assertEqual("{\"code\":404,\"message\":\"User does not found\"}", Body1),
+
+	?PASSED.
+
+login() ->
+	Req0 = {
+		?TEST_REST_SERVER_URL ++ "/rest/user/login/Alexei",
+		headers(),
+		"application/json",
+		"{\"password\":\"aaaaaaa\"}"
+	},
+	Response0 = httpc:request(post, Req0, [{timeout, 1000}], []),
+	?debug_Fmt(" >>> Response #0: ~p~n", [Response0]),
+	{ok, {{_Pr, Status, _}, _Headers, Body}} = Response0,
+	?assertEqual(200, Status),
+	?assertEqual("{\"success\":true,\"roles\":[\"ADMIN\",\"USER\"]}", Body),
+
+	Req1 = {
+		?TEST_REST_SERVER_URL ++ "/rest/user/login/Alexi",
+		headers(),
+		"application/json",
+		"{\"password\":\"aaaaaaa\"}"
+	},
+	Response1 = httpc:request(post, Req1, [], []),
+	?debug_Fmt("Response #1: ~p~n", [Response1]),
+	{ok, {{_Pr1, Status1, _}, _Headers1, Body1}} = Response1,
+	?assertEqual(404, Status1),
+	?assertEqual("{\"code\":404,\"message\":\"User does not found\"}", Body1),
+
+	Req2 = {
+		?TEST_REST_SERVER_URL ++ "/rest/user/login/Alexei",
+		headers(),
+		"application/json",
+		"{\"password\":\"aaaaa\"}"
+	},
+	Response2 = httpc:request(post, Req2, [], []),
+	?debug_Fmt("Response #2: ~p~n", [Response2]),
+	{ok, {{_Pr2, Status2, _}, _Headers2, Body2}} = Response2,
+	?assertEqual(200, Status2),
+	?assertEqual("{\"success\":false,\"roles\":[]}", Body2),
 
 	?PASSED.
 
@@ -133,7 +174,30 @@ delete() ->
 	?debug_Fmt("Response #1: ~p~n", [Response1]),
 	{ok, {{_Pr1, Status1, _}, _Headers1, Body1}} = Response1,
 	?assertEqual(404, Status1),
-	?assertEqual("{\"code\":\"404\",\"message\":\"User does not found.\"}", Body1),
+	?assertEqual("{\"code\":404,\"message\":\"User does not found\"}", Body1),
+
+	?PASSED.
+
+config() ->
+	Req0 = {
+		?TEST_REST_SERVER_URL ++ "/rest/server/config?app=mqtt_rest",
+		headers()
+	},
+	Response0 = httpc:request(get, Req0, [], []),
+	?debug_Fmt("Response #0: ~p~n", [Response0]),
+	{ok, {{_Pr, Status, _}, _Headers, Body}} = Response0,
+	?assertEqual(200, Status),
+	?assertEqual("[{\"config\":{\"port\":8080,\"mqtt_rest_url\":\"http://localhost:8080\"},\"app\":\"mqtt_rest\"}]", Body),
+
+	Req1 = {
+		?TEST_REST_SERVER_URL ++ "/rest/server/config?app=mqtt_common",
+		headers()
+	},
+	Response1 = httpc:request(get, Req1, [], []),
+	?debug_Fmt("Response #1: ~p~n", [Response1]),
+	{ok, {{_Pr1, Status1, _}, _Headers1, Body1}} = Response1,
+	?assertEqual(200, Status1),
+	?assertEqual("[{\"config\":{},\"app\":\"mqtt_common\"}]", Body1),
 
 	?PASSED.
 
@@ -141,5 +205,5 @@ headers() ->
 [
  {"X-Forwarded-For", "localhost"},
  {"Accept", "application/json"},
- {"X-API-Key", "mqtt-rest-api"}
+ {"authorization", "mqtt"}
 ].

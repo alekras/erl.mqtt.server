@@ -45,7 +45,8 @@
 		{port, 8080}
 	]},
 	{mqtt_rest, [
-		{port, ${PORT_REST}}
+		{port, ${PORT_REST}},
+		{host_name, "localhost"}
 	]},
 	{mqtt_server, [
 		{port, ${PORT_CLEAR}},

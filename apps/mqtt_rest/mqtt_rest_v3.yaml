@@ -9,7 +9,7 @@ info:
   license:
     name: Apache 2.0
     url: http://www.apache.org/licenses/LICENSE-2.0.html
-  version: 1.0.1
+  version: 2.2.1
 
 externalDocs:
   description: Find out more about Erlang MQTT server
@@ -29,14 +29,58 @@ servers:
         - localhost
       default: localhost
     port:
-      default: '8880'
+      default: '8080'
 tags:
 - name: user
   description: Manage user database
   externalDocs:
     description: Find out more
     url: http://lucky3p.com
+- name: server
+  description: Manage server state and configuration
 paths:
+  /user/login/{user_name}:
+    post:
+      tags:
+      - user
+      summary: User is trying to log in to server
+      operationId: loginUser
+      parameters:
+      - name: user_name
+        in: path
+        description: User name
+        required: true
+        schema:
+          type: string
+      requestBody:
+        description: User's password in plain text format
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+            examples:
+              password:
+                summary: alex
+        required: true
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessLogin'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: User not found or password is invalid
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
   /user/{user_name}:
     get:
       tags:
@@ -83,7 +127,7 @@ paths:
         schema:
           type: string
       requestBody:
-        description: User's password in md5 format and roles
+        description: User's password in plain text format and roles
         content:
           application/json:
             schema:
@@ -94,6 +138,40 @@ paths:
           description: Successful operation
         '400':
           description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    put:
+      tags:
+      - user
+      summary: Update an existed user in the database
+      operationId: updateUser
+      parameters:
+      - name: user_name
+        in: path
+        description: User name
+        required: true
+        schema:
+          type: string
+      requestBody:
+        description: User's name, password in plain text format and roles
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+        required: true
+      responses:
+        '200':
+          description: Successful operation
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: User not found
           content:
             application/json:
               schema:
@@ -159,12 +237,12 @@ paths:
       tags:
       - user
       summary: Get user connection statuses
-      description: Returns a list of user statuses
+      description: Returns a list of user's statuses
       operationId: getAllStatuses
       parameters:
       - name: users
         in: query
-        description: List of user names
+        description: List of user's names
         required: true
         style: form
         explode: false
@@ -193,6 +271,97 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+  /user/list:
+    get:
+      tags:
+      - user
+      summary: Get list of users
+      description: Returns a list of users roles and connection statuses
+      operationId: getUserList
+      parameters:
+      - name: indexes
+        in: query
+        description: start index and end index in list of users
+        required: false
+        style: form
+        explode: false
+        schema:
+          uniqueItems: false
+          type: array
+          items:
+            type: integer
+        example: 0,100
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserList'
+        '400':
+          description: Invalid indexes supplied
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Users not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /server/config:
+    get:
+      tags:
+      - server
+      summary: Get server configuration
+      description: Returns a list of configuration items
+      operationId: getConfig
+      parameters:
+      - name: app
+        in: query
+        description: configuration for Erlang application
+        required: false
+        style: form
+        explode: false
+        schema:
+          uniqueItems: false
+          type: string
+        example: common
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Config'
+        '400':
+          description: Invalid argument
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /server/checksession:
+    get:
+      tags:
+      - server
+      summary: Get web session status
+      description: Returns a session object
+      operationId: getSession
+      parameters:
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Session'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
 security:
   - ApiKeyAuth: []
 components:
@@ -200,7 +369,7 @@ components:
     ApiKeyAuth:
       type: apiKey
       in: header
-      name: X-API-Key
+      name: authorization
   schemas:
     User:
       type: object
@@ -227,6 +396,54 @@ components:
       type: array
       items:
         $ref: '#/components/schemas/ConnectionStatus'
+    SuccessLogin:
+      type: object
+      properties:
+        success:
+          type: boolean
+        roles:
+          type: array
+          items:
+            type: string
+    UserStatus:
+      type: object
+      properties:
+        user_name:
+          type: string
+        roles:
+          type: array
+          items:
+            type: string
+        status:
+          type: string
+          enum: ['on', 'off']
+      required: 
+        - id
+    UserList:
+      type: array
+      items:
+        $ref: '#/components/schemas/UserStatus'
+    Application:
+      type: object
+      properties:
+        app:
+          type: string
+        config:
+          type: object
+    Config:
+      type: array
+      items:
+        $ref: '#/components/schemas/Application'
+    Session:
+      type: object
+      properties:
+        session:
+          type: object
+          properties:
+            user:
+              type: string
+          required:
+            - user
     Error:
       type: object
       properties:

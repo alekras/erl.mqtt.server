@@ -82,6 +82,11 @@ start(_Type, _Args) ->
 	end,
 	Storage:start(server),
 	Storage:cleanup(server), %% TODO is it suitable for sessions?
+	Admin = Storage:user(get, <<"admin">>),
+	if (Admin =:= undefined) ->
+				Storage:user(save, #user{user_id = <<"admin">>, password = <<"admin">>, roles = [<<"ADMIN">>]});
+			true -> ok
+	end,
 	Echo = Storage:user(get, <<"echo">>),
 	if (Echo =:= undefined) ->
 				Storage:user(save, #user{user_id = <<"echo">>, password = <<"echo">>, roles = [<<"USER">>]});
@@ -89,7 +94,7 @@ start(_Type, _Args) ->
 	end,
 	Guest = Storage:user(get, <<"guest">>),
 	if (Guest =:= undefined) ->
-				Storage:user(save, #user{user_id = <<"guest">>, password = <<"guest">>, roles = [<<"USER">>]});
+				Storage:user(save, #user{user_id = <<"guest">>, password = <<"guest">>, roles = [<<"GUEST">>]});
 			true -> ok
 	end,
 	

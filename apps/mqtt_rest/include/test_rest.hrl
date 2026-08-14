@@ -14,9 +14,9 @@
 %% limitations under the License. 
 %%
 
-%-define(TEST_SERVER_HOST_NAME, "localhost").
+-define(TEST_SERVER_HOST_NAME, "localhost").
 %-define(TEST_SERVER_HOST_NAME, {127,0,0,1}).
--define(TEST_SERVER_HOST_NAME, "MacBook-Pro.local").
+%-define(TEST_SERVER_HOST_NAME, "MACBOOK-PRO").
 
 -define(CONN_TYPE, clear). %% clear | ssl | ws | wss
 
@@ -41,5 +41,5 @@
 %		io:fwrite(<<"~s\n">>, [S])
 	 end)).
 -define(debug_Fmt(S, As), (?debug_Msg(io_lib:format((S), (As))))).
--define(PASSED, (?debug_Msg("    +++ Passed "))).
--define(passed, (?debug_Msg("    +++ Passed with "))).
+-define(PASSED, (?debug_Msg("\e[1;34;102m    +++ Passed  \e[0m"))).
+-define(passed, (?debug_Msg("\e[1;30;102m    +++ Passed with \e[0m"))).

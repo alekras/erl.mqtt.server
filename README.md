@@ -38,10 +38,10 @@ The MQTT server has a three options for storage service:
 
 ### Connection types
 Server can establish connection using different network protocols:
-1. clear it/tcp
-2. tls/ssl
-3. web socket
-4. secure web socket
+1. clear IT/TCP connection
+2. encrypted TLS/SSL connection
+3. web socket (WS) connection
+4. secure web socket (WSS) connection
 
 ## Getting started
 ### Installation
@@ -194,7 +194,7 @@ $ cd erl.mqtt.server
 $ docker compose up
 ```
 
-Now you can connect a few MQTT clients to 18883 (that port listens nginx load balancer) to test the cluster.
+Now you can connect a few MQTT clients to 18883 (nginx load balancer listens this port) to test the cluster.
  
 ## Configuration file sys.config
 To set up ports for TCP and TLS socket connection go to config[-dev]/sys.config. This is OTP application configuration file contained startup data for
@@ -240,10 +240,16 @@ The server was tested with other clients:
 1. Websocket MQTT client from HiveMQ [http://www.hivemq.com/demos/websocket-client/].</li>
 2. MQTT Erlang client [https://github.com/alekras/mqtt_client.git].</li>
 
-### Add/Remove users
+## WEB server for monitoring MQTT server
 
-Rest HTTP server allows to manage users table on backend DB. If you start server on local environment
-you can reach swagger page as http://localhost:8080/rest/v3/swagger-ui.
+Rest HTTP server [see "Resful Http server"](#resful-http-server) implements API that allows to manage users table on backend DB and inspect server configuration (environment variables). If you start server on local environment you can reach swagger page as http://localhost:8080/rest/v3/swagger-ui#/ to investigate Rest API.
+
+HTTP server includes web aplication "MQTT SERVER MONITOR" implemented in ReactJS. You can open the application in browser http://localhost:8080/mqtt/.
+
+You can investigate running MQTT server:
+- https://lucky3p.com/rest/v3/swagger-ui#/ (authorize with key:"mqtt")
+- https://lucky3p.com/mqtt/ (test user: guest/guest)
+
 
 ## References
 

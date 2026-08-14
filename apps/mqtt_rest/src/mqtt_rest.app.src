@@ -15,26 +15,22 @@
 %%
 {application, mqtt_rest, [
 	{description, "This is a RESTful API of MQTT server. The API manages user database of MQTT server."},
-	{vsn, "2.2.0"},
-	{registered, []},
-	{applications, [
-		kernel,
-		stdlib,
-		sasl,
-		ssl,
-		inets,
-		jsx,
-		jesse,
-		lager,
-		cowboy,
-		ranch
-	]},
-	{included_applications, [
-	]},
-	{env, [
-	]},
-	{modules, []},
-	{mod, {mqtt_rest, [{vsn, "2.2.0"}]}},
-	{licenses, ["Apache 2.0"]},
-	{links, []}
-]}.
+	{vsn, "2.2.1"},
+  {registered, []},
+  {applications, [
+    kernel,
+    stdlib,
+    sasl,
+    public_key,
+    ssl,
+    inets,
+    ranch,
+    cowboy,
+    jesse,
+    lager
+  ]},
+  {env, []},
+  {modules, []},
+	{mod, {mqtt_rest, [{vsn, "2.2.1"}]}},
+  {licenses, ["Apache 2.0"]},
+  {links, []}]}.
