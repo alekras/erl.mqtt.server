@@ -51,6 +51,7 @@ accept_callback(Class, OperationID, Req0, Context0) ->
 
 -type operation_id() ::
     'getConfig' | %% Get server configuration
+    'getSession' | %% Get web session status
     'createNewUser' | %% Add a new user to the database
     'deleteUser' | %% Delete user in the database
     'getAllStatuses' | %% Get user connection statuses
@@ -58,6 +59,7 @@ accept_callback(Class, OperationID, Req0, Context0) ->
     'getUserInfo' | %% Get user&#39;s information
     'getUserList' | %% Get list of users
     'loginUser' | %% User is trying to log in to server
+    'updateUser' | %% Update an existed user in the database
     {error, unknown_operation}.
 
 -type request_param() :: atom().
@@ -134,6 +136,10 @@ validate_response('getConfig', 200, Body, ValidatorState) ->
     validate_response_body('Config', 'Config', Body, ValidatorState);
 validate_response('getConfig', 400, Body, ValidatorState) ->
     validate_response_body('Error', 'Error', Body, ValidatorState);
+validate_response('getSession', 200, Body, ValidatorState) ->
+    validate_response_body('Session', 'Session', Body, ValidatorState);
+validate_response('getSession', 400, Body, ValidatorState) ->
+    validate_response_body('Error', 'Error', Body, ValidatorState);
 validate_response('createNewUser', 201, Body, ValidatorState) ->
     validate_response_body('', '', Body, ValidatorState);
 validate_response('createNewUser', 400, Body, ValidatorState) ->
@@ -174,6 +180,12 @@ validate_response('loginUser', 400, Body, ValidatorState) ->
     validate_response_body('Error', 'Error', Body, ValidatorState);
 validate_response('loginUser', 404, Body, ValidatorState) ->
     validate_response_body('Error', 'Error', Body, ValidatorState);
+validate_response('updateUser', 200, Body, ValidatorState) ->
+    validate_response_body('', '', Body, ValidatorState);
+validate_response('updateUser', 400, Body, ValidatorState) ->
+    validate_response_body('Error', 'Error', Body, ValidatorState);
+validate_response('updateUser', 404, Body, ValidatorState) ->
+    validate_response_body('Error', 'Error', Body, ValidatorState);
 validate_response(_OperationID, _Code, _Body, _ValidatorState) ->
     ok.
 
@@ -182,6 +194,9 @@ validate_response(_OperationID, _Code, _Body, _ValidatorState) ->
 request_params('getConfig') ->
     [
         'app'
+    ];
+request_params('getSession') ->
+    [
     ];
 request_params('createNewUser') ->
     [
@@ -213,6 +228,11 @@ request_params('loginUser') ->
         'user_name',
         'User'
     ];
+request_params('updateUser') ->
+    [
+        'user_name',
+        'User'
+    ];
 request_params(_) ->
     error(unknown_operation).
 
@@ -222,7 +242,6 @@ request_param_info('getConfig', 'app') ->
     #{
         source => qs_val,
         rules => [
-            {type, binary},
             not_required
         ]
     };
@@ -289,6 +308,22 @@ request_param_info('loginUser', 'user_name') ->
         ]
     };
 request_param_info('loginUser', 'User') ->
+    #{
+        source => body,
+        rules => [
+            {schema, object, <<"#/components/schemas/User">>},
+            required
+        ]
+    };
+request_param_info('updateUser', 'user_name') ->
+    #{
+        source => binding,
+        rules => [
+            {type, binary},
+            required
+        ]
+    };
+request_param_info('updateUser', 'User') ->
     #{
         source => body,
         rules => [

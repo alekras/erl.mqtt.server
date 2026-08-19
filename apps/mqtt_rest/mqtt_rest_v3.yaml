@@ -325,9 +325,11 @@ paths:
         style: form
         explode: false
         schema:
-          uniqueItems: false
-          type: string
-        example: common
+          uniqueItems: true
+          type: array
+          items:
+            type: string
+        example: mqtt_common,mqtt_rest
       responses:
         '200':
           description: Successful operation
@@ -348,7 +350,6 @@ paths:
       summary: Get web session status
       description: Returns a session object
       operationId: getSession
-      parameters:
       responses:
         '200':
           description: Successful operation
@@ -437,13 +438,15 @@ components:
     Session:
       type: object
       properties:
-        session:
-          type: object
-          properties:
-            user:
-              type: string
-          required:
-            - user
+        user:
+          type: string
+        roles:
+          type: array
+          items:
+            type: string
+      required:
+        - user
+       - roles
     Error:
       type: object
       properties:

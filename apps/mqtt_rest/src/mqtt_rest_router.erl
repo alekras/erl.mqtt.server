@@ -70,6 +70,13 @@ get_operations() ->
             method => <<"GET">>,
             handler => 'mqtt_rest_server_handler'
         },
+       'getSession' => #{
+            servers => [],
+            base_path => "/rest",
+            path => "/server/checksession",
+            method => <<"GET">>,
+            handler => 'mqtt_rest_server_handler'
+        },
        'createNewUser' => #{
             servers => [],
             base_path => "/rest",
@@ -117,6 +124,13 @@ get_operations() ->
             base_path => "/rest",
             path => "/user/login/:user_name",
             method => <<"POST">>,
+            handler => 'mqtt_rest_user_handler'
+        },
+       'updateUser' => #{
+            servers => [],
+            base_path => "/rest",
+            path => "/user/:user_name",
+            method => <<"PUT">>,
             handler => 'mqtt_rest_user_handler'
         }
     }.

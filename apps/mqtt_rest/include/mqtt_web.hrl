@@ -3,7 +3,7 @@
 		id :: string() | binary(),
 		created = 0 :: integer(),
 		userId :: string() | binary(),
-		password :: string() | binary()
+		roles :: list() %% ["ADMIN", "USER"]
 	}
 ).
 

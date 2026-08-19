@@ -44,10 +44,18 @@ class BoardUsers extends React.Component {
 		}
 	}
 	
-	clickToUpdateUser = (event, user_name) => {
+	clickToUpdateUser = (event, userName) => {
 		if (this.props.login_user.roles.includes('ADMIN')) {
+			if (userName == 'echo' || userName == 'guest') {
+				this.props.warnBox.setLayout(
+					'warn',
+					'You cannot update system defined user "' + userName + '.',
+					this.props.parent.current.getBoundingClientRect()
+				);
+				return;
+			}	
 // find user's record:
-			let user = BoardUsers.users.find((record) => {return (record.user_name === user_name);});
+			let user = BoardUsers.users.find((record) => {return (record.user_name === userName);});
 			this.setState({addUserBoxDisplay:true, type:'update', newUser:user.user_name, roles:user.roles});
 		} else {
 			this.props.warnBox.setLayout(
@@ -58,6 +66,14 @@ class BoardUsers extends React.Component {
 		}
 	}
 
+	handleSuccessUser = (json, user_name) => {
+		if (this.state.type === 'save') {
+			this.handleSuccessAddUser(json, user_name);
+		} else if (this.state.type === 'update') {
+			this.handleSuccessUpdateUser(json, user_name);
+		}
+	}
+	
 	handleSuccessAddUser = (json, user_name) => {
 		console.log('Success: user_name=' + user_name + ', ' + JSON.stringify(json));
 		if (json.code && json.code === 400) {
@@ -76,11 +92,29 @@ class BoardUsers extends React.Component {
 		}
 	}
 	
-	handleErrorAddUser = (error) => {
-		console.log('Error during add new contact');
+	handleSuccessUpdateUser = (json, user_name) => {
+		console.log('Success Update: user_name=' + user_name + ', ' + JSON.stringify(json));
+		if (json.code && json.code === 404) {
+			this.props.warnBox.setLayout(
+				'warn', 
+				'This user name not found.<br/>Please try another.', 
+				this.props.parent.current.getBoundingClientRect()
+			);
+		} else {
+			this.props.warnBox.setLayout(
+				'warn', 
+				'User "' + user_name + '" is successfully updated.', 
+				this.props.parent.current.getBoundingClientRect()
+			);
+			this.clickToRefresh();
+		}
 	}
 	
-	handleAddUserBoxClose = (event) => {
+	handleErrorAddOrUpdateUser = (error) => {
+		console.log('Error during add/update new contact');
+	}
+	
+	handleUserBoxClose = (event) => {
 		this.setState({addUserBoxDisplay:false, newUser:''});
 	}
 	
@@ -207,9 +241,9 @@ class BoardUsers extends React.Component {
 					user_name: this.state.newUser,
 					roles: this.state.roles,
 					layout: this.props.parent.current.getBoundingClientRect(),
-					onSuccess: this.handleSuccessAddUser,
-					onError: this.handleErrorAddUser,
-					onBoxClose: this.handleAddUserBoxClose
+					onSuccess: this.handleSuccessUser,
+					onError: this.handleErrorAddOrUpdateUser,
+					onBoxClose: this.handleUserBoxClose
 				}
 			)
 		} else {

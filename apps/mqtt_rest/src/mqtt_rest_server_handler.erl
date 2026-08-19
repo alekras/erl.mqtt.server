@@ -6,6 +6,10 @@ Exposes the following operation IDs:
 Get server configuration.
 Returns a list of configuration items
 
+- `GET` to `/server/checksession`, OperationId: `getSession`:
+Get web session status.
+Returns a session object
+
 """.
 
 -behaviour(cowboy_rest).
@@ -29,7 +33,8 @@ Returns a list of configuration items
 -type class() :: 'server'.
 
 -type operation_id() ::
-    'getConfig'. %% Get server configuration
+    'getConfig' %% Get server configuration
+    | 'getSession'. %% Get web session status
 
 
 -record(state,
@@ -59,13 +64,15 @@ init(Req, {Operations, Module}) ->
     {[binary()], cowboy_req:req(), state()}.
 allowed_methods(Req, #state{operation_id = 'getConfig'} = State) ->
     {[<<"GET">>], Req, State};
+allowed_methods(Req, #state{operation_id = 'getSession'} = State) ->
+    {[<<"GET">>], Req, State};
 allowed_methods(Req, State) ->
     {[], Req, State}.
 
 -spec is_authorized(cowboy_req:req(), state()) ->
     {true | {false, iodata()}, cowboy_req:req(), state()}.
 is_authorized(Req0,
-              #state{operation_id = 'getConfig' = OperationID,
+              #state{operation_id = OperationID,
                      api_key_callback = Handler} = State) ->
     case mqtt_rest_auth:authorize_api_key(Handler, OperationID, header, <<"authorization">>, Req0) of
         {true, Context, Req} ->
@@ -87,12 +94,18 @@ content_types_accepted(Req, State) ->
     {boolean(), cowboy_req:req(), state()}.
 valid_content_headers(Req, #state{operation_id = 'getConfig'} = State) ->
     {true, Req, State};
+valid_content_headers(Req, #state{operation_id = 'getSession'} = State) ->
+    {true, Req, State};
 valid_content_headers(Req, State) ->
     {false, Req, State}.
 
 -spec content_types_provided(cowboy_req:req(), state()) ->
     {[{binary(), atom()}], cowboy_req:req(), state()}.
 content_types_provided(Req, #state{operation_id = 'getConfig'} = State) ->
+    {[
+      {<<"application/json">>, handle_type_provided}
+     ], Req, State};
+content_types_provided(Req, #state{operation_id = 'getSession'} = State) ->
     {[
       {<<"application/json">>, handle_type_provided}
      ], Req, State};

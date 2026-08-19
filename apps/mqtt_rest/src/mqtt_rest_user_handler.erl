@@ -29,6 +29,9 @@ Returns a list of users roles and connection statuses
 - `POST` to `/user/login/:user_name`, OperationId: `loginUser`:
 User is trying to log in to server.
 
+- `PUT` to `/user/:user_name`, OperationId: `updateUser`:
+Update an existed user in the database.
+
 
 """.
 
@@ -60,7 +63,8 @@ User is trying to log in to server.
     | 'getStatus' %% Get user connection status
     | 'getUserInfo' %% Get user&#39;s information
     | 'getUserList' %% Get list of users
-    | 'loginUser'. %% User is trying to log in to server
+    | 'loginUser' %% User is trying to log in to server
+    | 'updateUser'. %% Update an existed user in the database
 
 -record(state,
         {operation_id :: operation_id(),
@@ -109,74 +113,24 @@ allowed_methods(Req, #state{operation_id = 'getUserList'} = State) ->
     {[<<"GET">>], Req, State};
 allowed_methods(Req, #state{operation_id = 'loginUser'} = State) ->
     {[<<"POST">>], Req, State};
+allowed_methods(Req, #state{operation_id = 'updateUser'} = State) ->
+    {[<<"PUT">>], Req, State};
 allowed_methods(Req, State) ->
     {[], Req, State}.
 
 -spec is_authorized(cowboy_req:req(), state()) ->
     {true | {false, iodata()}, cowboy_req:req(), state()}.
 is_authorized(Req0,
-              #state{operation_id = 'createNewUser' = OperationID,
-                     api_key_callback = Handler} = State) ->
-    case mqtt_rest_auth:authorize_api_key(Handler, OperationID, header, <<"authorization">>, Req0) of
-        {true, Context0, Req} ->
-            Context1 = maps:merge(Context0, State#state.context),
-            {true, Req, State#state{context = Context1}};
-        {false, AuthHeader, Req} ->
-            {{false, AuthHeader}, Req, State}
-    end;
-is_authorized(Req0,
-              #state{operation_id = 'deleteUser' = OperationID,
-                     api_key_callback = Handler} = State) ->
-    case mqtt_rest_auth:authorize_api_key(Handler, OperationID, header, <<"authorization">>, Req0) of
-        {true, Context0, Req} ->
-            Context1 = maps:merge(Context0, State#state.context),
-            {true, Req, State#state{context = Context1}};
-        {false, AuthHeader, Req} ->
-            {{false, AuthHeader}, Req, State}
-    end;
-is_authorized(Req0,
-              #state{operation_id = 'getAllStatuses' = OperationID,
-                     api_key_callback = Handler} = State) ->
-    case mqtt_rest_auth:authorize_api_key(Handler, OperationID, header, <<"authorization">>, Req0) of
-        {true, Context0, Req} ->
-            Context1 = maps:merge(Context0, State#state.context),
-            {true, Req, State#state{context = Context1}};
-        {false, AuthHeader, Req} ->
-            {{false, AuthHeader}, Req, State}
-    end;
-is_authorized(Req0,
-              #state{operation_id = 'getStatus' = OperationID,
-                     api_key_callback = Handler} = State) ->
-    case mqtt_rest_auth:authorize_api_key(Handler, OperationID, header, <<"authorization">>, Req0) of
-        {true, Context0, Req} ->
-            Context1 = maps:merge(Context0, State#state.context),
-            {true, Req, State#state{context = Context1}};
-        {false, AuthHeader, Req} ->
-            {{false, AuthHeader}, Req, State}
-    end;
-is_authorized(Req0,
-              #state{operation_id = 'getUserInfo' = OperationID,
-                     api_key_callback = Handler} = State) ->
-    case mqtt_rest_auth:authorize_api_key(Handler, OperationID, header, <<"authorization">>, Req0) of
-        {true, Context0, Req} ->
-            Context1 = maps:merge(Context0, State#state.context),
-            {true, Req, State#state{context = Context1}};
-        {false, AuthHeader, Req} ->
-            {{false, AuthHeader}, Req, State}
-    end;
-is_authorized(Req0,
-              #state{operation_id = 'getUserList' = OperationID,
-                     api_key_callback = Handler} = State) ->
-    case mqtt_rest_auth:authorize_api_key(Handler, OperationID, header, <<"authorization">>, Req0) of
-        {true, Context0, Req} ->
-            Context1 = maps:merge(Context0, State#state.context),
-            {true, Req, State#state{context = Context1}};
-        {false, AuthHeader, Req} ->
-            {{false, AuthHeader}, Req, State}
-    end;
-is_authorized(Req0,
-              #state{operation_id = 'loginUser' = OperationID,
-                     api_key_callback = Handler} = State) ->
+              #state{operation_id = OperationID,
+                     api_key_callback = Handler} = State) when 
+		OperationID == 'createNewUser'; 
+		OperationID == 'getAllStatuses'; 
+		OperationID == 'getUserList'; 
+		OperationID == 'loginUser'; 
+		OperationID == 'getUserInfo';
+		OperationID == 'deleteUser';
+		OperationID == 'updateUser';
+		OperationID == 'getStatus' ->
     case mqtt_rest_auth:authorize_api_key(Handler, OperationID, header, <<"authorization">>, Req0) of
         {true, Context0, Req} ->
             Context1 = maps:merge(Context0, State#state.context),
@@ -217,6 +171,10 @@ content_types_accepted(Req, #state{operation_id = 'loginUser'} = State) ->
     {[
       {<<"application/json">>, handle_type_accepted}
      ], Req, State};
+content_types_accepted(Req, #state{operation_id = 'updateUser'} = State) ->
+    {[
+      {<<"application/json">>, handle_type_accepted}
+     ], Req, State};
 content_types_accepted(Req, State) ->
     {[], Req, State}.
 
@@ -236,36 +194,22 @@ valid_content_headers(Req, #state{operation_id = 'getUserList'} = State) ->
     {true, Req, State};
 valid_content_headers(Req, #state{operation_id = 'loginUser'} = State) ->
     {true, Req, State};
+valid_content_headers(Req, #state{operation_id = 'updateUser'} = State) ->
+    {true, Req, State};
 valid_content_headers(Req, State) ->
     {false, Req, State}.
 
 -spec content_types_provided(cowboy_req:req(), state()) ->
     {[{binary(), atom()}], cowboy_req:req(), state()}.
-content_types_provided(Req, #state{operation_id = 'createNewUser'} = State) ->
-    {[
-      {<<"application/json">>, handle_type_provided}
-     ], Req, State};
-content_types_provided(Req, #state{operation_id = 'deleteUser'} = State) ->
-    {[
-      {<<"application/json">>, handle_type_provided}
-     ], Req, State};
-content_types_provided(Req, #state{operation_id = 'getAllStatuses'} = State) ->
-    {[
-      {<<"application/json">>, handle_type_provided}
-     ], Req, State};
-content_types_provided(Req, #state{operation_id = 'getStatus'} = State) ->
-    {[
-      {<<"application/json">>, handle_type_provided}
-     ], Req, State};
-content_types_provided(Req, #state{operation_id = 'getUserInfo'} = State) ->
-    {[
-      {<<"application/json">>, handle_type_provided}
-     ], Req, State};
-content_types_provided(Req, #state{operation_id = 'getUserList'} = State) ->
-    {[
-      {<<"application/json">>, handle_type_provided}
-     ], Req, State};
-content_types_provided(Req, #state{operation_id = 'loginUser'} = State) ->
+content_types_provided(Req, #state{operation_id = OperationID} = State) when 
+		OperationID == 'createNewUser'; 
+		OperationID == 'getAllStatuses'; 
+		OperationID == 'getUserList'; 
+		OperationID == 'loginUser'; 
+		OperationID == 'getUserInfo';
+		OperationID == 'deleteUser';
+		OperationID == 'updateUser';
+		OperationID == 'getStatus' ->
     {[
       {<<"application/json">>, handle_type_provided}
      ], Req, State};

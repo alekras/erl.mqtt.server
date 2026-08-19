@@ -2,6 +2,7 @@
 
 -include_lib("kernel/include/logger.hrl").
 -include_lib("mqtt_common/include/mqtt.hrl").
+-include("mqtt_web.hrl").
 
 -type accept_callback_return() ::
         stop
@@ -59,6 +60,7 @@ resource_exist(OperationID, Req0, #state{context = Context0} = State) when
 		OperationID == 'loginUser'; 
 		OperationID == 'getUserInfo';
 		OperationID == 'deleteUser';
+		OperationID == 'updateUser';
 		OperationID == 'getStatus' ->
 	ValidatorState = mqtt_rest_api:prepare_validator(),
 	case mqtt_rest_api:populate_request(OperationID, Req0, ValidatorState) of
@@ -102,24 +104,27 @@ find_user(#{storage := Storage, user_name := User}) ->
 %        | {created, iodata()}
 %        | {see_other, iodata()}.
 accept_callback(_Class, 'loginUser' = _OperationID, Req0, Context0) ->
-	#{'User' := #{<<"password">> := Password}, user_record := User_record} = Context0,
+	#{'User' := #{<<"password">> := Password}, user_name := User, user_record := User_record} = Context0,
 	Response_map =
 		case User_record of
 			undefined ->
-				#{success => false, roles => [<<"NO USER">>]};
+				Req1 = Req0,
+				#{success => false, roles => []};
 			#{password := Password_From_DB, roles := Roles} ->
 				Enc_Password = list_to_binary(binary_to_hex(crypto:hash(md5, Password))),
 				lager:info("Passwords: ~p/~p~n", [Enc_Password, Password_From_DB]),
 				if Enc_Password =:= Password_From_DB ->
-					lager:info("Login success~n", []),
+					lager:info([{endtype, server}], "Login success for ~p~n", [User]),
+					Req1 = process_session(Req0, User, Roles),
 					#{success => true, roles => Roles};
 				true ->
 					lager:info("Login failed~n", []),
+					Req1 = Req0,
 					#{success => false, roles => []}
 				end
 		end,
-	Req1 = cowboy_req:set_resp_body(json:encode(Response_map), Req0),
-	{true, Req1, Context0};
+	Req2 = cowboy_req:set_resp_body(json:encode(Response_map), Req1),
+	{true, Req2, Context0};
 accept_callback(_Class, 'createNewUser' = OperationID, Req0, Context0) ->
 	ValidatorState = mqtt_rest_api:prepare_validator(),
 	case mqtt_rest_api:populate_request(OperationID, Req0, ValidatorState) of
@@ -150,6 +155,24 @@ accept_callback(_Class, 'createNewUser' = OperationID, Req0, Context0) ->
 			Req2 = cowboy_req:set_resp_body(Binary_resp, Req1),
 			{false, Req2, Context0}
 	end;
+accept_callback(_Class, 'updateUser', Req0, Context0) ->
+	#{storage := Storage, 
+		user_name := User,
+		'User' := #{<<"password">> := Password, <<"roles">> := Roles},
+		user_record := User_record} = Context0,
+		{R, Response_map} =
+		case Storage:user(save, #user{user_id = User, password = Password, roles = Roles}) of
+			false ->
+				lager:info([{endtype, server}], "Cannot update user, context: ~p~n", [Context0]),
+				{false, #{code => 400, message => <<"Cannot update user.">>}};
+			true ->
+				lager:info([{endtype, server}], "user updated, context: ~p~n", [Context0]),
+				{true, #{}}
+		end,
+
+		Binary_resp = json:encode(Response_map),
+		Req1 = cowboy_req:set_resp_body(Binary_resp, Req0),
+		{R, Req1, Context0};
 accept_callback(_Class, 'deleteUser' = _OperationID, Req0, Context0) ->
 	#{storage := Storage, user_name := User} = Context0,
 	{R, Response_map} =
@@ -168,91 +191,20 @@ accept_callback(Class, OperationID, Req, Context) ->
 
 -spec provide_callback(mqtt_rest_api:class(), mqtt_rest_api:operation_id(), cowboy_req:req(), context()) ->
     {cowboy_req:resp_body(), cowboy_req:req(), context()}.
-provide_callback(_Class, 'getUserInfo' = _OperationID, Req0, Context0) ->
-	#{user_record := User_record} = Context0,
-	Binary_resp = json:encode(User_record),
-	{Binary_resp, Req0, Context0};
-provide_callback(_Class, 'getStatus' = _OperationID, Req0, Context0) ->
-	#{storage := Storage, user_name := User} = Context0,
-	Status =
-		case Storage:connect_pid(get, User, server) of
-			P when is_pid(P) ->
-				<<"on">>;
-			_ ->
-				<<"off">>
-		end,
-	Binary_resp = json:encode(#{id => User, status => Status}),
-	{Binary_resp, Req0, Context0};
-provide_callback(_Class, 'getAllStatuses' = OperationID, Req0, Context0) ->
+provide_callback(_Class, OperationID, Req0, Context0) when 
+		OperationID == 'getUserInfo'; 
+		OperationID == 'getStatus' ->
+	process_provide_callback(OperationID, Req0, Context0);
+provide_callback(_Class, OperationID, Req0, Context0) when
+		OperationID == 'getAllStatuses'; 
+		OperationID == 'getUserList';
+		OperationID == 'getConfig'; 
+		OperationID == 'getSession' ->
 	ValidatorState = mqtt_rest_api:prepare_validator(),
 	case mqtt_rest_api:populate_request(OperationID, Req0, ValidatorState) of
 		{ok, Model, Req1} ->
 			Context1 = maps:merge(Context0, Model),
-			#{storage := Storage, users := Users} = Context1,
-			GetStatus = fun(U) -> 
-				case Storage:user(get, U) of
-					undefined -> <<"notFound">>;
-					_ ->
-						case Storage:connect_pid(get, U, server) of
-							P when is_pid(P) -> <<"on">>;
-							_ -> <<"off">>
-						end
-				end
-			end,
-			L = [#{id => U, status => GetStatus(U)} || U <- string:split(Users, ",", all)],
-			{json:encode(L), Req1, Context1};
-		{error, _Reason, Req1} ->
-			Binary_resp = json:encode(#{code => 400, message => <<"Invalid request">>}),
-			{Binary_resp, Req1, Context0}
-	end;
-provide_callback(_Class, 'getUserList' = OperationID, Req0, Context0) ->
-	ValidatorState = mqtt_rest_api:prepare_validator(),
-	case mqtt_rest_api:populate_request(OperationID, Req0, ValidatorState) of
-		{ok, Model, Req1} ->
-			Context1 = maps:merge(Context0, Model),
-			#{storage := Storage, indexes := Indexes} = Context1,
-			lager:debug([{endtype, server}], "Indexes: ~p~n", [Indexes]),
-			List_indexes = string:split(Indexes, ",", all),
-			Inds = [ binary_to_integer(I) || I <- List_indexes],
-			lager:debug([{endtype, server}], "Inds: ~p~n", [Inds]),
-			Users = Storage:user(get_all, server),
-			UserStatus = fun(#user{user_id = User_name, password = _Pswd, roles = Roles} = U) -> 
-				S = case Storage:connect_pid(get, U, server) of
-					P when is_pid(P) -> <<"on">>;
-					_ -> <<"off">>
-				end,
-				#{user_name => User_name, roles => Roles, status => S}
-			end,
-			L = [UserStatus(U) || U <- Users],
-			{json:encode(L), Req1, Context1};
-		{error, _Reason, Req1} ->
-			Binary_resp = json:encode(#{code => 400, message => <<"Invalid request">>}),
-			{Binary_resp, Req1, Context0}
-	end;
-provide_callback(_Class, 'getConfig' = OperationID, Req0, Context0) ->
-	ValidatorState = mqtt_rest_api:prepare_validator(),
-	case mqtt_rest_api:populate_request(OperationID, Req0, ValidatorState) of
-		{ok, Model, Req1} ->
-			Context1 = maps:merge(Context0, Model),
-			#{app := Apps} = Context1,
-			App_list = string:split(Apps, ",", all),
-			lager:debug([{endtype, server}], "Apps: ~p~nApp_list: ~p~n", [Apps, App_list]),
-
-			Resp_map = [
-				begin
-					Env = application:get_all_env(binary_to_atom(App)),
-					lager:debug([{endtype, server}], "App: ~p~nEnv: ~p~n", [App, Env]),
-					Fun = fun(_K, V) when is_list(V) -> list_to_binary(V);
-						(_K, V) -> V
-						end,
-					Env_map = maps:map(Fun, maps:from_list(Env)),
-					lager:debug([{endtype, server}], "Env_map: ~p~n", [Env_map]),
-					#{app => App, config => Env_map}
-				end || App <- App_list],
-			lager:debug([{endtype, server}], "Resp_map: ~p~n", [Resp_map]),
-			Binary_resp = json:encode(Resp_map),
-			
-			{Binary_resp, Req1, Context1};
+			process_provide_callback(OperationID, Req1, Context1);
 		{error, _Reason, Req1} ->
 			Binary_resp = json:encode(#{code => 400, message => <<"Invalid request">>}),
 			{Binary_resp, Req1, Context0}
@@ -262,7 +214,117 @@ provide_callback(Class, OperationID, Req, Context) ->
 		[Class, OperationID, Req, Context]),
 		{<<"{}">>, Req, Context}.
 
+process_provide_callback('getUserInfo', Req, Context) ->
+	#{user_record := User_record} = Context,
+	Binary_resp = json:encode(User_record),
+	{Binary_resp, Req, Context};
+
+process_provide_callback('getStatus', Req, Context) ->
+	#{storage := Storage, user_name := User} = Context,
+	Status =
+		case Storage:connect_pid(get, User, server) of
+			P when is_pid(P) ->
+				<<"on">>;
+			_ ->
+				<<"off">>
+		end,
+	Binary_resp = json:encode(#{id => User, status => Status}),
+	{Binary_resp, Req, Context};
+
+process_provide_callback('getAllStatuses', Req, Context) ->
+	#{storage := Storage, users := Users} = Context,
+	GetStatus = fun(U) -> 
+		case Storage:user(get, U) of
+			undefined -> <<"notFound">>;
+			_ ->
+				case Storage:connect_pid(get, U, server) of
+					P when is_pid(P) -> <<"on">>;
+					_ -> <<"off">>
+				end
+		end
+	end,
+	L = [#{id => U, status => GetStatus(U)} || U <- string:split(Users, ",", all)],
+	{json:encode(L), Req, Context};
+
+process_provide_callback('getUserList', Req, Context) ->
+	#{storage := Storage, indexes := Indexes} = Context,
+	lager:debug([{endtype, server}], "Indexes: ~p~n", [Indexes]),
+	List_indexes = string:split(Indexes, ",", all),
+	Inds = [ binary_to_integer(I) || I <- List_indexes],
+	lager:debug([{endtype, server}], "Inds: ~p~n", [Inds]),
+	Users = Storage:user(get_all, server),
+	UserStatus = fun(#user{user_id = User_name, password = _Pswd, roles = Roles} = U) -> 
+		S = case Storage:connect_pid(get, U, server) of
+			P when is_pid(P) -> <<"on">>;
+			_ -> <<"off">>
+		end,
+		#{user_name => User_name, roles => Roles, status => S}
+	end,
+	L = [UserStatus(U) || U <- Users],
+	{json:encode(L), Req, Context};
+
+process_provide_callback('getConfig', Req, Context) ->
+	#{app := Apps} = Context,
+	App_list = string:split(Apps, ",", all),
+	lager:debug([{endtype, server}], "Apps: ~p~nApp_list: ~p~n", [Apps, App_list]),
+
+	Resp_map = [
+		begin
+			Env = application:get_all_env(binary_to_atom(App)),
+			lager:debug([{endtype, server}], "App: ~p~nEnv: ~p~n", [App, Env]),
+			Fun = fun(_K, V) when is_list(V) -> list_to_binary(V);
+				(_K, V) -> V
+				end,
+			Env_map = maps:map(Fun, maps:from_list(Env)),
+			lager:debug([{endtype, server}], "Env_map: ~p~n", [Env_map]),
+			#{app => App, config => Env_map}
+		end || App <- App_list],
+	lager:debug([{endtype, server}], "Resp_map: ~p~n", [Resp_map]),
+	Binary_resp = json:encode(Resp_map),
+	{Binary_resp, Req, Context};
+
+process_provide_callback('getSession', Req, Context) ->
+	case get_session(Req) of
+		undefined ->
+			{json:encode(#{}), Req, Context};
+		#session{userId = User, roles = Roles} ->
+			{json:encode(#{user => User, roles => Roles}), Req, Context}
+	end.
+
 binary_to_hex(Binary) -> [conv(N) || <<N:4>> <= Binary].
 
 conv(N) when N < 10 -> N + 48; 
 conv(N) -> N + 87. 
+
+get_session(Req) ->
+	Cookies = cowboy_req:parse_cookies(Req),
+	lager:debug([{endtype, server}], "<<GET Session>> retrieve Cookies: ~p~n", [Cookies]),
+	case lists:keyfind(<<"sessionid">>, 1, Cookies) of
+		{_, SessionId} ->
+			case ets:match_object(sessionTable, #session{id = SessionId, _ = '_'}) of
+				[SessionObj] ->
+					SessionObj;
+				_E -> 
+					undefined
+			end;
+		false -> undefined
+	end.
+
+process_session(Req, User, Roles) ->
+	case get_session(Req) of
+		undefined ->
+			SessionId = base64:encode(crypto:strong_rand_bytes(32)),
+			lager:debug("<<Session>> start session with id: ~p~n", [SessionId]),
+			ets:match_delete(sessionTable, #session{userId = User, _ = '_'}),
+			ets:insert(sessionTable, 
+				#session{
+					id = SessionId,
+					created = os:system_time(second),
+					userId = User,
+					roles = Roles
+				}
+			),
+			cowboy_req:set_resp_cookie(<<"sessionid">>, SessionId, Req, #{max_age => 21600, path => "/rest"}); %% 6*60*60 @TODO from ENV
+		#session{} -> Req
+	end.
+	

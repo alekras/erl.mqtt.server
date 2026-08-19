@@ -76,6 +76,14 @@ class AddUserBox extends React.Component {
 	}
 
 	handleSubmit(event) {
+		if (this.state.type === 'save') {
+			this.handleOnSaveSubmit(event);
+		} else if (this.state.type === 'update') {
+			this.handleOnUpdateSubmit(event);
+		}
+	}
+
+	handleOnSaveSubmit(event) {
 // TODO: block submit until API call is finished
 		console.log('A userName was submitted with state: ' + JSON.stringify(this.state));
 // check user_name & password
@@ -111,10 +119,40 @@ class AddUserBox extends React.Component {
 		event.preventDefault();
 	}
 	
+	handleOnUpdateSubmit(event) {
+// TODO: block submit until API call is finished
+		console.log('A userName was updated with state: ' + JSON.stringify(this.state));
+// check user_name & password
+		let err = 0;
+		if(this.state.password1 && this.state.password1.length > 4) {
+			this.setState({error_message_2:''});
+		} else {
+			this.setState({error_message_2:'Password is short or empty. Please fix it.'});
+			err++;
+		}
+		if(this.state.password2 && this.state.password1 === this.state.password2) {
+			this.setState({error_message_3:''});
+		} else {
+			this.setState({error_message_3:'Password is not confirmed. Please fix it.'});
+			err++;
+		}
+		if(this.state.roles && this.state.roles.length > 0) {
+			this.setState({error_message_4:''});
+		} else {
+			this.setState({error_message_4:'Select at least one role.'});
+			err++;
+		}
+		if (err === 0) {
+			RestAPI.update_user(this.state, this.props.onSuccess, this.props.onError);
+			this.props.onBoxClose(event);
+		}
+		event.preventDefault();
+	}
+
 	handleSubmitByKey(event) {
 		if (event.code == 'Enter') {
 			console.log('onSubmit event: >' + event.code + '<');
-//			RestAPI.add_user(this.state, this.props.onSuccess, this.props.onError);
+			this.handleSubmit(event);
 		}
 	};
 

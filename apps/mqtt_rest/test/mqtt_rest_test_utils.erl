@@ -48,6 +48,7 @@ do_start() ->
 		mnesia -> mqtt_mnesia_storage
 	end,
 	Storage:start(server),
+	httpc:set_options([{cookies, enabled}]),
 	[ ?debug_Fmt(" ### ~p", [T]) || T <- application:which_applications()],
 	?assertMatch({ok,_}, S).
 

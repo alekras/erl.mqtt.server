@@ -37,8 +37,10 @@
 	login/0,
 	get_status/0,
 	get_all_statuses/0,
+	put/0,
 	delete/0,
-	config/0
+	config/0,
+	checksession/0
 ]).
 
 -import(testing, [wait_all/1]).
@@ -59,6 +61,19 @@ post() ->
 	?assertEqual(201, Status),
 	?assertEqual("{}", Body),
 
+	Req1 = {
+		?TEST_REST_SERVER_URL ++ "/rest/user/Alexei",
+		headers(),
+		"application/json",
+		"{\"password\":\"aaaaaaa\", \"roles\":[\"ADMIN\",\"USER\"]}"
+	},
+	Response1 = httpc:request(post, Req1, [{timeout, 1000}], []),
+	?debug_Fmt(" >>> Response #1: ~p~n", [Response1]),
+	{ok, {{_, Status1, _}, _, Body1}} = Response1,
+	?assertEqual(400, Status1),
+	?assertEqual("{\"code\":400,\"message\":\"Already exists.\"}", Body1),
+
+	?passed([2]),
 	?PASSED.
 
 get_user() ->
@@ -117,6 +132,8 @@ login() ->
 	Response0 = httpc:request(post, Req0, [{timeout, 1000}], []),
 	?debug_Fmt(" >>> Response #0: ~p~n", [Response0]),
 	{ok, {{_Pr, Status, _}, _Headers, Body}} = Response0,
+	Cookie = proplists:get_value("set-cookie", _Headers, "no"),
+	?debug_Fmt(" >>> Cookies after Response #0: ~p~n", [Cookie]),	
 	?assertEqual(200, Status),
 	?assertEqual("{\"success\":true,\"roles\":[\"ADMIN\",\"USER\"]}", Body),
 
@@ -159,6 +176,65 @@ get_all_statuses() ->
 
 	?PASSED.
 
+put() ->
+	Req0 = {
+		?TEST_REST_SERVER_URL ++ "/rest/user/Alexei",
+		headers(),
+		"application/json",
+		"{\"password\":\"abababa\", \"roles\":[\"GUEST\",\"USER\"]}"
+	},
+	Response0 = httpc:request(put, Req0, [{timeout, 1000}], []),
+	?debug_Fmt(" >>> Response #0: ~p~n", [Response0]),
+	{ok, {{_Pr, Status, _}, _Headers, Body}} = Response0,
+	?assertEqual(200, Status),
+	?assertEqual("{}", Body),
+
+	Req1 = {
+		?TEST_REST_SERVER_URL ++ "/rest/user/Alexei",
+		headers()
+	},
+	Response1 = httpc:request(get, Req1, [], []),
+	?debug_Fmt("Response #1: ~p~n", [Response1]),
+	{ok, {{_, Status1, _}, _, Body1}} = Response1,
+	?assertEqual(200, Status1),
+	?assertEqual("{\"password\":\"b34a35ced46287cee03a93c99d03006c\",\"roles\":[\"GUEST\",\"USER\"]}", Body1),
+
+	Req2 = {
+		?TEST_REST_SERVER_URL ++ "/rest/user/Alexi",
+		headers(),
+		"application/json",
+		"{\"password\":\"abababa\", \"roles\":[\"GUEST\",\"USER\"]}"
+	},
+	Response2 = httpc:request(put, Req2, [{timeout, 1000}], []),
+	?debug_Fmt(" >>> Response #2: ~p~n", [Response2]),
+	{ok, {{_, Status2, _}, _, Body2}} = Response2,
+	?assertEqual(201, Status2),
+	?assertEqual("{}", Body2),
+
+	Req3 = {
+		?TEST_REST_SERVER_URL ++ "/rest/user/Alexi",
+		headers()
+	},
+	Response3 = httpc:request(get, Req3, [], []),
+	?debug_Fmt("Response #3: ~p~n", [Response3]),
+	{ok, {{_, Status3, _}, _, Body3}} = Response3,
+	?assertEqual(200, Status3),
+	?assertEqual("{\"password\":\"b34a35ced46287cee03a93c99d03006c\",\"roles\":[\"GUEST\",\"USER\"]}", Body1),
+
+	Req4 = {
+		?TEST_REST_SERVER_URL ++ "/rest/user/Alexi",
+		headers(),
+		"application/json",
+		"{}"
+	},
+	Response4 = httpc:request(put, Req4, [{timeout, 1000}], []),
+	?debug_Fmt(" >>> Response #4: ~p~n", [Response4]),
+	{ok, {{_, Status4, _}, _, Body4}} = Response4,
+	?assertEqual(415, Status4),
+	?assertEqual("{\"code\":400,\"message\":\"Invalid request\"}", Body4),
+
+	?PASSED.
+
 delete() ->
 	Req0 = {
 		?TEST_REST_SERVER_URL ++ "/rest/user/Alexei",
@@ -175,6 +251,15 @@ delete() ->
 	{ok, {{_Pr1, Status1, _}, _Headers1, Body1}} = Response1,
 	?assertEqual(404, Status1),
 	?assertEqual("{\"code\":404,\"message\":\"User does not found\"}", Body1),
+
+	Req2 = {
+		?TEST_REST_SERVER_URL ++ "/rest/user/Alexi",
+		headers()
+	},
+	Response2 = httpc:request(delete, Req2, [], []),
+	?debug_Fmt("Response #2: ~p~n", [Response2]),
+	{ok, {{_, Status2, _}, _, Body}} = Response2,
+	?assertEqual(200, Status2),
 
 	?PASSED.
 
@@ -201,6 +286,18 @@ config() ->
 
 	?PASSED.
 
+checksession() ->
+	Req0 = {
+		?TEST_REST_SERVER_URL ++ "/rest/server/checksession",
+		headers()
+	},
+	Response0 = httpc:request(get, Req0, [], []),
+	?debug_Fmt("Response #0: ~p~n", [Response0]),
+	{ok, {{_Pr, Status, _}, _Headers, Body}} = Response0,
+	?assertEqual(200, Status),
+	?assertEqual("{\"user\":\"Alexei\",\"roles\":[\"ADMIN\",\"USER\"]}", Body),
+	
+	?passed(["check session"]).
 headers() ->
 [
  {"X-Forwarded-For", "localhost"},

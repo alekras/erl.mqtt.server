@@ -5,26 +5,26 @@ class Panel extends React.Component {
 		super(props);
 		this.state = {
 			activeMenu: 'Land',
-			board: 'Land',
-			user: undefined,
+			login_user: undefined,
 			roles: [],
 			auth:false
 		};
-//		RestAPI.checkSession(this.handleCheckSessionSuccess, this.handleCheckSessionError);
+		RestAPI.checkSession(this.handleCheckSessionSuccess, this.handleCheckSessionError);
 		this.parentTd = React.createRef();
 		this.warnBoxRef = undefined;
 	}
 	
 	handleCheckSessionSuccess = (json) => {
 		console.log('Response GET -> session:: ' + JSON.stringify(json));
-		if (json.session) {
-			this.handleStateChange(true, json.session.user, json.session.password);
-			var messageList = window.sessionStorage.getItem('messageList');
-			if (messageList) {
-				BoardChat.messageList = JSON.parse(messageList);
-			} else {
-				BoardChat.messageList = [];
-			}
+		if (json.user) {
+			var activeMenu = window.sessionStorage.getItem('activeMenu');
+
+			this.setState({
+				auth:true,
+				activeMenu: activeMenu,
+				login_user: {user_name:json.user, roles:json.roles}
+			});
+
 		} else {
 			console.log('Cannot retrive session object...')
 		}
@@ -39,25 +39,23 @@ class Panel extends React.Component {
 		switch (command) {
 			case 'Logout' :
 				this.deleteCookie('sessionid');
-				window.sessionStorage.removeItem('messageList');
 				this.setState({
 					auth:false,
 					activeMenu:'Land',
-					board:'Land',
-					user:undefined
+					login_user: undefined
 				});
+				command = 'Land';
 				break;
 			case 'Configuration' :
-//				BoardConfiguration.getConfig();
 				this.setState({
 					activeMenu:'Configuration',
-					board:'Configuration',
 				});
 				break;
 			default :
-				this.setState({activeMenu: command, board: command});
+				this.setState({activeMenu: command});
 				break;
-		}
+		};
+		window.sessionStorage.setItem('activeMenu', command);
 	}
 
 	handleError = (error) => {
@@ -67,50 +65,35 @@ class Panel extends React.Component {
 
 	deleteCookie(name) {
 //		console.log('1.Cookie = ' + document.cookie);
-		document.cookie = name + '=; expires=Thu, 01 Jan 1970 00:00:01 GMT;path=/sim;';
+		document.cookie = name + '=; expires=Thu, 01 Jan 1970 00:00:01 GMT;path=/rest;';
 //		console.log('2.Cookie = ' + document.cookie);
 	}
 
 	handleStateChange = (auth, un, roles) => {
 		console.log('Panel state changes: ' + JSON.stringify(this.state) 
 				+ ' auth: ' + auth + ' un: ' + un + ' roles: ' + roles);
+		var command = 'Land';
 		if (auth) {
+			command = 'Help';
 			this.setState({
-				auth:true,
-				activeMenu:'Help',
-				board:'Help',
+				auth: true,
+				activeMenu: command,
 				login_user: {user_name:un, roles:roles}
 			});
 		} else {
+			command = 'Login';
 			this.setState({
-				auth:false,
-				activeMenu:'Login',
-				board:'Login',
+				auth: false,
+				activeMenu: command,
 				login_user: undefined
 			});
 		};
+		window.sessionStorage.setItem('activeMenu', command);
 	}
 	
-	handleStateChangeReg = (success) => {
-//		console.log('State change Reg: ' + JSON.stringify(this.state));
-		if (success) {
-			this.setState({
-				auth:false,
-				activeMenu:'Login',
-				board:'Login'
-			});
-		} else {
-			this.setState({
-				auth:false,
-				activeMenu:'Register',
-				board:'Register'
-			});
-		};
-	}
-
 	render() {
 		var board;
-		switch (this.state.board) {
+		switch (this.state.activeMenu) {
 			case 'Login' :
 				board = e(BoardLogin, 
 					{
@@ -132,8 +115,7 @@ class Panel extends React.Component {
 				break;
 			case 'Configuration' :
 				board = e(BoardConfiguration, 
-						{	key: 1
-						});
+						{key: 1});
 				break;
 			case 'Logout' :
 				board = e(LandingPage, {key: 1}, null);

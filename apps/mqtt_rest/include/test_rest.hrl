@@ -42,4 +42,4 @@
 	 end)).
 -define(debug_Fmt(S, As), (?debug_Msg(io_lib:format((S), (As))))).
 -define(PASSED, (?debug_Msg("\e[1;34;102m    +++ Passed  \e[0m"))).
--define(passed, (?debug_Msg("\e[1;30;102m    +++ Passed with \e[0m"))).
+-define(passed(P), (?debug_Fmt("\e[1;30;102m    +++ Passed with ~p \e[0m", (P)))).

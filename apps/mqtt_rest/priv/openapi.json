@@ -238,6 +238,58 @@
         },
         "summary" : "Add a new user to the database",
         "tags" : [ "user" ]
+      },
+      "put" : {
+        "operationId" : "updateUser",
+        "parameters" : [ {
+          "description" : "User name",
+          "explode" : false,
+          "in" : "path",
+          "name" : "user_name",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          },
+          "style" : "simple"
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/User"
+              }
+            }
+          },
+          "description" : "User's name, password in plain text format and roles",
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "Successful operation"
+          },
+          "400" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Error"
+                }
+              }
+            },
+            "description" : "Invalid request"
+          },
+          "404" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Error"
+                }
+              }
+            },
+            "description" : "User not found"
+          }
+        },
+        "summary" : "Update an existed user in the database",
+        "tags" : [ "user" ]
       }
     },
     "/user/{user_name}/status" : {
@@ -408,15 +460,18 @@
         "description" : "Returns a list of configuration items",
         "operationId" : "getConfig",
         "parameters" : [ {
-          "description" : "configuration for Erlang applications",
-          "example" : "common",
+          "description" : "configuration for Erlang application",
+          "example" : "mqtt_common,mqtt_rest",
           "explode" : false,
           "in" : "query",
           "name" : "app",
           "required" : false,
           "schema" : {
-            "type" : "string",
-            "uniqueItems" : false
+            "items" : {
+              "type" : "string"
+            },
+            "type" : "array",
+            "uniqueItems" : true
           },
           "style" : "form"
         } ],
@@ -443,6 +498,36 @@
           }
         },
         "summary" : "Get server configuration",
+        "tags" : [ "server" ]
+      }
+    },
+    "/server/checksession" : {
+      "get" : {
+        "description" : "Returns a session object",
+        "operationId" : "getSession",
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Session"
+                }
+              }
+            },
+            "description" : "Successful operation"
+          },
+          "400" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Error"
+                }
+              }
+            },
+            "description" : "Invalid request"
+          }
+        },
+        "summary" : "Get web session status",
         "tags" : [ "server" ]
       }
     }
@@ -559,6 +644,18 @@
           "$ref" : "#/components/schemas/Application"
         },
         "type" : "array"
+      },
+      "Session" : {
+        "example" : {
+          "user" : "user"
+        },
+        "properties" : {
+          "user" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "user" ],
+        "type" : "object"
       },
       "Error" : {
         "example" : {

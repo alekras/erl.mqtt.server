@@ -15,6 +15,7 @@
 %%
 -module(mqtt_rest).
 -behaviour(application).
+-include("mqtt_web.hrl").
 
 -export([start/2]).
 -export([stop/1]).
@@ -22,6 +23,7 @@
 start(_Type, _Args) ->
 	Port = application:get_env(mqtt_rest, port, 8080),
 	lager:info([{endtype, server}], "Start mqtt_rest app = ~p Port:~p.~n", [_Args, Port]),	
+	ets:new(sessionTable, [set, public, named_table, {keypos, #session.id}]),
 	mqtt_rest_server:start(mqtt_rest, #{transport_opts => [{ip,{0,0,0,0}}, {port,Port}]}).
 
 stop(_State) ->

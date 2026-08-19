@@ -51,4 +51,3 @@ const TextInput = ({ placeholder, label, inpName, inpType, initVal, sendChange, 
 		);
 };
 
-//export default TextInput;
