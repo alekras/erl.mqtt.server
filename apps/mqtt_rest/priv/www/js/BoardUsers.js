@@ -3,194 +3,179 @@
  */
 'use strict';
 
-class BoardUsers extends React.Component {
-	constructor(props) {
-		super(props);
-		this.state = {
-			newUser:'',
-			addUserBoxDisplay: false
-		};
-		RestAPI.get_users(0, 100, this.handleSuccessUsers, this.handleErrorUsers);
-	}
-		
-	static users = [];
+const BoardUsers = ({parent, loginUser}) => {
+	const [newUser, setNewUser] = React.useState('');
+	const [roles, setRoles] = React.useState([]);
+	const [addUserBoxDisplay, setAddUserBoxDisplay] = React.useState(false);
+	const [type, setType] = React.useState('');
+	const [warningBoxDisplay, setWarningBoxDisplay] = React.useState(false);
+	const [boxType, setBoxType] = React.useState('');
+	const [boxText, setBoxText] = React.useState('');
+	const [boxFunc, setBoxFunc] = React.useState(() => {});
+	const [users, setUsers] = React.useState([]);
 
-	handleChange(event) {
-		this.setState({newUser: event.target.value});
+	const handleChange = (event) => {
+		setNewUser(event.target.value);
 //		console.log('BoardUsers Event comes:: ' + event.target.value + ', ' + event.target.name);
 		event.preventDefault();
 	}
 
 // users: [{"status":"off","roles":["USER","ADMIN"],"user_name":"echo"}, ...]
-	handleSuccessUsers = (json) => {
+	const handleSuccessUsers = (json) => {
 //		console.log('Response GET -> users:: ' + JSON.stringify(json));
-		BoardUsers.users = json;
-		this.setState({});
+		setUsers(json);
 	}
 	
-	handleErrorUsers = (error) => {
+	const handleErrorUsers = (error) => {
 		console.log('Error during get users')
 	}
+
+	React.useEffect(() => {
+			RestAPI.get_users(0, 100, handleSuccessUsers, handleErrorUsers);
+		},
+		[]
+	);
 	
-	clickToAddUser = (event) => {
-		if (this.props.login_user.roles.includes('ADMIN')) {
-			this.setState({addUserBoxDisplay:true, type:'save'});
+	const clickToAddUser = (event) => {
+		if (loginUser.roles.includes('ADMIN')) {
+			setAddUserBoxDisplay(true);
+			setType('save');
 		} else {
-			this.props.warnBox.setLayout(
-				'warn',
-				'Only user with "ADMIN" role can add an users.',
-				this.props.parent.current.getBoundingClientRect()
-			);
+			setWarningBoxDisplay(true);
+			setBoxType('warn');
+			setBoxText('Only user with "ADMIN" role can add an users.');
 		}
 	}
 	
-	clickToUpdateUser = (event, userName) => {
-		if (this.props.login_user.roles.includes('ADMIN')) {
+	const clickToUpdateUser = (event, userName) => {
+		if (loginUser.roles.includes('ADMIN')) {
 			if (userName == 'echo' || userName == 'guest') {
-				this.props.warnBox.setLayout(
-					'warn',
-					'You cannot update system defined user "' + userName + '.',
-					this.props.parent.current.getBoundingClientRect()
-				);
+				setWarningBoxDisplay(true);
+				setBoxType('warn');
+				setBoxText('You cannot update system defined user "' + userName + '".');
 				return;
 			}	
 // find user's record:
-			let user = BoardUsers.users.find((record) => {return (record.user_name === userName);});
-			this.setState({addUserBoxDisplay:true, type:'update', newUser:user.user_name, roles:user.roles});
+			let user = users.find((record) => {return (record.user_name === userName);});
+			setAddUserBoxDisplay(true);
+			setType('update');
+			setNewUser(user.user_name);
+			setRoles(user.roles);
 		} else {
-			this.props.warnBox.setLayout(
-				'warn',
-				'Only user with "ADMIN" role can update an users.',
-				this.props.parent.current.getBoundingClientRect()
-			);
+			setWarningBoxDisplay(true);
+			setBoxType('warn');
+			setBoxText('Only user with "ADMIN" role can update an users.');
 		}
 	}
 
-	handleSuccessUser = (json, user_name) => {
-		if (this.state.type === 'save') {
-			this.handleSuccessAddUser(json, user_name);
-		} else if (this.state.type === 'update') {
-			this.handleSuccessUpdateUser(json, user_name);
+	const handleSuccessUser = (json, user_name) => {
+		if (type === 'save') {
+			handleSuccessAddUser(json, user_name);
+		} else if (type === 'update') {
+			handleSuccessUpdateUser(json, user_name);
 		}
 	}
 	
-	handleSuccessAddUser = (json, user_name) => {
+	const handleSuccessAddUser = (json, user_name) => {
 		console.log('Success: user_name=' + user_name + ', ' + JSON.stringify(json));
 		if (json.code && json.code === 400) {
-			this.props.warnBox.setLayout(
-				'warn', 
-				'This user name already exists.<br/>Please try another.', 
-				this.props.parent.current.getBoundingClientRect()
-			);
+			setWarningBoxDisplay(true);
+			setBoxType('warn');
+			setBoxText('This user name already exists.<br/>Please try another.');
 		} else {
-			this.props.warnBox.setLayout(
-				'warn', 
-				'User "' + user_name + '" is successfully added.', 
-				this.props.parent.current.getBoundingClientRect()
-			);
-			this.clickToRefresh();
+			setWarningBoxDisplay(true);
+			setBoxType('warn');
+			setBoxText('User "' + user_name + '" is successfully added.');
+			clickToRefresh();
 		}
 	}
 	
-	handleSuccessUpdateUser = (json, user_name) => {
+	const handleSuccessUpdateUser = (json, user_name) => {
 		console.log('Success Update: user_name=' + user_name + ', ' + JSON.stringify(json));
 		if (json.code && json.code === 404) {
-			this.props.warnBox.setLayout(
-				'warn', 
-				'This user name not found.<br/>Please try another.', 
-				this.props.parent.current.getBoundingClientRect()
-			);
+			setWarningBoxDisplay(true);
+			setBoxType('warn');
+			setBoxText('This user name not found.<br/>Please try another.');
 		} else {
-			this.props.warnBox.setLayout(
-				'warn', 
-				'User "' + user_name + '" is successfully updated.', 
-				this.props.parent.current.getBoundingClientRect()
-			);
-			this.clickToRefresh();
+			setWarningBoxDisplay(true);
+			setBoxType('warn');
+			setBoxText('User "' + user_name + '" is successfully updated.');
+			clickToRefresh();
 		}
 	}
 	
-	handleErrorAddOrUpdateUser = (error) => {
-		console.log('Error during add/update new contact');
+	const handleErrorAddOrUpdateUser = (error) => {
+		console.log('Error during add/update new contact: ' + error);
 	}
 	
-	handleUserBoxClose = (event) => {
-		this.setState({addUserBoxDisplay:false, newUser:''});
+	const handleUserBoxClose = (event) => {
+		setAddUserBoxDisplay(false);
+		setNewUser('');
+		setRoles([]);
 	}
 	
-	clickToRefresh = (event) => {
-		RestAPI.get_users(0, 100, this.handleSuccessUsers, this.handleErrorUsers);
-		this.setState({newUser:''});
+	const handleWarningBoxClose = (event) => {
+		setWarningBoxDisplay(false);
+		setNewUser('');
+		setRoles([]);
 	}
 	
-	clickToRemove = (event, userName) => {
-		if (!this.props.login_user.roles.includes('ADMIN')) {
-			this.props.warnBox.setLayout(
-				'warn',
-				'Only user with "ADMIN" role can delete an users.',
-				this.props.parent.current.getBoundingClientRect()
-			);
-			console.log('login user does not ADMIN');
+	const clickToRefresh = (event) => {
+		RestAPI.get_users(0, 100, handleSuccessUsers, handleErrorUsers);
+		setNewUser('');
+		setRoles([]);
+	}
+	
+	const clickToRemove = (event, userName) => {
+		if (!loginUser.roles.includes('ADMIN')) {
+			setWarningBoxDisplay(true);
+			setBoxType('warn');
+			setBoxText('Only user with "ADMIN" role can delete an users.');
 			return;
 		}
 		if (userName == 'echo' || userName == 'guest' || userName == 'admin') {
-			this.props.warnBox.setLayout(
-				'warn',
-				'You cannot remove system defined user "' + userName + '" from users list. ',
-				this.props.parent.current.getBoundingClientRect()
-			);
+			setWarningBoxDisplay(true);
+			setBoxType('warn');
+			setBoxText('You cannot remove system defined user "' + userName + '" from users list.');
 		} else {
-			this.props.warnBox.setLayout(
-				'confirm',
-				'Do you want to remove "' + userName + '" from users list?',
-				this.props.parent.current.getBoundingClientRect(),
-				(arg) => {
+			setWarningBoxDisplay(true);
+			setBoxType('confirm');
+			setBoxText('Do you want to remove "' + userName + '" from users list?');
+			setBoxFunc(() => (arg) => {
 					if (arg) {
 						RestAPI.remove_user(
 						userName, 
-						this.handleSuccessRemoveUser, 
-						this.handleErrorRemoveUser)
+						handleSuccessRemoveUser, 
+						handleErrorRemoveUser)
 					}
-				} 
-			);
+				});
 		}
 	}
 	
-	handleSuccessRemoveUser = (json, user) => {
+	const handleSuccessRemoveUser = (json, user) => {
 		console.log('Response Remove -> user:' + user + ', json:' + JSON.stringify(json));
 		if (json.code && json.code === 404) {
-			this.props.warnBox.setLayout(
-				'warn', 
-				'This user "' + user + '"does not exist.', 
-				this.props.parent.current.getBoundingClientRect()
-			);
+			setWarningBoxDisplay(true);
+			setBoxType('warn');
+			setBoxText('This user "' + user + '"does not exist.');
 		} else {
-			this.props.warnBox.setLayout(
-				'warn', 
-				'User "' + user + '" has successfully removed.', 
-				this.props.parent.current.getBoundingClientRect()
-			);
-			this.clickToRefresh();
+			setWarningBoxDisplay(true);
+			setBoxType('warn');
+			setBoxText('User "' + user + '" has successfully removed.');
+			clickToRefresh();
 		}
 	}
 	
-	handleErrorRemoveUser = (error) => {
+	const handleErrorRemoveUser = (error) => {
 		console.log('Error during remove contact:' + error);
 	}
-	
-	shouldComponentUpdate(nextProps, nextState) {
-		if (this.state !== nextState) {
-			return true;
-		}
-		return false;
-	}
 
-	renderControlHeader() {
+	const renderControlHeader= () => {
 		return e('tr', {key:0, align:'center', style:{backgroundColor:'rgb(156,222,228)'}}, [
 			e('td', {key:1, className:'td-users-header'}, 
 				e('div', {key:1,
 					className:'button btn-add',
-					onClick:(e)=>this.clickToAddUser(e)
+					onClick:clickToAddUser
 				})
 			),
 			e('td', {key:2}, 
@@ -198,59 +183,67 @@ class BoardUsers extends React.Component {
 					className:'text-input',
 					name:'new_user',
 					placeholder:'User name to add',
-					onChange:(e)=>this.handleChange(e),
-					value:this.state.newUser
+					onChange:handleChange,
+					value:newUser
 				})
 			),
 			e('td', {key:3, className:'td-users-header'}, 
 				e('div', {key:1,
 					className:'button btn-refresh',
-					onClick:(e)=>this.clickToRefresh(e)}
+					onClick:clickToRefresh}
 				)
 			)
 		]);
 	}
 	
 // users: [{"status":"off","roles":["USER","ADMIN"],"user_name":"echo"}, ...]
-	renderUsersBoard() {
+	const renderUsersBoard = () => {
 		let i = 0;
-		let rows = BoardUsers.users.map((user) => {
+		let rows = users.map((user) => {
 			i++;
 //			console.log('i:' + i + ' user name:' + user.user_name + ' status:' + user.status + ' roles:' + user.roles);
 			return e(Record, {key:i,
 				user:user.user_name,
 				status:user.status,
 				roles:user.roles,
-				clickToRemove:this.clickToRemove,
-				clickToUpdate:this.clickToUpdateUser});
+				clickToRemove:clickToRemove,
+				clickToUpdate:clickToUpdateUser});
 		});
 		return rows;
 	}
 	
-	render() {
-		let r1 = this.renderControlHeader();
-		let r2 = this.renderUsersBoard();
-		var r3;
+	let r1 = renderControlHeader();
+	let r2 = renderUsersBoard();
+	var r3 = null;
+	var r4 = null;
 
-		if (this.state.addUserBoxDisplay) {
-			r3 = 
-			e(AddUserBox, 
-				{
-					key:1,
-					type: this.state.type,
-					user_name: this.state.newUser,
-					roles: this.state.roles,
-					layout: this.props.parent.current.getBoundingClientRect(),
-					onSuccess: this.handleSuccessUser,
-					onError: this.handleErrorAddOrUpdateUser,
-					onBoxClose: this.handleUserBoxClose
-				}
-			)
-		} else {
-			r3 = null;
-		}
-		
-		return e(
+	if (addUserBoxDisplay) {
+		r3 = 
+		e(AddUserBox, 
+			{
+				key:1,
+				type: type,
+				user_name: newUser,
+				par_roles: roles,
+				layout: parent.current.getBoundingClientRect(),
+				onSuccess: handleSuccessUser,
+				onError: handleErrorAddOrUpdateUser,
+				onBoxClose: handleUserBoxClose
+			});
+	};
+	if (warningBoxDisplay) {
+		r4 =
+		e(WarningBox,
+			{
+				key:1,
+				type:boxType,
+				warning:boxText,
+				layout:parent.current.getBoundingClientRect(),
+				yesNoFun:boxFunc,
+				onBoxClose:handleWarningBoxClose
+			});
+	};
+	return e(
 			'table',
 			{
 				className:'tbl-users'
@@ -273,47 +266,44 @@ class BoardUsers extends React.Component {
 				),
 				e('tr', {key:3, height:'0px'}, 
 					e('td', {key:1, colSpan:'3'}, r3)
+				),
+				e('tr', {key:4, height:'0px'}, 
+					e('td', {key:1, colSpan:'3'}, r4)
 				)
 			])
 		);
-	}
 }
 
-class Record extends React.Component {
-	constructor(props) {
-		super(props);
-		this.state = {};
-	}
-	
-	render() {
-		let status;
-		let bgColor;
-		if (this.props.status === 'on') {
+const Record = ({user, roles, status, clickToUpdate, clickToRemove}) => {
+		var status, bgColor, bgColorUser;
+		if (status === 'on') {
 			status = 'online';
 			bgColor = 'Aquamarine';
-		} else if (this.props.status === 'off') {
+			bgColorUser = 'Aquamarine';
+		} else if (status === 'off') {
 			status = 'offline';
 			bgColor = '#FDD7E4'; //'LightSalmon';
+			bgColorUser = '#87CEEB';
 		}
-		return e('div', {key:1, colSpan:'3', className:'div-user-record'}, [
-			e('div', 
-				{key:1,
-				 className:'user-id-record',
-				 onClick:(e)=>this.props.clickToUpdate(e, this.props.user),
-				 style:{backgroundColor:'#87CEEB'}}, 
-				this.props.user),
-			e('div', {key:2, className:'user-roles-record'},
-				JSON.stringify(this.props.roles)),
-			e('div', 
-				{key:4,
-				 className:'button btn-remove',
-				 onClick:(e)=>this.props.clickToRemove(e, this.props.user)
-				}),
-			e('div', 
-				{key:3,
-				 className:'user-status-record',
-				 style:{backgroundColor:bgColor}
-				}, status)
+
+	return e('div', {key:1, colSpan:'3', className:'div-user-record'}, [
+		e('div', 
+			{key:1,
+			 className:'user-id-record',
+			 onClick:(e)=>clickToUpdate(e, user),
+			 style:{backgroundColor:bgColorUser}}, 
+			user),
+		e('div', {key:2, className:'user-roles-record'},
+			JSON.stringify(roles)),
+		e('div', 
+			{key:4,
+			 className:'button btn-remove',
+			 onClick:(e)=>clickToRemove(e, user)
+			}),
+		e('div', 
+			{key:3,
+			 className:'user-status-record',
+			 style:{backgroundColor:bgColor}
+			}, status)
 		]);
-	}
 }

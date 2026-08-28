@@ -1,13 +1,8 @@
 'use strict';
 
-class LandingPage extends React.Component {
+const LandingPage = () => {
 
-	constructor(props) {
-		super(props);
-		this.state = {};
-	}
-
-	getHtmlText() {
+	const getHtmlText = () => {
 		return `<h3>MQTT server monitoring tools</h3>
 				<h5>Features:</h5>
 				<dt>Login page</dt>
@@ -20,13 +15,10 @@ class LandingPage extends React.Component {
 			`;
 	}
 
-	render() {
-		return e(
-			'div',
-			{
-				className:'help',
-				dangerouslySetInnerHTML:{ __html: this.getHtmlText() }
-			}
-		);
-	}
+	return e('div',
+		{
+			className:'help',
+			dangerouslySetInnerHTML:{ __html: getHtmlText() }
+		}
+	);
 }

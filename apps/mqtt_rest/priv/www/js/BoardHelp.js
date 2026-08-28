@@ -3,13 +3,9 @@
  */
 'use strict';
 
-class BoardHelp extends React.Component {
-	constructor(props) {
-		super(props);
-		this.state = {};
-	}
+const BoardHelp = () => {
 	
-	getHtmlText() {
+const getHtmlText = () => {
 		return `<h3>1. Lets getting starting.</h3>
 			<h5>1.1 Login</h5>
 			<p>Click on "Login" menu item to open Login page. Then type user name and password.
@@ -92,13 +88,10 @@ class BoardHelp extends React.Component {
 			</p>`;
 	}
 	
-	render() {
-		return e(
-			'div',
-			{
-				className:'help',
-				dangerouslySetInnerHTML:{ __html: this.getHtmlText() }
-			}
-		)
-	}
+	return e('div',
+		{
+			className:'help',
+			dangerouslySetInnerHTML:{ __html: getHtmlText() }
+		}
+	)
 }

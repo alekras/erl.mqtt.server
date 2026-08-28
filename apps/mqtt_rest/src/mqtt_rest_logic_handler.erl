@@ -1,6 +1,5 @@
 -module(mqtt_rest_logic_handler).
 
--include_lib("kernel/include/logger.hrl").
 -include_lib("mqtt_common/include/mqtt.hrl").
 -include("mqtt_web.hrl").
 
@@ -156,10 +155,12 @@ accept_callback(_Class, 'createNewUser' = OperationID, Req0, Context0) ->
 			{false, Req2, Context0}
 	end;
 accept_callback(_Class, 'updateUser', Req0, Context0) ->
-	#{storage := Storage, 
-		user_name := User,
-		'User' := #{<<"password">> := Password, <<"roles">> := Roles},
-		user_record := User_record} = Context0,
+	#{
+			storage := Storage, 
+			user_name := User,
+			'User' := #{<<"password">> := Password, <<"roles">> := Roles}
+%%		,user_record := User_record
+		} = Context0,
 		{R, Response_map} =
 		case Storage:user(save, #user{user_id = User, password = Password, roles = Roles}) of
 			false ->
@@ -253,14 +254,15 @@ process_provide_callback('getUserList', Req, Context) ->
 	Inds = [ binary_to_integer(I) || I <- List_indexes],
 	lager:debug([{endtype, server}], "Inds: ~p~n", [Inds]),
 	Users = Storage:user(get_all, server),
-	UserStatus = fun(#user{user_id = User_name, password = _Pswd, roles = Roles} = U) -> 
-		S = case Storage:connect_pid(get, U, server) of
+	UserRespRecord = 
+	fun(#user{user_id = User_name, password = _Pswd, roles = Roles}) -> 
+		S = case Storage:connect_pid(get, User_name, server) of
 			P when is_pid(P) -> <<"on">>;
 			_ -> <<"off">>
 		end,
 		#{user_name => User_name, roles => Roles, status => S}
 	end,
-	L = [UserStatus(U) || U <- Users],
+	L = [UserRespRecord(U) || U <- Users],
 	{json:encode(L), Req, Context};
 
 process_provide_callback('getConfig', Req, Context) ->

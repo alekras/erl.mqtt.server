@@ -23,10 +23,8 @@ class RestAPI {
 			});
 		fetch(req)
 			.then(res => res.json())
-			.then(
-				handleSuccess,
-				handleError
-			);
+			.then(json => handleSuccess(json, state.userName))
+			.catch(err => handleError(err));
 	}
 	
 	static checkSession(handleSuccess, handleError) {
@@ -74,7 +72,7 @@ class RestAPI {
 		let req = new Request('/rest/user/' + state.user_name, {
 			method: 'POST', 
 			headers: headers,
-			body: JSON.stringify({password:state.password1, roles:state.roles})
+			body: JSON.stringify({password:state.password, roles:state.roles})
 			});
 		fetch(req)
 			.then(res => res.json())
