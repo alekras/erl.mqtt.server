@@ -52,7 +52,7 @@ api_key_callback(OperationID, ApiKey) ->
     lager:info([{endtype, server}], "api_key_callback Operation: ~p ApiKey: ~p~n", [OperationID, ApiKey]),
     case ApiKey of
         <<"mqtt">> -> {true, #{}};
-        _ -> {false, #{}}
+        _ -> {false, <<>>}
     end.
 
 resource_exist(OperationID, Req0, #state{context = Context0} = State) when 
@@ -213,7 +213,7 @@ provide_callback(_Class, OperationID, Req0, Context0) when
 provide_callback(Class, OperationID, Req, Context) ->
 	lager:error([{endtype, server}], "provide_callback::~n  class: ~p~n  OperationId: ~p~n  Request: ~p~n  Context: ~p~n",
 		[Class, OperationID, Req, Context]),
-		{<<"{}">>, Req, Context}.
+	{<<"{}">>, Req, Context}.
 
 process_provide_callback('getUserInfo', Req, Context) ->
 	#{user_record := User_record} = Context,

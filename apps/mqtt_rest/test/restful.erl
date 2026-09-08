@@ -298,6 +298,7 @@ checksession() ->
 	?assertEqual("{\"user\":\"Alexei\",\"roles\":[\"ADMIN\",\"USER\"]}", Body),
 	
 	?passed(["check session"]).
+
 headers() ->
 [
  {"X-Forwarded-For", "localhost"},

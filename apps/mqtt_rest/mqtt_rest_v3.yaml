@@ -419,7 +419,7 @@ components:
           type: string
           enum: ['on', 'off']
       required: 
-        - id
+        - user_name
     UserList:
       type: array
       items:

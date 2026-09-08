@@ -28,9 +28,8 @@ get_paths(LogicHandler) ->
 					{"/rest/v3/swagger-spec", cowboy_static, {priv_file, mqtt_rest, "openapi.json"}},
 					{"/rest/v3/[...]", cowboy_static, {priv_dir, mqtt_rest, "dist", [{mimetypes, cow_mimetypes, all}]}}
 				],
-    
-    [{P, H, {O, LogicHandler}} || {P, H, O} <- PreparedPaths]
-    )
+				[{P, H, {O, LogicHandler}} || {P, H, O} <- PreparedPaths]
+			)
     }].
 
 group_paths() ->
