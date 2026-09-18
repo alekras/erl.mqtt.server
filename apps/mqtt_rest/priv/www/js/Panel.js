@@ -109,7 +109,7 @@ const Panel = ({h, w}) => {
 	return e('table', 
 		{
 			className:'table',
-			style:{width:w, height:h}
+			style:{width:w, height:h, maxHeight:h}
 		},
 		e('tbody', {}, [
 			e('tr', {align:"center", key: 1}, [

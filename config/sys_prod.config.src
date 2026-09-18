@@ -65,7 +65,7 @@
 		{timeout, 102}
 	]},
 	{mnesia, [
-		{dir, ${MNESIA_DIR}},
+		{dir, "${MNESIA_DIR}"},
 		{schema_location, opt_disc}
 	]}
 ].

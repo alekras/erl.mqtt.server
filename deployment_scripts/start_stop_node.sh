@@ -10,12 +10,10 @@ export PORT_WS=8880 \
 export PORT_WSS=4443 \
 export CLUSTER_NODES="" \
 export MNESIA_MASTER=true
-export MNESIA_DIR="'/opt/mqtt/server/mnesia'" 
+export MNESIA_DIR="/opt/mqtt/server/mnesia" 
+
 echo "Script to start/stop node $NODE_NAME"
 echo "arguments: $1 $2"
-REBAR3="/opt/local/bin/rebar3"
-$REBAR3 do version
-
 
 case "$1" in
 	dev)

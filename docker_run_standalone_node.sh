@@ -3,11 +3,25 @@ export PORT_CLEAR=18883
 export PORT_REST=8080
 export PORT_WS=8880
 
+echo "arguments: $1 (dev | prod)"
+case "$1" in
+	dev)
+		RELEASE_NAME="mqtt_server_dev"
+		;;
+	prod)
+		RELEASE_NAME="mqtt_server"
+		;;
+	*)
+		echo "Usage: $0 [dev|prod]"
+		exit 1
+		;;
+esac
+
 docker run -it \
  -p "$PORT_CLEAR":"$PORT_CLEAR"/tcp \
  -p "$PORT_REST":"$PORT_REST"/tcp \
  -p "$PORT_WS":"$PORT_WS"/tcp \
- --name docker_container \
+ --name docker_container_mqtt \
  --hostname localhost \
  --net mqtt_net \
  --rm \
@@ -19,6 +33,6 @@ docker run -it \
  -e NODE_NAME=mqtt_server \
  -e CLUSTER_NODES="" \
  -e MNESIA_MASTER=true \
- -e MNESIA_DIR="'$MNESIA_DIR'" \
+ -e MNESIA_DIR="$MNESIA_DIR" \
  --mount type=bind,src="/opt/mqtt/server/mnesia",dst="$MNESIA_DIR" \
- mqtt_server_dev
+ $RELEASE_NAME
