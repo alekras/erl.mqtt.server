@@ -51,9 +51,9 @@
 		{port_tls, ${PORT_TLS}},
 		{port_ws, ${PORT_WS}},
 		{port_wss, ${PORT_WSS}},
-		{certfile, "/home/alexei/.ssh/lucky3p.com/certificate.crt"},
-		{cacertfile, "/home/alexei/.ssh/lucky3p.com/ca_bundle.crt"},
-		{keyfile, "/home/alexei/.ssh/lucky3p.com/private.key"},
+		{certfile, "${CERT_FILE}"},
+		{cacertfile, "${CA_CERT_FILE}"},
+		{keyfile, "${KEY_FILE}"},
 		{verify, verify_none}
 	]},
 	{mqtt_common, [

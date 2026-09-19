@@ -36,6 +36,6 @@ CMD bin/${RELEASE_NAME} console
 
 # Command from host terminal to build image
 #DEV:  docker build --build-arg RELEASE_NAME=mqtt_server_dev -t mqtt_server_dev --file Dockerfile .
-#PROD: docker build --build-arg RELEASE_NAME=mqtt_server -t mqtt_server_dev --file Dockerfile .
+#PROD: docker build --build-arg RELEASE_NAME=mqtt_server -t mqtt_server --file Dockerfile .
 
 # docker run -it --rm erlang:slim erl

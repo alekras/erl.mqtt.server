@@ -18,14 +18,21 @@ echo "arguments: $1 $2"
 case "$1" in
 	dev)
 		cd _build/default/rel/mqtt_server_dev
+		export CERT_FILE="tls_cnfg/server/cert.pem"
+		export CA_CERT_FILE="tls_cnfg/server/cacerts.pem"
+		export KEY_FILE="tls_cnfg/server/key.pem"
 		SCRIPT_NAME="./bin/mqtt_server_dev"
 		;;
 	prod)
 		cd _build/default/rel/mqtt_server
+		export CERT_FILE="/home/alexei/.ssh/lucky3p.com/certificate.crt"
+		export CA_CERT_FILE="/home/alexei/.ssh/lucky3p.com/ca_bundle.crt"
+		export KEY_FILE="/home/alexei/.ssh/lucky3p.com/private.key"
 		SCRIPT_NAME="./bin/mqtt_server"
 		;;
 	*)
 		echo "Usage: $0 [dev|prod] [start|stop|console]"
+		exit 1
 		;;
 esac
 

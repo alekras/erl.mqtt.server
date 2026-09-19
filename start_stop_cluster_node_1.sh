@@ -11,23 +11,28 @@ export PORT_WSS=4444 \
 export CLUSTER_NODES="'mqtt_server_0@MacBook-Pro','mqtt_server_1@MacBook-Pro'" \
 export MNESIA_MASTER=false \
 export MNESIA_DIR="'/opt/mqtt/cluster/node_1/mnesia'" 
+
 echo "Script to start/stop node $NODE_NAME of cluster"
 echo "arguments: $1 $2"
-REBAR3="/opt/local/bin/rebar3"
-$REBAR3 do version
-
 
 case "$1" in
 	dev)
 		cd _build/default/rel/mqtt_server_dev
+		export CERT_FILE="tls_cnfg/server/cert.pem"
+		export CA_CERT_FILE="tls_cnfg/server/cacerts.pem"
+		export KEY_FILE="tls_cnfg/server/key.pem"
 		SCRIPT_NAME="./bin/mqtt_server_dev"
 		;;
 	prod)
 		cd _build/default/rel/mqtt_server
+		export CERT_FILE="/home/alexei/.ssh/lucky3p.com/certificate.crt"
+		export CA_CERT_FILE="/home/alexei/.ssh/lucky3p.com/ca_bundle.crt"
+		export KEY_FILE="/home/alexei/.ssh/lucky3p.com/private.key"
 		SCRIPT_NAME="./bin/mqtt_server"
 		;;
 	*)
 		echo "Usage: $0 [dev|prod] [start|stop|console]"
+		exit
 		;;
 esac
 

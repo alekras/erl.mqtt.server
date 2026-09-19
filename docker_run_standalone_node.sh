@@ -7,9 +7,15 @@ echo "arguments: $1 (dev | prod)"
 case "$1" in
 	dev)
 		RELEASE_NAME="mqtt_server_dev"
+		export CERT_FILE="tls_cnfg/server/cert.pem"
+		export CA_CERT_FILE="tls_cnfg/server/cacerts.pem"
+		export KEY_FILE="tls_cnfg/server/key.pem"
 		;;
 	prod)
 		RELEASE_NAME="mqtt_server"
+		export CERT_FILE="/home/alexei/.ssh/lucky3p.com/certificate.crt"
+		export CA_CERT_FILE="/home/alexei/.ssh/lucky3p.com/ca_bundle.crt"
+		export KEY_FILE="/home/alexei/.ssh/lucky3p.com/private.key"
 		;;
 	*)
 		echo "Usage: $0 [dev|prod]"
@@ -34,5 +40,8 @@ docker run -it \
  -e CLUSTER_NODES="" \
  -e MNESIA_MASTER=true \
  -e MNESIA_DIR="$MNESIA_DIR" \
+ -e CERT_FILE="$CERT_FILE" \
+ -e CA_CERT_FILE="$CA_CERT_FILE" \
+ -e KEY_FILE="$KEY_FILE" \
  --mount type=bind,src="/opt/mqtt/server/mnesia",dst="$MNESIA_DIR" \
  $RELEASE_NAME
