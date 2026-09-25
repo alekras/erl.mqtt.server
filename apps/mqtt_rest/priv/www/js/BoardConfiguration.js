@@ -3,7 +3,7 @@
  */
 'use strict';
 
-const BoardConfiguration = ({}) => {
+const BoardConfiguration = ({h, w}) => {
 	const [configList, setConfigList] = React.useState([]);
 
 	const handleSuccess = (json) => {
@@ -49,13 +49,16 @@ const BoardConfiguration = ({}) => {
 				e('td', {key:1,colSpan:'2',}, '')
 		)
 	);
+	var h1 = '100%';
+	if (browserType() === 'FF') {
+		h1 = (h - 75) + 'px'
+	}
 		
-	return e(
-		'table',
-		{
-			className:'tbl-config'
-		}, 
-		e('tbody', {key:1}, rows)
+	return e('div', {style:{height: h1, overflow: 'auto'}}, 
+		e(
+			'table', {className:'tbl-config'}, 
+				e('tbody', {key:1}, rows)
+		)
 	);
 }
 

@@ -341,7 +341,11 @@ table tr td {
 .board-config-line {
 	width: 100%;
 	min-height: 100% !important;
-	height: 10pt; /* set */
+	height: 10px; /* set */
+	font-size: 10pt;
+	font-family: monospace;
+	font-style: normal;
+	font-weight: bold;
 	border: 0px solid black;
 	overflow: auto;
 }
@@ -350,9 +354,6 @@ table tr td {
 	width: 50%;
 	padding: 2px;
 	text-align: right;
-	font-size: 10pt;
-	font-family: monospace;
-	font-style: normal;
 	font-weight: bold;
 	overflow: auto;
 }
@@ -360,6 +361,7 @@ table tr td {
 .board-config-line-value {
 	width: 50%;
 	padding: 2px;
+	font-weight: normal;
 	overflow: auto;
 }
 
@@ -466,7 +468,7 @@ table tr td {
 	height: 23px;
 	width: 98px;
 	background-color: white;
-	background-image: url("/mqtt/img/empty_positivessl_trust_seal_sm_124x32.png");
+	background-image: url("/mqtt/img/positivessl_trust_seal_sm_124x32.png");
 	background-repeat:no-repeat;
 	background-size:contain;
 }

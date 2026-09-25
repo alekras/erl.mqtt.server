@@ -85,18 +85,19 @@ const Panel = ({h, w}) => {
 				});
 			break;
 		case 'Help' :
-			board = e(BoardHelp, {key:1});
+			board = e(BoardHelp, {key:1, w:w, h:h});
 			break;
 		case 'Users' :
 			board = e(BoardUsers,
 				{
 					parent:parentTd,
-					loginUser:loginUser
+					loginUser:loginUser,
+					w:w, h:h
 				});
 			break;
 		case 'Configuration' :
 			board = e(BoardConfiguration, 
-					{key: 1});
+					{key: 1, w:w, h:h});
 			break;
 		case 'Logout' :
 			board = e(LandingPage, {key: 1}, null);
@@ -109,7 +110,7 @@ const Panel = ({h, w}) => {
 	return e('table', 
 		{
 			className:'table',
-			style:{width:w, height:h, maxHeight:h}
+			style:{width:w + 'px', height:h + 'px', maxHeight:h + 'px'}
 		},
 		e('tbody', {}, [
 			e('tr', {align:"center", key: 1}, [

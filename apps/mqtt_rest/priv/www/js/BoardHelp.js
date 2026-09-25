@@ -3,7 +3,7 @@
  */
 'use strict';
 
-const BoardHelp = () => {
+const BoardHelp = ({h, w}) => {
 	
 const getHtmlText = () => {
 		return `<h3>1. Lets getting starting.</h3>
@@ -87,10 +87,15 @@ const getHtmlText = () => {
 			<p>
 			</p>`;
 	}
+	var h1 = '100%';
+	if (browserType() === 'FF') {
+		h1 = (h - 98) + 'px'
+	}
 	
 	return e('div',
 		{
 			className:'help',
+			style:{height: h1},
 			dangerouslySetInnerHTML:{ __html: getHtmlText() }
 		}
 	)

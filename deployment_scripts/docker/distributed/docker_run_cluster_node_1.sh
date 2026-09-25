@@ -1,4 +1,5 @@
 export MNESIA_DIR=/opt/mqtt/server/mnesia
+
 docker run -it \
  -p 28883:18883/tcp \
  --name docker_container_1 \
@@ -13,10 +14,12 @@ docker run -it \
  -e NODE_NAME=mqtt_server \
  -e CLUSTER_NODES="'mqtt_server@docker_container_0','mqtt_server@docker_container_1'" \
  -e MNESIA_MASTER=false \
- -e MNESIA_DIR="'$MNESIA_DIR'" \
+ -e MNESIA_DIR="$MNESIA_DIR" \
  -e CERT_FILE="tls_cnfg/server/cert.pem" \
  -e CA_CERT_FILE="tls_cnfg/server/cacerts.pem" \
  -e KEY_FILE="tls_cnfg/server/key.pem" \
-# --mount type=bind,src="$HOME"/MyData/mqtt/cluster/node_1/mnesia,dst="$MNESIA_DIR" \
- --mount type=volume,src=mnesia-volume-1,dst="$MNESIA_DIR" \
+ --mount type=volume,src=mnesia-volume-b,dst="$MNESIA_DIR" \
  mqtt_server_dev
+
+ # --mount type=bind,src="$HOME"/MyData/mqtt/cluster/node_1/mnesia,dst="$MNESIA_DIR" \
+ 

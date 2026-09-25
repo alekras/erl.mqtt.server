@@ -5,7 +5,7 @@
 erl \
  -pa _build/default/lib/*/ebin \
  -boot start_sasl \
- -config config/sys_mqtt \
+ -config config/sys \
  -sname mqtt_server@localhost \
  -s ssl \
  -eval "application:ensure_all_started(mqtt_server)" \

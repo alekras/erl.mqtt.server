@@ -3,7 +3,7 @@
  */
 'use strict';
 
-const BoardUsers = ({parent, loginUser}) => {
+const BoardUsers = ({parent, loginUser, h, w}) => {
 	const [newUser, setNewUser] = React.useState('');
 	const [roles, setRoles] = React.useState([]);
 	const [addUserBoxDisplay, setAddUserBoxDisplay] = React.useState(false);
@@ -243,6 +243,11 @@ const BoardUsers = ({parent, loginUser}) => {
 				onBoxClose:handleWarningBoxClose
 			});
 	};
+	var h1 = '100%';
+	if (browserType() === 'FF') {
+		h1 = (h - 90 - 48) + 'px'
+	}
+	
 	return e(
 			'table',
 			{
@@ -261,7 +266,7 @@ const BoardUsers = ({parent, loginUser}) => {
 				),
 				e('tr', {key:2}, 
 					e('td', {key:1, colSpan:'3'},
-						e('div', {key:1, className:'board-users'}, r2)
+						e('div', {key:1, className:'board-users', style:{height: h1}}, r2)
 					)
 				),
 				e('tr', {key:3, height:'0px'}, 
