@@ -32,7 +32,7 @@ EXPOSE 4443
 
 # Command to run the Erlang application release
 ENV RELEASE_NAME=$RELEASE_NAME
-CMD bin/${RELEASE_NAME} console
+CMD ["sh", "-c", "bin/${RELEASE_NAME} console"]
 
 # Command from host terminal to build image
 #DEV:  docker build --build-arg RELEASE_NAME=mqtt_server_dev -t mqtt_server_dev --file Dockerfile .

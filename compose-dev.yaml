@@ -8,9 +8,9 @@ x-common-environment: &common-env
   NODE_NAME: mqtt_server
   CLUSTER_NODES: "'mqtt_server@docker_container_0','mqtt_server@docker_container_1'"
   MNESIA_DIR: "/opt/mnesia_data"
-  CERT_FILE: "/.ssh/certificate.crt"
-  CA_CERT_FILE: "/.ssh/ca_bundle.crt"
-  KEY_FILE: "/.ssh/private.key"
+  CERT_FILE: "tls_cnfg/server/cert.pem"
+  CA_CERT_FILE: "tls_cnfg/server/cacerts.pem"
+  KEY_FILE: "tls_cnfg/server/key.pem"
 
 services:
   mqtt-service-0:
@@ -25,7 +25,6 @@ services:
       - "18883"  # Internal port mqtt server listens on
     volumes:
       - mnesia-volume-0:/opt/mnesia_data
-      - /home/alexei/.ssh/lucky3p.com:/.ssh
 #      - ${HOME}/MyData/mqtt/cluster/node_0/mnesia:/opt/mnesia_data
     networks:
       - mqtt_net
@@ -42,7 +41,6 @@ services:
       - "18883"  # Internal port mqtt server listens on
     volumes:
       - mnesia-volume-1:/opt/mnesia_data
-      - /home/alexei/.ssh/lucky3p.com:/.ssh
 #      - ${HOME}/MyData/mqtt/cluster/node_1/mnesia:/opt/mnesia_data
     networks:
       - mqtt_net
@@ -69,4 +67,4 @@ volumes:
   mnesia-volume-1:
     name: mnesia-volume-1
 
-# docker compose -f compose.yaml up
+# docker compose -f compose-dev.yaml up
